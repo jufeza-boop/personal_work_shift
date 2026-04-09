@@ -1,0 +1,53 @@
+app personal_work_shift.
+Especificacion funcional:
+Se trata de una aplicación para apuntar los horarios de toda la familia, y que todos los meimbros puedan tener la info actualizada.
+Debe tener:
+    Gestion de usuario registro - login - logout. Familia varios usuarios comparten la misma familia, y un usuario puede pertenecer a varias familias.
+    Calendario - se mostrará el de toda la familia, tendrá unos cheks que permitan mostrar/ocultar eventos de cada uno de los miembros de la familia.
+    evento: Cuando se de de alta habra 2 tipos:
+                Puntual: solo una vez. no tiene color, se mostrará solo el texto. se puede poner hora inicio y fin.
+                Períodico: cada x días, x semanas, anual.
+                    dentro de los periodicos, podrá ser:
+                        Laboral/estudios:
+                            Los colores deben ser pastel y cada miebro podrá elegir una gama de colores que no se podrá compartir.
+                            Se mostrara todo el recuadro de ese día de ese color, si coniciden varios miebros se mostrarán todos los colores partiendo el recuadro las veces que sea necesario.
+                            Se podra definir turno, Dia/Noche/Mañana/Tarde cada uno tendrá un tono del color del miembro.
+                        Otros:
+                            no tiene color, se mostrará solo el texto, se puede poner hora inicio y fin.
+            lOS eventos se podran añadir, editar y borrar pero solo el usuario que los crea. (se pueden crear usuarios delegados para hijos)
+            en el caso de eventos periodicos, antes de borrar/editar, se tendrá que pedir al usuario si quiere editar/borrar el día selecionado o toda la secuencia.
+    Todos los eventos deben estar visibles para los miembros de esa familia en el calendario.
+    Tiene que haber un panel para seleccionar familia (el nombre puede ser modificado, es decirt una familia no tiene porque ser familiares, puede se colegas, gente del trabajo etc), en caso de tener más de una.
+    Debe poder selecionarse el idioma entre inglés y español, por defecto español.
+Especificación técnica.
+# Stack Tecnológico - App de Turnos
+
+| Componente | Tecnología Seleccionada |
+| :--- | :--- |
+| **Lenguaje** | **TypeScript** (Tipado estricto para lógica de ciclos y fechas) |
+| **Frontend Framework** | **Next.js 15+** (App Router y Server Components) |
+| **Interfaz de Usuario** | **Tailwind CSS + Shadcn/ui** (Componentes de calendario y formularios) |
+| **Capa PWA** | **Serwist** (Service Workers para modo offline y caché local) |
+| **Base de Datos** | **PostgreSQL** (Via Supabase para persistencia relacional) |
+| **Seguridad de Datos** | **PostgreSQL RLS** (Políticas de seguridad a nivel de fila) |
+| **Autenticación** | **Supabase Auth** (Gestión de identidad y sesiones seguras) |
+| **Sincronización** | **WebSockets (Realtime)** (Actualización de datos en vivo) |
+
+
+# Infraestructura de Despliegue - App de Turnos
+
+| Capa | Plataforma / Servicio |
+| :--- | :--- |
+| **Entorno de Ejecución** | **Vercel Edge Network** (Alojamiento del frontend y la lógica de la PWA) |
+| **Gestión de Datos** | **Supabase Cloud** (Base de Datos PostgreSQL gestionada) |
+| **API & Serverless** | **Vercel Serverless Functions** (Para procesos asíncronos y backend ligero) |
+| **Repositorio de Código** | **GitHub** (Repositorio privado con control de versiones) |
+| **Pipeline de CI/CD** | **GitHub Actions + Vercel Integration** (Despliegue automático) |
+| **Gestión de Activos** | **Supabase Storage** (Para almacenamiento de iconos y perfiles) |
+| **Seguridad en Red** | **Cifrado SSL/TLS 1.3** (Protocolo de transporte seguro) |
+| **Notificaciones** | **Web Push API** (Servidor de notificaciones nativas en Android) |
+
+
+Arquitectura:
+    Clean.
+
