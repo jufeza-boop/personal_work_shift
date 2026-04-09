@@ -8,7 +8,7 @@
 
 ## Current State
 
-- **Phase**: 0 — bootstrap completed except remote GitHub branch protection
+- **Phase**: 1 — domain layer completed
 - **Last Updated**: 2026-04-09
 
 ---
@@ -41,6 +41,12 @@
 - Fixed `.github/workflows/ci.yml` by removing `secrets.*` checks from the job-level `if` condition in `deploy`
 - GitHub Actions accepted the workflow after moving the Vercel-secret presence check into a dedicated step that sets an output flag
 
+### 2026-04-09 - Phase 1 Domain Layer
+
+- Implemented `User`, `Family`, `Event`, `PunctualEvent`, and `RecurringEvent` domain entities with validation-focused business rules
+- Added `ShiftType`, `ColorPalette`, and `EventFrequency` value objects plus repository interfaces and explicit domain rules for event ownership and color exclusivity
+- Completed Phase 1 using TDD with dedicated Vitest coverage for entities, value objects, rules, and repository contracts
+
 ---
 
 ## Active Patterns
@@ -48,6 +54,7 @@
 - Next.js App Router stays in `src/app`, while reusable UI lives in `src/presentation`
 - Public environment variables are validated through `src/shared/config/env.ts`
 - Phase 0 smoke coverage includes a landing-page render test and environment validation test
+- Domain entities and value objects use constructor/static factory validation and keep framework-free business logic inside `src/domain`
 
 ---
 
@@ -100,3 +107,4 @@ _(None yet — tables defined in architecture doc, pending implementation)_
 - Apply branch protection rules in GitHub using `.github/branch-protection-rules.md`
 - Begin Phase 1 by defining domain entities, value objects, and repository interfaces with TDD
 - Begin Phase 1: Domain Layer entities
+- Begin Phase 2 with Supabase schema design and repository implementations for the new domain contracts
