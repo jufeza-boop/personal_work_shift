@@ -2,17 +2,17 @@
 
 ## Phase 0: Project Bootstrap
 
-- [ ] Initialize Next.js 15+ project with TypeScript strict mode
-- [ ] Configure Tailwind CSS + Shadcn/ui
-- [ ] Set up ESLint + Prettier with project rules
-- [ ] Configure Vitest + React Testing Library for testing
-- [ ] Set up project folder structure (Clean Architecture layers)
-- [ ] Initialize Supabase project (local development with Supabase CLI)
-- [ ] Configure environment variables (.env.local, .env.example)
-- [ ] Set up Serwist for PWA support
+- [x] Initialize Next.js 15+ project with TypeScript strict mode
+- [x] Configure Tailwind CSS + Shadcn/ui
+- [x] Set up ESLint + Prettier with project rules
+- [x] Configure Vitest + React Testing Library for testing
+- [x] Set up project folder structure (Clean Architecture layers)
+- [x] Initialize Supabase project (local development with Supabase CLI)
+- [x] Configure environment variables (.env.local, .env.example)
+- [x] Set up Serwist for PWA support
 - [ ] Configure GitHub repository + branch protection rules
-- [ ] Set up GitHub Actions CI/CD pipeline (lint, test, build, deploy)
-- [ ] Create `.gitignore` with all necessary exclusions
+- [x] Set up GitHub Actions CI/CD pipeline (lint, test, build, deploy)
+- [x] Create `.gitignore` with all necessary exclusions
 
 ---
 

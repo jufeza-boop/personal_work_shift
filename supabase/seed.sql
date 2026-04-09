@@ -1,0 +1,1 @@
+-- Seed data will be added alongside the first migrations.

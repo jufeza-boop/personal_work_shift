@@ -1,0 +1,9 @@
+.next
+coverage
+doc
+agents.md
+node_modules
+package-lock.json
+public/sw.js
+public/workbox-*.js
+supabase/.temp
