@@ -18,21 +18,21 @@
 
 ## Phase 1: Domain Layer
 
-- [ ] Define `User` entity with business rules
-- [ ] Define `Family` entity with business rules
-- [ ] Define `Event` base entity (abstract)
-- [ ] Define `PunctualEvent` entity extending Event
-- [ ] Define `RecurringEvent` entity extending Event
-- [ ] Define `ShiftType` value object (Day/Night/Morning/Afternoon)
-- [ ] Define `ColorPalette` value object with pastel palettes
-- [ ] Define `EventFrequency` value object (daily, weekly, annual)
-- [ ] Define `IUserRepository` interface
-- [ ] Define `IFamilyRepository` interface
-- [ ] Define `IEventRepository` interface
-- [ ] Implement domain rule: event ownership validation
-- [ ] Implement domain rule: color palette exclusivity within family
-- [ ] Write unit tests for all entities and value objects
-- [ ] Write unit tests for all domain rules
+- [x] Define `User` entity with business rules
+- [x] Define `Family` entity with business rules
+- [x] Define `Event` base entity (abstract)
+- [x] Define `PunctualEvent` entity extending Event
+- [x] Define `RecurringEvent` entity extending Event
+- [x] Define `ShiftType` value object (Day/Night/Morning/Afternoon)
+- [x] Define `ColorPalette` value object with pastel palettes
+- [x] Define `EventFrequency` value object (daily, weekly, annual)
+- [x] Define `IUserRepository` interface
+- [x] Define `IFamilyRepository` interface
+- [x] Define `IEventRepository` interface
+- [x] Implement domain rule: event ownership validation
+- [x] Implement domain rule: color palette exclusivity within family
+- [x] Write unit tests for all entities and value objects
+- [x] Write unit tests for all domain rules
 
 ---
 
