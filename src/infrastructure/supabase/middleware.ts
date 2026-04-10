@@ -24,8 +24,12 @@ export async function updateAuthSession(
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => {
-            request.cookies.set(name, value);
+          cookiesToSet.forEach(({ name, options, value }) => {
+            request.cookies.set({
+              ...options,
+              name,
+              value,
+            });
           });
 
           response = NextResponse.next({
