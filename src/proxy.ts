@@ -18,7 +18,7 @@ function copyCookies(from: NextResponse, to: NextResponse): NextResponse {
 export async function proxy(request: NextRequest) {
   if (isMockAuthEnabled()) {
     const sessionId = request.cookies.get(MOCK_SESSION_COOKIE)?.value;
-    const isAuthenticated = sessionId ? findMockUserById(sessionId) !== null : false;
+    const isAuthenticated = Boolean(sessionId && findMockUserById(sessionId));
     const redirectPath = resolveAuthRedirect(
       request.nextUrl.pathname,
       isAuthenticated,

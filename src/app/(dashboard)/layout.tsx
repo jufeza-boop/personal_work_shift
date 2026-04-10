@@ -3,6 +3,8 @@ import { logoutAction } from "@/app/actions/auth";
 import { getAuthenticatedUser } from "@/infrastructure/auth/runtime";
 import { Button } from "@/presentation/components/ui/button";
 
+const CALENDAR_REDIRECT_PATH = encodeURIComponent("/calendar");
+
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
@@ -13,7 +15,7 @@ export default async function DashboardLayout({
   const user = await getAuthenticatedUser();
 
   if (!user) {
-    redirect("/login?redirectTo=%2Fcalendar");
+    redirect(`/login?redirectTo=${CALENDAR_REDIRECT_PATH}`);
   }
 
   return (

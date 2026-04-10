@@ -78,10 +78,7 @@ export class SupabaseAuthAdapter implements IAuthService {
     });
 
     if (error) {
-      if (
-        error.message.toLowerCase().includes("invalid login credentials") ||
-        error.status === 400
-      ) {
+      if (error.message.toLowerCase().includes("invalid login credentials")) {
         return {
           error: {
             code: "INVALID_CREDENTIALS",
