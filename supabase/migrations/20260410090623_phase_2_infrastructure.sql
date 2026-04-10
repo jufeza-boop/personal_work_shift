@@ -116,6 +116,9 @@ create table public.event_exceptions (
   )
 );
 
+comment on column public.event_exceptions.override_data is
+  'Per-occurrence field overrides stored as a JSON object when a recurring event instance changes without being deleted.';
+
 create index users_delegated_by_user_id_idx on public.users (delegated_by_user_id);
 create index families_created_by_idx on public.families (created_by);
 create index family_members_family_id_idx on public.family_members (family_id);

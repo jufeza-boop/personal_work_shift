@@ -28,17 +28,27 @@ const FAMILY_SELECT = `
 `;
 
 function mapFamily(row: FamilyRowWithMembers): Family {
-  return new Family({
-    createdBy: row.created_by,
-    id: row.id,
-    members: row.family_members.map((member) => ({
+  const ownerMember = {
+    colorPalette: null,
+    delegatedByUserId: null,
+    role: "owner" as const,
+    userId: row.created_by,
+  };
+  const nonOwnerMembers = row.family_members
+    .filter((member) => member.user_id !== row.created_by)
+    .map((member) => ({
       colorPalette: member.color_palette
         ? ColorPalette.create(member.color_palette)
         : null,
       delegatedByUserId: member.delegated_by_user_id,
       role: member.role,
       userId: member.user_id,
-    })),
+    }));
+
+  return new Family({
+    createdBy: row.created_by,
+    id: row.id,
+    members: [ownerMember, ...nonOwnerMembers],
     name: row.name,
   });
 }
@@ -103,6 +113,32 @@ export class SupabaseFamilyRepository implements IFamilyRepository {
 
     if (familyUpsert.error) {
       throw familyUpsert.error;
+    }
+
+    const existingMembersResponse = await this.client
+      .from("family_members")
+      .select("user_id")
+      .eq("family_id", family.id);
+
+    if (existingMembersResponse.error) {
+      throw existingMembersResponse.error;
+    }
+
+    const targetMemberIds = new Set(family.members.map((member) => member.userId));
+    const removedMemberIds = existingMembersResponse.data
+      .map((member) => member.user_id)
+      .filter((memberId) => !targetMemberIds.has(memberId));
+
+    for (const removedMemberId of removedMemberIds) {
+      const deleteResponse = await this.client
+        .from("family_members")
+        .delete()
+        .eq("family_id", family.id)
+        .eq("user_id", removedMemberId);
+
+      if (deleteResponse.error) {
+        throw deleteResponse.error;
+      }
     }
 
     const members = family.members.map((member) => ({

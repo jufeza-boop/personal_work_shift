@@ -1,5 +1,6 @@
-import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { describe, expect, it, vi } from "vitest";
 import { Family } from "@/domain/entities/Family";
@@ -37,8 +38,10 @@ interface MockBuilder<T> {
   ): Promise<TResult1 | TResult2>;
 }
 
-const MIGRATION_PATH =
-  "/home/runner/work/personal_work_shift/personal_work_shift/supabase/migrations/20260410090623_phase_2_infrastructure.sql";
+const MIGRATION_PATH = resolve(
+  process.cwd(),
+  "supabase/migrations/20260410090623_phase_2_infrastructure.sql",
+);
 
 function createBuilder<T>(response: QueryResponse<T>): MockBuilder<T> {
   const builder: MockBuilder<T> = {
@@ -163,6 +166,14 @@ describe("Supabase repositories", () => {
       data: null,
       error: null,
     });
+    const existingMembersBuilder = createBuilder({
+      data: [{ user_id: "owner-1" }, { user_id: "member-1" }, { user_id: "removed-1" }],
+      error: null,
+    });
+    const deleteRemovedMemberBuilder = createBuilder({
+      data: null,
+      error: null,
+    });
     const saveMembersBuilder = createBuilder({
       data: null,
       error: null,
@@ -174,6 +185,8 @@ describe("Supabase repositories", () => {
         .mockReturnValueOnce(membershipBuilder)
         .mockReturnValueOnce(listBuilder)
         .mockReturnValueOnce(saveFamilyBuilder)
+        .mockReturnValueOnce(existingMembersBuilder)
+        .mockReturnValueOnce(deleteRemovedMemberBuilder)
         .mockReturnValueOnce(saveMembersBuilder),
     } as unknown as SupabaseClient<Database>;
 
@@ -224,6 +237,9 @@ describe("Supabase repositories", () => {
       ],
       { onConflict: "family_id,user_id" },
     );
+    expect(deleteRemovedMemberBuilder.delete).toHaveBeenCalled();
+    expect(deleteRemovedMemberBuilder.eq).toHaveBeenNthCalledWith(1, "family_id", "family-1");
+    expect(deleteRemovedMemberBuilder.eq).toHaveBeenNthCalledWith(2, "user_id", "removed-1");
   });
 
   it("persists and reads punctual and recurring events through the event repository", async () => {
