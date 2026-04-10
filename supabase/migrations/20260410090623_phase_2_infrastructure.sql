@@ -155,6 +155,8 @@ declare
   normalized_avatar_url text;
   delegated_by_value uuid;
 begin
+  -- The trigger normalizes auth payloads before insert/update, while the table
+  -- constraint still guards direct writes that bypass this function.
   normalized_email := lower(trim(new.email));
   normalized_display_name := coalesce(
     nullif(trim(coalesce(new.raw_user_meta_data ->> 'display_name', '')), ''),

@@ -3,6 +3,10 @@ import { User } from "@/domain/entities/User";
 import type { IUserRepository } from "@/domain/repositories/IUserRepository";
 import type { Database, UserRow } from "@/infrastructure/supabase/database.types";
 
+function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
 function mapUser(row: UserRow): User {
   return new User({
     avatarUrl: row.avatar_url,
@@ -17,7 +21,7 @@ export class SupabaseUserRepository implements IUserRepository {
   constructor(private readonly client: SupabaseClient<Database>) {}
 
   async findByEmail(email: string): Promise<User | null> {
-    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedEmail = normalizeEmail(email);
     const { data, error } = await this.client
       .from("users")
       .select("*")
@@ -46,7 +50,7 @@ export class SupabaseUserRepository implements IUserRepository {
   }
 
   async save(user: User): Promise<void> {
-    const normalizedEmail = user.email.trim().toLowerCase();
+    const normalizedEmail = normalizeEmail(user.email);
 
     const { error } = await this.client.from("users").upsert(
       {

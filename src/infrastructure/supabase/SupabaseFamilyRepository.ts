@@ -28,6 +28,9 @@ const FAMILY_SELECT = `
 `;
 
 function mapFamily(row: FamilyRowWithMembers): Family {
+  // The family creator is always treated as the owner in the domain model, so
+  // we synthesize that member from the family record even if the relation
+  // payload omits or duplicates the owner row.
   const ownerMember = {
     colorPalette: null,
     delegatedByUserId: null,

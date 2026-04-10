@@ -11,6 +11,10 @@ function toDateOnlyString(value: Date): string {
   return value.toISOString().slice(0, 10);
 }
 
+/**
+ * Converts a YYYY-MM-DD database date into a UTC Date instance anchored at
+ * midnight so the domain layer can treat it as a calendar date consistently.
+ */
 function toDate(value: string): Date {
   return new Date(`${value}T00:00:00.000Z`);
 }
