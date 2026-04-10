@@ -129,12 +129,12 @@ export class SupabaseFamilyRepository implements IFamilyRepository {
       .map((member) => member.user_id)
       .filter((memberId) => !targetMemberIds.has(memberId));
 
-    for (const removedMemberId of removedMemberIds) {
+    if (removedMemberIds.length > 0) {
       const deleteResponse = await this.client
         .from("family_members")
         .delete()
         .eq("family_id", family.id)
-        .eq("user_id", removedMemberId);
+        .in("user_id", removedMemberIds);
 
       if (deleteResponse.error) {
         throw deleteResponse.error;

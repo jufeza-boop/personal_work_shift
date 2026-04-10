@@ -43,6 +43,10 @@ const MIGRATION_PATH = resolve(
   "supabase/migrations/20260410090623_phase_2_infrastructure.sql",
 );
 
+/**
+ * Creates a chainable Supabase-like query builder mock so repository tests can
+ * exercise select, filter, upsert, and delete flows without a live database.
+ */
 function createBuilder<T>(response: QueryResponse<T>): MockBuilder<T> {
   const builder: MockBuilder<T> = {
     delete: vi.fn(() => builder),
@@ -238,8 +242,8 @@ describe("Supabase repositories", () => {
       { onConflict: "family_id,user_id" },
     );
     expect(deleteRemovedMemberBuilder.delete).toHaveBeenCalled();
-    expect(deleteRemovedMemberBuilder.eq).toHaveBeenNthCalledWith(1, "family_id", "family-1");
-    expect(deleteRemovedMemberBuilder.eq).toHaveBeenNthCalledWith(2, "user_id", "removed-1");
+    expect(deleteRemovedMemberBuilder.eq).toHaveBeenCalledWith("family_id", "family-1");
+    expect(deleteRemovedMemberBuilder.in).toHaveBeenCalledWith("user_id", ["removed-1"]);
   });
 
   it("persists and reads punctual and recurring events through the event repository", async () => {
