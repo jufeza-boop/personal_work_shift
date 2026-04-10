@@ -8,10 +8,10 @@ import { ColorPalette } from "@/domain/value-objects/ColorPalette";
 describe("color exclusivity rule", () => {
   it("returns true when the palette is still available", () => {
     expect(
-      isColorPaletteExclusive(
-        ColorPalette.create("sky"),
-        [ColorPalette.create("rose"), ColorPalette.create("teal")],
-      ),
+      isColorPaletteExclusive(ColorPalette.create("sky"), [
+        ColorPalette.create("rose"),
+        ColorPalette.create("teal"),
+      ]),
     ).toBe(true);
   });
 

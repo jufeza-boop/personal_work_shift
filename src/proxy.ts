@@ -30,13 +30,18 @@ export async function proxy(request: NextRequest) {
   }
 
   const { response, user } = await updateAuthSession(request);
-  const redirectPath = resolveAuthRedirect(request.nextUrl.pathname, user !== null);
+  const redirectPath = resolveAuthRedirect(
+    request.nextUrl.pathname,
+    user !== null,
+  );
 
   if (!redirectPath) {
     return response;
   }
 
-  const redirectResponse = NextResponse.redirect(new URL(redirectPath, request.url));
+  const redirectResponse = NextResponse.redirect(
+    new URL(redirectPath, request.url),
+  );
 
   return copyCookies(response, redirectResponse);
 }

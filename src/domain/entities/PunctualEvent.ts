@@ -1,4 +1,8 @@
-import { Event, type EventProps, assertValidTimeRange } from "@/domain/entities/Event";
+import {
+  Event,
+  type EventProps,
+  assertValidTimeRange,
+} from "@/domain/entities/Event";
 import { ValidationError } from "@/domain/errors/DomainError";
 
 export interface PunctualEventProps extends EventProps {

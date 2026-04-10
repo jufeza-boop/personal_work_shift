@@ -16,7 +16,9 @@ export function resolveAuthRedirect(
   return null;
 }
 
-export function sanitizeRedirectPath(pathname: string | null | undefined): string {
+export function sanitizeRedirectPath(
+  pathname: string | null | undefined,
+): string {
   if (!pathname || !pathname.startsWith("/") || pathname.startsWith("//")) {
     return "/calendar";
   }

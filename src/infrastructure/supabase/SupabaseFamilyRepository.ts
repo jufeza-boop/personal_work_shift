@@ -83,7 +83,9 @@ export class SupabaseFamilyRepository implements IFamilyRepository {
       throw membershipResponse.error;
     }
 
-    const familyIds = membershipResponse.data.map((membership) => membership.family_id);
+    const familyIds = membershipResponse.data.map(
+      (membership) => membership.family_id,
+    );
 
     if (familyIds.length === 0) {
       return [];
@@ -99,7 +101,9 @@ export class SupabaseFamilyRepository implements IFamilyRepository {
       throw familiesResponse.error;
     }
 
-    return (familiesResponse.data as unknown as FamilyRowWithMembers[]).map(mapFamily);
+    return (familiesResponse.data as unknown as FamilyRowWithMembers[]).map(
+      mapFamily,
+    );
   }
 
   async save(family: Family): Promise<void> {
@@ -127,7 +131,9 @@ export class SupabaseFamilyRepository implements IFamilyRepository {
       throw existingMembersResponse.error;
     }
 
-    const targetMemberIds = new Set(family.members.map((member) => member.userId));
+    const targetMemberIds = new Set(
+      family.members.map((member) => member.userId),
+    );
     const removedMemberIds = existingMembersResponse.data
       .map((member) => member.user_id)
       .filter((memberId) => !targetMemberIds.has(memberId));
@@ -152,9 +158,11 @@ export class SupabaseFamilyRepository implements IFamilyRepository {
       user_id: member.userId,
     }));
 
-    const membersUpsert = await this.client.from("family_members").upsert(members, {
-      onConflict: "family_id,user_id",
-    });
+    const membersUpsert = await this.client
+      .from("family_members")
+      .upsert(members, {
+        onConflict: "family_id,user_id",
+      });
 
     if (membersUpsert.error) {
       throw membersUpsert.error;

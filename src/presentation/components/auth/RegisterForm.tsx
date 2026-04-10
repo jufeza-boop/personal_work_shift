@@ -38,7 +38,10 @@ export function RegisterForm({
       <CardContent>
         <form action={formAction} className="space-y-4">
           <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-800" htmlFor="displayName">
+            <label
+              className="text-sm font-medium text-slate-800"
+              htmlFor="displayName"
+            >
               Nombre
             </label>
             <input
@@ -48,12 +51,17 @@ export function RegisterForm({
               type="text"
             />
             {formState.errors?.displayName ? (
-              <p className="text-sm text-red-600">{formState.errors.displayName}</p>
+              <p className="text-sm text-red-600">
+                {formState.errors.displayName}
+              </p>
             ) : null}
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-800" htmlFor="email">
+            <label
+              className="text-sm font-medium text-slate-800"
+              htmlFor="email"
+            >
               Correo electrónico
             </label>
             <input
@@ -69,7 +77,10 @@ export function RegisterForm({
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-800" htmlFor="password">
+            <label
+              className="text-sm font-medium text-slate-800"
+              htmlFor="password"
+            >
               Contraseña
             </label>
             <input
@@ -80,7 +91,9 @@ export function RegisterForm({
               type="password"
             />
             {formState.errors?.password ? (
-              <p className="text-sm text-red-600">{formState.errors.password}</p>
+              <p className="text-sm text-red-600">
+                {formState.errors.password}
+              </p>
             ) : null}
           </div>
 

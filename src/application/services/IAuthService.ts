@@ -43,20 +43,14 @@ export interface LoginAuthOutput {
   userId: string;
 }
 
-export type LoginAuthErrorCode =
-  | "AUTH_PROVIDER_ERROR"
-  | "INVALID_CREDENTIALS";
+export type LoginAuthErrorCode = "AUTH_PROVIDER_ERROR" | "INVALID_CREDENTIALS";
 export type LoginAuthResult = AuthResult<LoginAuthOutput, LoginAuthErrorCode>;
 
 export type LogoutAuthErrorCode = "AUTH_PROVIDER_ERROR";
 export type LogoutAuthResult = AuthResult<void, LogoutAuthErrorCode>;
 
 export interface IAuthService {
-  register(
-    input: RegisterAuthInput,
-  ): Promise<RegisterAuthResult>;
-  login(
-    input: LoginAuthInput,
-  ): Promise<LoginAuthResult>;
+  register(input: RegisterAuthInput): Promise<RegisterAuthResult>;
+  login(input: LoginAuthInput): Promise<LoginAuthResult>;
   logout(): Promise<LogoutAuthResult>;
 }

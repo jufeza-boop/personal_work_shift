@@ -1,4 +1,7 @@
-import { ColorPaletteAlreadyTakenError, ValidationError } from "@/domain/errors/DomainError";
+import {
+  ColorPaletteAlreadyTakenError,
+  ValidationError,
+} from "@/domain/errors/DomainError";
 import { ColorPalette } from "@/domain/value-objects/ColorPalette";
 
 export type FamilyMemberRole = "owner" | "member" | "delegated";
@@ -21,7 +24,9 @@ function normalizeName(name: string): string {
   const normalizedName = name.trim();
 
   if (normalizedName.length === 0 || normalizedName.length > 100) {
-    throw new ValidationError("Family name must be between 1 and 100 characters");
+    throw new ValidationError(
+      "Family name must be between 1 and 100 characters",
+    );
   }
 
   return normalizedName;
@@ -56,7 +61,9 @@ export class Family {
 
     this.members = ownerMember
       ? normalizedMembers.map((member) =>
-          member.userId === props.createdBy ? { ...member, role: "owner" } : member,
+          member.userId === props.createdBy
+            ? { ...member, role: "owner" }
+            : member,
         )
       : [
           {
@@ -98,7 +105,9 @@ export class Family {
       normalizedMember.colorPalette &&
       !this.isColorPaletteAvailable(normalizedMember.colorPalette)
     ) {
-      throw new ColorPaletteAlreadyTakenError(normalizedMember.colorPalette.name);
+      throw new ColorPaletteAlreadyTakenError(
+        normalizedMember.colorPalette.name,
+      );
     }
 
     this.members.push(normalizedMember);
@@ -107,22 +116,29 @@ export class Family {
   isColorPaletteAvailable(colorPalette: ColorPalette): boolean {
     return !this.members.some(
       (member) =>
-        member.colorPalette !== null && member.colorPalette.equals(colorPalette),
+        member.colorPalette !== null &&
+        member.colorPalette.equals(colorPalette),
     );
   }
 
   private ensureUniqueMembers(): void {
-    const uniqueMemberIds = new Set(this.members.map((member) => member.userId));
+    const uniqueMemberIds = new Set(
+      this.members.map((member) => member.userId),
+    );
 
     if (uniqueMemberIds.size !== this.members.length) {
-      throw new ValidationError("Family members must be unique within a family");
+      throw new ValidationError(
+        "Family members must be unique within a family",
+      );
     }
   }
 
   private ensureExclusiveColorPalettes(): void {
     const assignedPalettes = this.members
       .map((member) => member.colorPalette)
-      .filter((colorPalette): colorPalette is ColorPalette => colorPalette !== null);
+      .filter(
+        (colorPalette): colorPalette is ColorPalette => colorPalette !== null,
+      );
 
     const uniquePaletteNames = new Set(
       assignedPalettes.map((colorPalette) => colorPalette.name),
@@ -136,7 +152,9 @@ export class Family {
           ) !== index,
       );
 
-      throw new ColorPaletteAlreadyTakenError(duplicatedPalette?.name ?? "unknown");
+      throw new ColorPaletteAlreadyTakenError(
+        duplicatedPalette?.name ?? "unknown",
+      );
     }
   }
 }

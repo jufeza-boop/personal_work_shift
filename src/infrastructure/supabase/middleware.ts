@@ -4,9 +4,7 @@ import type { AuthenticatedUser } from "@/infrastructure/auth/runtime";
 import type { Database } from "@/infrastructure/supabase/database.types";
 import { getAppEnv } from "@/shared/config/env";
 
-export async function updateAuthSession(
-  request: NextRequest,
-): Promise<{
+export async function updateAuthSession(request: NextRequest): Promise<{
   response: NextResponse;
   user: AuthenticatedUser | null;
 }> {

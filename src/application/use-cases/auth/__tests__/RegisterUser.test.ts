@@ -42,7 +42,9 @@ describe("RegisterUser", () => {
       password: "Password1",
     });
 
-    expect(userRepository.findByEmail).toHaveBeenCalledWith("alice@example.com");
+    expect(userRepository.findByEmail).toHaveBeenCalledWith(
+      "alice@example.com",
+    );
     expect(authService.register).toHaveBeenCalledWith({
       displayName: "Alice Example",
       email: "alice@example.com",

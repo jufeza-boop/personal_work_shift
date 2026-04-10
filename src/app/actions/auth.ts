@@ -97,7 +97,9 @@ export async function loginAction(
     };
   }
 
-  const redirectTo = sanitizeRedirectPath(formData.get("redirectTo")?.toString());
+  const redirectTo = sanitizeRedirectPath(
+    formData.get("redirectTo")?.toString(),
+  );
   const { authService } = await createServerAuthDependencies();
   const useCase = new LoginUser(authService);
   const result = await useCase.execute(parsed.data);

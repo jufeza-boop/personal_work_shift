@@ -5,7 +5,10 @@ import { RecurringEvent } from "@/domain/entities/RecurringEvent";
 import type { IEventRepository } from "@/domain/repositories/IEventRepository";
 import { EventFrequency } from "@/domain/value-objects/EventFrequency";
 import { ShiftType } from "@/domain/value-objects/ShiftType";
-import type { Database, EventRow } from "@/infrastructure/supabase/database.types";
+import type {
+  Database,
+  EventRow,
+} from "@/infrastructure/supabase/database.types";
 
 function toDateOnlyString(value: Date): string {
   return value.toISOString().slice(0, 10);
@@ -47,7 +50,10 @@ function mapEvent(row: EventRow): Event {
     endDate: row.end_date ? toDate(row.end_date) : null,
     endTime: normalizeTime(row.end_time),
     familyId: row.family_id,
-    frequency: EventFrequency.create(row.frequency_unit ?? "weekly", row.frequency_interval ?? 1),
+    frequency: EventFrequency.create(
+      row.frequency_unit ?? "weekly",
+      row.frequency_interval ?? 1,
+    ),
     id: row.id,
     shiftType: row.shift_type ? ShiftType.create(row.shift_type) : null,
     startDate: toDate(row.start_date as string),
@@ -102,7 +108,10 @@ export class SupabaseEventRepository implements IEventRepository {
   constructor(private readonly client: SupabaseClient<Database>) {}
 
   async delete(eventId: string): Promise<void> {
-    const { error } = await this.client.from("events").delete().eq("id", eventId);
+    const { error } = await this.client
+      .from("events")
+      .delete()
+      .eq("id", eventId);
 
     if (error) {
       throw error;

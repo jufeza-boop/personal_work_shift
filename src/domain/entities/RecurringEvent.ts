@@ -1,4 +1,8 @@
-import { Event, type EventProps, assertValidTimeRange } from "@/domain/entities/Event";
+import {
+  Event,
+  type EventProps,
+  assertValidTimeRange,
+} from "@/domain/entities/Event";
 import { ValidationError } from "@/domain/errors/DomainError";
 import { EventFrequency } from "@/domain/value-objects/EventFrequency";
 import { ShiftType } from "@/domain/value-objects/ShiftType";
@@ -29,11 +33,15 @@ export class RecurringEvent extends Event {
     super(props);
 
     if (Number.isNaN(props.startDate.getTime())) {
-      throw new ValidationError("Recurring event start date must be a valid date");
+      throw new ValidationError(
+        "Recurring event start date must be a valid date",
+      );
     }
 
     if (props.endDate && Number.isNaN(props.endDate.getTime())) {
-      throw new ValidationError("Recurring event end date must be a valid date");
+      throw new ValidationError(
+        "Recurring event end date must be a valid date",
+      );
     }
 
     if (props.endDate && props.endDate.getTime() < props.startDate.getTime()) {
@@ -44,14 +52,19 @@ export class RecurringEvent extends Event {
 
     assertValidTimeRange(props.startTime, props.endTime);
 
-    if ((props.category === "work" || props.category === "studies") && !props.shiftType) {
+    if (
+      (props.category === "work" || props.category === "studies") &&
+      !props.shiftType
+    ) {
       throw new ValidationError(
         "Recurring work or studies events require a shift type",
       );
     }
 
     if (props.category === "other" && props.shiftType) {
-      throw new ValidationError("Recurring other events cannot define a shift type");
+      throw new ValidationError(
+        "Recurring other events cannot define a shift type",
+      );
     }
 
     this.category = props.category;

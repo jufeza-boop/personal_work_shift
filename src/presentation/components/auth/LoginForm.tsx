@@ -42,7 +42,10 @@ export function LoginForm({
           <input name="redirectTo" type="hidden" value={redirectTo} />
 
           <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-800" htmlFor="email">
+            <label
+              className="text-sm font-medium text-slate-800"
+              htmlFor="email"
+            >
               Correo electrónico
             </label>
             <input
@@ -58,7 +61,10 @@ export function LoginForm({
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-800" htmlFor="password">
+            <label
+              className="text-sm font-medium text-slate-800"
+              htmlFor="password"
+            >
               Contraseña
             </label>
             <input
@@ -69,7 +75,9 @@ export function LoginForm({
               type="password"
             />
             {formState.errors?.password ? (
-              <p className="text-sm text-red-600">{formState.errors.password}</p>
+              <p className="text-sm text-red-600">
+                {formState.errors.password}
+              </p>
             ) : null}
           </div>
 

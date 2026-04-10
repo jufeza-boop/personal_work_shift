@@ -53,7 +53,9 @@ export interface Database {
       };
       events: {
         Insert: {
-          category?: Database["public"]["Enums"]["recurring_event_category"] | null;
+          category?:
+            | Database["public"]["Enums"]["recurring_event_category"]
+            | null;
           created_at?: string;
           created_by: string;
           description?: string | null;
@@ -63,7 +65,9 @@ export interface Database {
           event_type: Database["public"]["Enums"]["event_type"];
           family_id: string;
           frequency_interval?: number | null;
-          frequency_unit?: Database["public"]["Enums"]["event_frequency_unit"] | null;
+          frequency_unit?:
+            | Database["public"]["Enums"]["event_frequency_unit"]
+            | null;
           id?: string;
           parent_event_id?: string | null;
           shift_type?: Database["public"]["Enums"]["shift_type"] | null;
@@ -73,7 +77,9 @@ export interface Database {
           updated_at?: string;
         };
         Row: {
-          category: Database["public"]["Enums"]["recurring_event_category"] | null;
+          category:
+            | Database["public"]["Enums"]["recurring_event_category"]
+            | null;
           created_at: string;
           created_by: string;
           description: string | null;
@@ -83,7 +89,9 @@ export interface Database {
           event_type: Database["public"]["Enums"]["event_type"];
           family_id: string;
           frequency_interval: number | null;
-          frequency_unit: Database["public"]["Enums"]["event_frequency_unit"] | null;
+          frequency_unit:
+            | Database["public"]["Enums"]["event_frequency_unit"]
+            | null;
           id: string;
           parent_event_id: string | null;
           shift_type: Database["public"]["Enums"]["shift_type"] | null;
@@ -93,7 +101,9 @@ export interface Database {
           updated_at: string;
         };
         Update: {
-          category?: Database["public"]["Enums"]["recurring_event_category"] | null;
+          category?:
+            | Database["public"]["Enums"]["recurring_event_category"]
+            | null;
           created_at?: string;
           created_by?: string;
           description?: string | null;
@@ -103,7 +113,9 @@ export interface Database {
           event_type?: Database["public"]["Enums"]["event_type"];
           family_id?: string;
           frequency_interval?: number | null;
-          frequency_unit?: Database["public"]["Enums"]["event_frequency_unit"] | null;
+          frequency_unit?:
+            | Database["public"]["Enums"]["event_frequency_unit"]
+            | null;
           id?: string;
           parent_event_id?: string | null;
           shift_type?: Database["public"]["Enums"]["shift_type"] | null;
@@ -266,6 +278,7 @@ export interface Database {
 }
 
 export type EventRow = Database["public"]["Tables"]["events"]["Row"];
-export type FamilyMemberRow = Database["public"]["Tables"]["family_members"]["Row"];
+export type FamilyMemberRow =
+  Database["public"]["Tables"]["family_members"]["Row"];
 export type FamilyRow = Database["public"]["Tables"]["families"]["Row"];
 export type UserRow = Database["public"]["Tables"]["users"]["Row"];
