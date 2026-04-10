@@ -12,6 +12,7 @@
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "supabase:init": "npx supabase init --yes",
@@ -33,6 +34,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.1",
     "@serwist/turbopack": "^9.5.7",
     "@tailwindcss/postcss": "^4.2.2",
     "@testing-library/jest-dom": "^6.9.1",
