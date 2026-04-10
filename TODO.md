@@ -38,17 +38,17 @@
 
 ## Phase 2: Infrastructure - Database
 
-- [ ] Design and create `users` table + RLS policies
-- [ ] Design and create `families` table + RLS policies
-- [ ] Design and create `family_members` table + RLS policies
-- [ ] Design and create `events` table + RLS policies
-- [ ] Design and create `event_exceptions` table + RLS policies
-- [ ] Write Supabase migrations for all tables
-- [ ] Implement `SupabaseUserRepository`
-- [ ] Implement `SupabaseFamilyRepository`
-- [ ] Implement `SupabaseEventRepository`
-- [ ] Write integration tests for all repositories
-- [ ] Write tests for all RLS policies
+- [x] Design and create `users` table + RLS policies
+- [x] Design and create `families` table + RLS policies
+- [x] Design and create `family_members` table + RLS policies
+- [x] Design and create `events` table + RLS policies
+- [x] Design and create `event_exceptions` table + RLS policies
+- [x] Write Supabase migrations for all tables
+- [x] Implement `SupabaseUserRepository`
+- [x] Implement `SupabaseFamilyRepository`
+- [x] Implement `SupabaseEventRepository`
+- [x] Write integration tests for all repositories
+- [x] Write tests for all RLS policies
 
 ---
 

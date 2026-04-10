@@ -41,6 +41,15 @@ export interface Database {
           is_deleted?: boolean;
           override_data?: Json | null;
         };
+        Relationships: [
+          {
+            foreignKeyName: "event_exceptions_event_id_fkey";
+            columns: ["event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       events: {
         Insert: {
@@ -103,6 +112,29 @@ export interface Database {
           title?: string;
           updated_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: "events_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "events_family_id_fkey";
+            columns: ["family_id"];
+            isOneToOne: false;
+            referencedRelation: "families";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "events_parent_event_id_fkey";
+            columns: ["parent_event_id"];
+            isOneToOne: false;
+            referencedRelation: "events";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       families: {
         Insert: {
@@ -126,6 +158,15 @@ export interface Database {
           name?: string;
           updated_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: "families_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       family_members: {
         Insert: {
@@ -155,6 +196,29 @@ export interface Database {
           role?: Database["public"]["Enums"]["family_member_role"];
           user_id?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: "family_members_delegated_by_user_id_fkey";
+            columns: ["delegated_by_user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "family_members_family_id_fkey";
+            columns: ["family_id"];
+            isOneToOne: false;
+            referencedRelation: "families";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "family_members_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       users: {
         Insert: {
@@ -184,8 +248,20 @@ export interface Database {
           id?: string;
           updated_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: "users_delegated_by_user_id_fkey";
+            columns: ["delegated_by_user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    CompositeTypes: Record<string, never>;
   };
 }
 

@@ -70,6 +70,10 @@ function toRow(event: Event): Database["public"]["Tables"]["events"]["Insert"] {
     };
   }
 
+  if (!(event instanceof RecurringEvent)) {
+    throw new TypeError("Unsupported event type");
+  }
+
   return {
     category: event.category,
     created_at: event.createdAt.toISOString(),

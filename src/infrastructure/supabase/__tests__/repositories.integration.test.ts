@@ -275,10 +275,6 @@ describe("Supabase repositories", () => {
       },
       error: null,
     });
-    const listBuilder = createBuilder({
-      data: [findPunctualBuilder.then.bind(findPunctualBuilder), findRecurringBuilder.then.bind(findRecurringBuilder)],
-      error: null,
-    });
     const savePunctualBuilder = createBuilder({
       data: null,
       error: null,
@@ -291,27 +287,8 @@ describe("Supabase repositories", () => {
       data: null,
       error: null,
     });
-    const client = {
-      from: vi
-        .fn()
-        .mockReturnValueOnce(savePunctualBuilder)
-        .mockReturnValueOnce(saveRecurringBuilder)
-        .mockReturnValueOnce(findPunctualBuilder)
-        .mockReturnValueOnce(findRecurringBuilder)
-        .mockReturnValueOnce(
-          createBuilder({
-            data: [
-              await findPunctualBuilder.maybeSingle().then((result) => result.data),
-              await findRecurringBuilder.maybeSingle().then((result) => result.data),
-            ],
-            error: null,
-          }),
-        )
-        .mockReturnValueOnce(deleteBuilder),
-    } as unknown as SupabaseClient<Database>;
-
-    const repository = new SupabaseEventRepository(client);
     const punctualEvent = new PunctualEvent({
+      createdAt: new Date("2026-04-10T00:00:00.000Z"),
       createdBy: "owner-1",
       date: new Date("2026-04-10T00:00:00.000Z"),
       description: "One-time event",
@@ -320,9 +297,11 @@ describe("Supabase repositories", () => {
       id: punctualEventId,
       startTime: "09:00",
       title: "Dentist appointment",
+      updatedAt: new Date("2026-04-10T00:00:00.000Z"),
     });
     const recurringEvent = new RecurringEvent({
       category: "work",
+      createdAt: new Date("2026-04-10T00:00:00.000Z"),
       createdBy: "owner-1",
       endDate: new Date("2026-05-01T00:00:00.000Z"),
       familyId: "family-1",
@@ -331,16 +310,36 @@ describe("Supabase repositories", () => {
       shiftType: ShiftType.create("night"),
       startDate: new Date("2026-04-11T00:00:00.000Z"),
       title: "Night shift",
+      updatedAt: new Date("2026-04-10T00:00:00.000Z"),
     });
+    const storedRows = [
+      await findPunctualBuilder.maybeSingle().then((result) => result.data),
+      await findRecurringBuilder.maybeSingle().then((result) => result.data),
+    ];
+    const listEventsBuilder = createBuilder({
+      data: storedRows,
+      error: null,
+    });
+    const clientWithListBuilder = {
+      from: vi
+        .fn()
+        .mockReturnValueOnce(savePunctualBuilder)
+        .mockReturnValueOnce(saveRecurringBuilder)
+        .mockReturnValueOnce(findPunctualBuilder)
+        .mockReturnValueOnce(findRecurringBuilder)
+        .mockReturnValueOnce(listEventsBuilder)
+        .mockReturnValueOnce(deleteBuilder),
+    } as unknown as SupabaseClient<Database>;
+    const repositoryWithListBuilder = new SupabaseEventRepository(clientWithListBuilder);
 
-    await repository.save(punctualEvent);
-    await repository.save(recurringEvent);
+    await repositoryWithListBuilder.save(punctualEvent);
+    await repositoryWithListBuilder.save(recurringEvent);
 
-    const punctualStored = await repository.findById(punctualEventId);
-    const recurringStored = await repository.findById(recurringEventId);
-    const listed = await repository.findByFamilyId("family-1");
+    const punctualStored = await repositoryWithListBuilder.findById(punctualEventId);
+    const recurringStored = await repositoryWithListBuilder.findById(recurringEventId);
+    const listed = await repositoryWithListBuilder.findByFamilyId("family-1");
 
-    await repository.delete(punctualEventId);
+    await repositoryWithListBuilder.delete(punctualEventId);
 
     expect(savePunctualBuilder.upsert).toHaveBeenCalled();
     expect(saveRecurringBuilder.upsert).toHaveBeenCalled();
