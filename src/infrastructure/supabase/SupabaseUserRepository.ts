@@ -1,7 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { User } from "@/domain/entities/User";
 import type { IUserRepository } from "@/domain/repositories/IUserRepository";
-import type { Database, UserRow } from "@/infrastructure/supabase/database.types";
+import type {
+  Database,
+  UserRow,
+} from "@/infrastructure/supabase/database.types";
 
 function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();

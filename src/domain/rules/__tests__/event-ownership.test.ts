@@ -30,6 +30,8 @@ describe("event ownership rule", () => {
         actorId: "user-2",
         eventCreatorId: "user-1",
       }),
-    ).toThrow("Only the event creator or an authorized delegated user can manage this event");
+    ).toThrow(
+      "Only the event creator or an authorized delegated user can manage this event",
+    );
   });
 });

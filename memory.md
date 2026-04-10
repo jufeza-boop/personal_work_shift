@@ -8,7 +8,7 @@
 
 ## Current State
 
-- **Phase**: 2 — infrastructure layer completed
+- **Phase**: 3 — authentication completed
 - **Last Updated**: 2026-04-10
 
 ---
@@ -53,6 +53,12 @@
 - Implemented `SupabaseUserRepository`, `SupabaseFamilyRepository`, and `SupabaseEventRepository` to map between Supabase rows and domain entities
 - Added repository-level tests plus migration assertions covering table creation, key policies, and query-supporting indexes
 
+### 2026-04-10 - Phase 3 Authentication
+
+- Implemented `RegisterUser`, `LoginUser`, and `LogoutUser` use cases with Result-style responses, password policy enforcement, duplicate email checks, and dedicated Vitest coverage
+- Added `SupabaseAuthAdapter`, server-side auth actions, protected `/calendar`, `/login`, and `/register` routes, plus Next.js proxy-based route protection with cookie-backed sessions
+- Created Zod-validated login/register forms, a dashboard shell with logout, and Playwright auth flow coverage using a mock auth driver for end-to-end execution without Supabase
+
 ---
 
 ## Active Patterns
@@ -62,6 +68,8 @@
 - Phase 0 smoke coverage includes a landing-page render test and environment validation test
 - Domain entities and value objects use constructor/static factory validation and keep framework-free business logic inside `src/domain`
 - Supabase infrastructure code lives in `src/infrastructure/supabase`, with explicit row-to-domain mapping and a local `database.types.ts` schema contract
+- Authentication flows are implemented with server actions in `src/app/actions/auth.ts`, while route guarding lives in `src/proxy.ts`
+- Playwright end-to-end auth coverage runs with `AUTH_DRIVER=mock`, which swaps in-memory auth dependencies for the real Supabase integration during browser tests
 
 ---
 
@@ -94,6 +102,7 @@
 - `tailwind-merge@^3.5.0`
 - `lucide-react@^1.8.0`
 - `zod@^4.3.6`
+- `@playwright/test@^1.55.1`
 
 ---
 
@@ -109,11 +118,12 @@
 
 - GitHub branch protection was documented in `.github/branch-protection-rules.md` instead of applied automatically because `gh` is not installed and no authenticated repository-admin tool is available in the environment.
 - `supabase start` fails in this sandbox with `getaddrinfo EAI_AGAIN supabase_db_personal_work_shift`, so Phase 2 test coverage uses repository mapping tests and migration assertions instead of live local Supabase execution.
+- Phase 3 end-to-end auth coverage avoids the sandbox Supabase limitation by switching to an in-memory mock auth driver when `AUTH_DRIVER=mock`.
 
 ---
 
 ## Next Steps
 
 - Apply branch protection rules in GitHub using `.github/branch-protection-rules.md`
-- Begin Phase 3 by implementing authentication use cases and the Supabase Auth adapter
+- Begin Phase 4 by implementing family-management use cases and the first authenticated family views
 - Add live local Supabase integration coverage once the sandbox DNS issue for `supabase start` is resolved

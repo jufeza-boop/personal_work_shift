@@ -32,9 +32,7 @@ interface MockBuilder<T> {
     onfulfilled?:
       | ((value: QueryResponse<T>) => TResult1 | PromiseLike<TResult1>)
       | null,
-    onrejected?:
-      | ((reason: unknown) => TResult2 | PromiseLike<TResult2>)
-      | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
   ): Promise<TResult1 | TResult2>;
 }
 
@@ -123,7 +121,10 @@ describe("Supabase repositories", () => {
 
     const foundByEmail = await repository.findByEmail("ALICE@EXAMPLE.COM");
 
-    expect(findBuilder.eq).toHaveBeenLastCalledWith("email", "alice@example.com");
+    expect(findBuilder.eq).toHaveBeenLastCalledWith(
+      "email",
+      "alice@example.com",
+    );
     expect(foundByEmail?.email).toBe("alice@example.com");
   });
 
@@ -172,7 +173,11 @@ describe("Supabase repositories", () => {
       error: null,
     });
     const existingMembersBuilder = createBuilder({
-      data: [{ user_id: "owner-1" }, { user_id: "member-1" }, { user_id: "removed-1" }],
+      data: [
+        { user_id: "owner-1" },
+        { user_id: "member-1" },
+        { user_id: "removed-1" },
+      ],
       error: null,
     });
     const deleteRemovedMemberBuilder = createBuilder({
@@ -243,8 +248,13 @@ describe("Supabase repositories", () => {
       { onConflict: "family_id,user_id" },
     );
     expect(deleteRemovedMemberBuilder.delete).toHaveBeenCalled();
-    expect(deleteRemovedMemberBuilder.eq).toHaveBeenCalledWith("family_id", "family-1");
-    expect(deleteRemovedMemberBuilder.in).toHaveBeenCalledWith("user_id", ["removed-1"]);
+    expect(deleteRemovedMemberBuilder.eq).toHaveBeenCalledWith(
+      "family_id",
+      "family-1",
+    );
+    expect(deleteRemovedMemberBuilder.in).toHaveBeenCalledWith("user_id", [
+      "removed-1",
+    ]);
   });
 
   it("persists and reads punctual and recurring events through the event repository", async () => {
@@ -351,13 +361,17 @@ describe("Supabase repositories", () => {
         .mockReturnValueOnce(listEventsBuilder)
         .mockReturnValueOnce(deleteBuilder),
     } as unknown as SupabaseClient<Database>;
-    const repositoryWithListBuilder = new SupabaseEventRepository(clientWithListBuilder);
+    const repositoryWithListBuilder = new SupabaseEventRepository(
+      clientWithListBuilder,
+    );
 
     await repositoryWithListBuilder.save(punctualEvent);
     await repositoryWithListBuilder.save(recurringEvent);
 
-    const punctualStored = await repositoryWithListBuilder.findById(punctualEventId);
-    const recurringStored = await repositoryWithListBuilder.findById(recurringEventId);
+    const punctualStored =
+      await repositoryWithListBuilder.findById(punctualEventId);
+    const recurringStored =
+      await repositoryWithListBuilder.findById(recurringEventId);
     const listed = await repositoryWithListBuilder.findByFamilyId("family-1");
 
     await repositoryWithListBuilder.delete(punctualEventId);
@@ -392,8 +406,12 @@ describe("Phase 2 migration", () => {
   });
 
   it("defines helper functions and indexes needed by repository queries", () => {
-    expect(migration).toContain("create or replace function public.handle_auth_user()");
-    expect(migration).toContain("create or replace function public.is_family_member");
+    expect(migration).toContain(
+      "create or replace function public.handle_auth_user()",
+    );
+    expect(migration).toContain(
+      "create or replace function public.is_family_member",
+    );
     expect(migration).toContain("create index events_family_id_created_at_idx");
     expect(migration).toContain("create index family_members_user_id_idx");
   });

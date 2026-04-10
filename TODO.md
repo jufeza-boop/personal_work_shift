@@ -54,15 +54,15 @@
 
 ## Phase 3: Authentication (US-1.1, US-1.2, US-1.3)
 
-- [ ] Implement `RegisterUser` use case + tests
-- [ ] Implement `LoginUser` use case + tests
-- [ ] Implement `LogoutUser` use case + tests
-- [ ] Create Supabase Auth adapter
-- [ ] Create registration page (form + validation with Zod)
-- [ ] Create login page (form + validation)
-- [ ] Implement auth middleware (protected routes)
-- [ ] Configure httpOnly cookie session management
-- [ ] Write E2E tests for auth flows
+- [x] Implement `RegisterUser` use case + tests
+- [x] Implement `LoginUser` use case + tests
+- [x] Implement `LogoutUser` use case + tests
+- [x] Create Supabase Auth adapter
+- [x] Create registration page (form + validation with Zod)
+- [x] Create login page (form + validation)
+- [x] Implement auth middleware (protected routes)
+- [x] Configure httpOnly cookie session management
+- [x] Write E2E tests for auth flows
 
 ---
 

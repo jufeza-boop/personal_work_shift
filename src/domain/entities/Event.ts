@@ -45,11 +45,15 @@ export function assertValidTimeRange(
   }
 
   if (endTime && !startTime) {
-    throw new ValidationError("Event start time is required when an end time is provided");
+    throw new ValidationError(
+      "Event start time is required when an end time is provided",
+    );
   }
 
   if (startTime && endTime && toMinutes(endTime) <= toMinutes(startTime)) {
-    throw new ValidationError("Event end time must be later than the start time");
+    throw new ValidationError(
+      "Event end time must be later than the start time",
+    );
   }
 }
 

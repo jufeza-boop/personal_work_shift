@@ -53,9 +53,12 @@ const PALETTE_DEFINITIONS = {
 } as const;
 
 export type ColorPaletteName = keyof typeof PALETTE_DEFINITIONS;
-export type ColorPaletteToneMap = (typeof PALETTE_DEFINITIONS)[ColorPaletteName];
+export type ColorPaletteToneMap =
+  (typeof PALETTE_DEFINITIONS)[ColorPaletteName];
 
-const COLOR_PALETTE_VALUES = Object.keys(PALETTE_DEFINITIONS) as ColorPaletteName[];
+const COLOR_PALETTE_VALUES = Object.keys(
+  PALETTE_DEFINITIONS,
+) as ColorPaletteName[];
 
 export class ColorPalette {
   private constructor(
@@ -72,7 +75,10 @@ export class ColorPalette {
       );
     }
 
-    return new ColorPalette(normalizedName, PALETTE_DEFINITIONS[normalizedName]);
+    return new ColorPalette(
+      normalizedName,
+      PALETTE_DEFINITIONS[normalizedName],
+    );
   }
 
   static availablePalettes(): ColorPaletteName[] {
