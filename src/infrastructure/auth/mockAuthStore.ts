@@ -69,7 +69,7 @@ function saveStore(store: MockAuthStoreShape): void {
     throw new Error(
       `Unable to persist the mock auth store at ${STORE_PATH}: ${
         error instanceof Error ? error.message : "unknown error"
-      }`,
+      }. Check that the directory is writable and that enough disk space is available.`,
     );
   }
 }

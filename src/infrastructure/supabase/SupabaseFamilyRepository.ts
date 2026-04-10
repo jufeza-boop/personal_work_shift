@@ -132,7 +132,10 @@ export class SupabaseFamilyRepository implements IFamilyRepository {
     const ownerMember = members.find((member) => member.user_id === family.createdBy);
 
     if (!ownerMember) {
-      throw new Error(`Family ${family.id} must include the owner membership`);
+      throw new Error(
+        `Cannot save family ${family.id}: owner membership is missing. ` +
+          "The family creator must be included as a member with the owner role.",
+      );
     }
 
     if (isNewFamily) {

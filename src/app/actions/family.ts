@@ -56,7 +56,7 @@ export async function createFamilyAction(
   previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
   formData: FormData,
 ): Promise<FamilyFormState> {
-  // Required by useActionState, but not needed in this implementation.
+  // Part of the useActionState API contract, but unused because success redirects.
   void previousState;
 
   const parsed = createFamilySchema.safeParse({
@@ -108,7 +108,7 @@ export async function addFamilyMemberAction(
   previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
   formData: FormData,
 ): Promise<FamilyFormState> {
-  // Required by useActionState, but not needed in this implementation.
+  // Part of the useActionState API contract, but unused because success redirects.
   void previousState;
 
   const familyId = formData.get("familyId")?.toString();
@@ -189,7 +189,7 @@ export async function renameFamilyAction(
   previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
   formData: FormData,
 ): Promise<FamilyFormState> {
-  // Required by useActionState, but not needed in this implementation.
+  // Part of the useActionState API contract, but unused because success redirects.
   void previousState;
 
   const familyId = formData.get("familyId")?.toString();

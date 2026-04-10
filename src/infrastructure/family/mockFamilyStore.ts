@@ -72,7 +72,7 @@ function saveStore(store: MockFamilyStoreShape): void {
     throw new Error(
       `Unable to persist the mock family store at ${STORE_PATH}: ${
         error instanceof Error ? error.message : "unknown error"
-      }`,
+      }. Check that the directory is writable and that enough disk space is available.`,
     );
   }
 }
