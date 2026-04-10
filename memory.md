@@ -65,6 +65,12 @@
 - Added authenticated family dashboard/settings flows with server actions, Zod validation, family selector, member list, owner-only rename and invitation forms, and active-family persistence via cookie
 - Expanded mock-mode support with file-backed auth/family stores in `/tmp/personal-work-shift` so Playwright can exercise multi-request family flows reliably across Next.js workers
 
+### 2026-04-10 - Family Creation RLS Fix
+
+- Fixed `SupabaseFamilyRepository.save` to use an insert-first path for brand new families and an update path for existing families
+- The change avoids the Supabase/Postgres RLS failure triggered by `upsert` on `families` during family creation while keeping rename/member updates working
+- Added repository coverage for both the create path and the existing-family update path
+
 ---
 
 ## Active Patterns
@@ -74,6 +80,7 @@
 - Phase 0 smoke coverage includes a landing-page render test and environment validation test
 - Domain entities and value objects use constructor/static factory validation and keep framework-free business logic inside `src/domain`
 - Supabase infrastructure code lives in `src/infrastructure/supabase`, with explicit row-to-domain mapping and a local `database.types.ts` schema contract
+- Family persistence in `SupabaseFamilyRepository` must insert new `families` rows before creating the owner membership, and only use `update` for existing families, to stay compatible with the current RLS policies
 - Authentication flows are implemented with server actions in `src/app/actions/auth.ts`, while route guarding lives in `src/proxy.ts`
 - Playwright end-to-end auth coverage runs with `AUTH_DRIVER=mock`, which swaps in-memory auth dependencies for the real Supabase integration during browser tests
 - Family management uses `src/app/actions/family.ts` server actions plus a shared active-family cookie (`pws-active-family`) to keep the selected family across sessions and pages

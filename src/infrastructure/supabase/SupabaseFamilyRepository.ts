@@ -59,6 +59,16 @@ function mapFamily(row: FamilyRowWithMembers): Family {
 export class SupabaseFamilyRepository implements IFamilyRepository {
   constructor(private readonly client: SupabaseClient<Database>) {}
 
+  private mapMembers(family: Family) {
+    return family.members.map((member) => ({
+      color_palette: member.colorPalette?.name ?? null,
+      delegated_by_user_id: member.delegatedByUserId,
+      family_id: family.id,
+      role: member.role satisfies FamilyMemberRole,
+      user_id: member.userId,
+    }));
+  }
+
   async findById(id: string): Promise<Family | null> {
     const { data, error } = await this.client
       .from("families")
@@ -107,21 +117,6 @@ export class SupabaseFamilyRepository implements IFamilyRepository {
   }
 
   async save(family: Family): Promise<void> {
-    const familyUpsert = await this.client.from("families").upsert(
-      {
-        created_by: family.createdBy,
-        id: family.id,
-        name: family.name,
-      },
-      {
-        onConflict: "id",
-      },
-    );
-
-    if (familyUpsert.error) {
-      throw familyUpsert.error;
-    }
-
     const existingMembersResponse = await this.client
       .from("family_members")
       .select("user_id")
@@ -131,10 +126,71 @@ export class SupabaseFamilyRepository implements IFamilyRepository {
       throw existingMembersResponse.error;
     }
 
+    const existingMembers = existingMembersResponse.data ?? [];
+    const isNewFamily = existingMembers.length === 0;
+    const members = this.mapMembers(family);
+    const ownerMember = members.find((member) => member.user_id === family.createdBy);
+
+    if (!ownerMember) {
+      throw new Error(`Family ${family.id} must include the owner membership`);
+    }
+
+    if (isNewFamily) {
+      const familyInsert = await this.client.from("families").insert({
+        created_by: family.createdBy,
+        id: family.id,
+        name: family.name,
+      });
+
+      if (familyInsert.error) {
+        throw familyInsert.error;
+      }
+
+      const ownerInsert = await this.client
+        .from("family_members")
+        .insert(ownerMember);
+
+      if (ownerInsert.error) {
+        throw ownerInsert.error;
+      }
+
+      const additionalMembers = members.filter(
+        (member) => member.user_id !== family.createdBy,
+      );
+
+      if (additionalMembers.length === 0) {
+        return;
+      }
+
+      const additionalMembersUpsert = await this.client
+        .from("family_members")
+        .upsert(additionalMembers, {
+          onConflict: "family_id,user_id",
+        });
+
+      if (additionalMembersUpsert.error) {
+        throw additionalMembersUpsert.error;
+      }
+
+      return;
+    }
+
+    const familyUpdate = await this.client
+      .from("families")
+      .update({
+        name: family.name,
+      })
+      .eq("id", family.id)
+      .eq("created_by", family.createdBy);
+
+    if (familyUpdate.error) {
+      throw familyUpdate.error;
+    }
+
     const targetMemberIds = new Set(
       family.members.map((member) => member.userId),
     );
-    const removedMemberIds = existingMembersResponse.data
+    const removedMemberIds = existingMembers
       .map((member) => member.user_id)
       .filter((memberId) => !targetMemberIds.has(memberId));
 
@@ -149,14 +205,6 @@ export class SupabaseFamilyRepository implements IFamilyRepository {
         throw deleteResponse.error;
       }
     }
-
-    const members = family.members.map((member) => ({
-      color_palette: member.colorPalette?.name ?? null,
-      delegated_by_user_id: member.delegatedByUserId,
-      family_id: family.id,
-      role: member.role satisfies FamilyMemberRole,
-      user_id: member.userId,
-    }));
 
     const membersUpsert = await this.client
       .from("family_members")
