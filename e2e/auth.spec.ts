@@ -34,7 +34,6 @@ test("registers, logs in, and logs out with the mock auth driver", async ({
   await expect(
     page.getByRole("heading", { name: "Calendario familiar" }),
   ).toBeVisible();
-  await expect(page.getByRole("button", { name: "Cerrar sesión" })).toBeVisible();
 
   await page.getByRole("button", { name: "Cerrar sesión" }).click();
 

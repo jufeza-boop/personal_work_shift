@@ -24,6 +24,9 @@ export async function updateAuthSession(
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
+          // Keep the request cookie snapshot and the outgoing response in sync
+          // so Supabase token refreshes are visible for the remainder of this
+          // middleware execution.
           cookiesToSet.forEach(({ name, options, value }) => {
             request.cookies.set({
               ...options,

@@ -26,10 +26,11 @@ function toFieldErrors(
 }
 
 export async function registerAction(
-  previousState: AuthFormState = EMPTY_AUTH_FORM_STATE,
+  _previousState: AuthFormState = EMPTY_AUTH_FORM_STATE,
   formData: FormData,
 ): Promise<AuthFormState> {
-  void previousState;
+  // Required by the useActionState server action signature.
+  void _previousState;
 
   const parsed = registerSchema.safeParse({
     displayName: formData.get("displayName"),
@@ -78,10 +79,11 @@ export async function registerAction(
 }
 
 export async function loginAction(
-  previousState: AuthFormState = EMPTY_AUTH_FORM_STATE,
+  _previousState: AuthFormState = EMPTY_AUTH_FORM_STATE,
   formData: FormData,
 ): Promise<AuthFormState> {
-  void previousState;
+  // Required by the useActionState server action signature.
+  void _previousState;
 
   const parsed = loginSchema.safeParse({
     email: formData.get("email"),

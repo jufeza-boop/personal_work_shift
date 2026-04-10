@@ -41,6 +41,8 @@ export async function proxy(request: NextRequest) {
   return copyCookies(response, redirectResponse);
 }
 
+// Protect authenticated calendar pages and redirect authenticated users away
+// from auth-only entry points.
 export const config = {
   matcher: ["/calendar/:path*", "/login", "/register"],
 };
