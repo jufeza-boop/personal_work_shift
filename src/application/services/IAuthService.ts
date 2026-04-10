@@ -28,6 +28,10 @@ export interface RegisterAuthOutput {
 export type RegisterAuthErrorCode =
   | "AUTH_PROVIDER_ERROR"
   | "EMAIL_ALREADY_REGISTERED";
+export type RegisterAuthResult = AuthResult<
+  RegisterAuthOutput,
+  RegisterAuthErrorCode
+>;
 
 export interface LoginAuthInput {
   email: string;
@@ -42,15 +46,17 @@ export interface LoginAuthOutput {
 export type LoginAuthErrorCode =
   | "AUTH_PROVIDER_ERROR"
   | "INVALID_CREDENTIALS";
+export type LoginAuthResult = AuthResult<LoginAuthOutput, LoginAuthErrorCode>;
 
 export type LogoutAuthErrorCode = "AUTH_PROVIDER_ERROR";
+export type LogoutAuthResult = AuthResult<void, LogoutAuthErrorCode>;
 
 export interface IAuthService {
   register(
     input: RegisterAuthInput,
-  ): Promise<AuthResult<RegisterAuthOutput, RegisterAuthErrorCode>>;
+  ): Promise<RegisterAuthResult>;
   login(
     input: LoginAuthInput,
-  ): Promise<AuthResult<LoginAuthOutput, LoginAuthErrorCode>>;
-  logout(): Promise<AuthResult<void, LogoutAuthErrorCode>>;
+  ): Promise<LoginAuthResult>;
+  logout(): Promise<LogoutAuthResult>;
 }
