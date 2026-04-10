@@ -8,8 +8,8 @@
 
 ## Current State
 
-- **Phase**: 1 — domain layer completed
-- **Last Updated**: 2026-04-09
+- **Phase**: 2 — infrastructure layer completed
+- **Last Updated**: 2026-04-10
 
 ---
 
@@ -47,6 +47,12 @@
 - Added `ShiftType`, `ColorPalette`, and `EventFrequency` value objects plus repository interfaces and explicit domain rules for event ownership and color exclusivity
 - Completed Phase 1 using TDD with dedicated Vitest coverage for entities, value objects, rules, and repository contracts
 
+### 2026-04-10 - Phase 2 Infrastructure Layer
+
+- Added the Phase 2 Supabase migration with enums, core tables, foreign keys, partial/composite indexes, audit triggers, auth profile sync, and RLS helper functions
+- Implemented `SupabaseUserRepository`, `SupabaseFamilyRepository`, and `SupabaseEventRepository` to map between Supabase rows and domain entities
+- Added repository-level tests plus migration assertions covering table creation, key policies, and query-supporting indexes
+
 ---
 
 ## Active Patterns
@@ -55,6 +61,7 @@
 - Public environment variables are validated through `src/shared/config/env.ts`
 - Phase 0 smoke coverage includes a landing-page render test and environment validation test
 - Domain entities and value objects use constructor/static factory validation and keep framework-free business logic inside `src/domain`
+- Supabase infrastructure code lives in `src/infrastructure/supabase`, with explicit row-to-domain mapping and a local `database.types.ts` schema contract
 
 ---
 
@@ -92,19 +99,21 @@
 
 ## Schema Changes
 
-_(None yet — tables defined in architecture doc, pending implementation)_
+- Added `users`, `families`, `family_members`, `events`, and `event_exceptions` tables in `supabase/migrations/20260410090623_phase_2_infrastructure.sql`
+- Added enum types for family roles, event types, recurring categories, shift types, and recurrence frequency units
+- Added RLS policies, ownership helper functions, auth-to-profile sync trigger, and supporting indexes for family/event lookups
 
 ---
 
 ## Blockers & Workarounds
 
 - GitHub branch protection was documented in `.github/branch-protection-rules.md` instead of applied automatically because `gh` is not installed and no authenticated repository-admin tool is available in the environment.
+- `supabase start` fails in this sandbox with `getaddrinfo EAI_AGAIN supabase_db_personal_work_shift`, so Phase 2 test coverage uses repository mapping tests and migration assertions instead of live local Supabase execution.
 
 ---
 
 ## Next Steps
 
 - Apply branch protection rules in GitHub using `.github/branch-protection-rules.md`
-- Begin Phase 1 by defining domain entities, value objects, and repository interfaces with TDD
-- Begin Phase 1: Domain Layer entities
-- Begin Phase 2 with Supabase schema design and repository implementations for the new domain contracts
+- Begin Phase 3 by implementing authentication use cases and the Supabase Auth adapter
+- Add live local Supabase integration coverage once the sandbox DNS issue for `supabase start` is resolved
