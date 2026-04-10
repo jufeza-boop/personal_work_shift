@@ -24,7 +24,9 @@ describe("FamilySelectorPanel", () => {
     );
 
     expect(screen.getByText("Familias")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Home Team" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Home Team" }),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Work Team (actual)" }),
     ).toBeInTheDocument();

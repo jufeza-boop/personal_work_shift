@@ -70,7 +70,9 @@ export async function createFamilyAction(
     };
   }
 
-  const redirectTo = sanitizeRedirectPath(formData.get("redirectTo")?.toString());
+  const redirectTo = sanitizeRedirectPath(
+    formData.get("redirectTo")?.toString(),
+  );
   const user = await requireAuthenticatedUser(redirectTo);
   const { familyRepository, userRepository } =
     await createServerFamilyDependencies();
@@ -130,7 +132,9 @@ export async function addFamilyMemberAction(
     };
   }
 
-  const redirectTo = sanitizeRedirectPath(formData.get("redirectTo")?.toString());
+  const redirectTo = sanitizeRedirectPath(
+    formData.get("redirectTo")?.toString(),
+  );
   const user = await requireAuthenticatedUser(redirectTo);
   const { familyRepository, userRepository } =
     await createServerFamilyDependencies();
@@ -208,7 +212,9 @@ export async function renameFamilyAction(
     };
   }
 
-  const redirectTo = sanitizeRedirectPath(formData.get("redirectTo")?.toString());
+  const redirectTo = sanitizeRedirectPath(
+    formData.get("redirectTo")?.toString(),
+  );
   const user = await requireAuthenticatedUser(redirectTo);
   const { familyRepository } = await createServerFamilyDependencies();
   const useCase = new RenameFamily(familyRepository);
@@ -238,7 +244,9 @@ export async function renameFamilyAction(
 
 export async function switchFamilyAction(formData: FormData): Promise<void> {
   const familyId = formData.get("familyId")?.toString();
-  const redirectTo = sanitizeRedirectPath(formData.get("redirectTo")?.toString());
+  const redirectTo = sanitizeRedirectPath(
+    formData.get("redirectTo")?.toString(),
+  );
 
   if (!familyId) {
     redirect(redirectTo);

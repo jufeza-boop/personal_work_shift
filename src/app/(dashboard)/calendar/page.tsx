@@ -50,8 +50,9 @@ export default async function CalendarPage() {
                 Calendario familiar
               </h2>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-                Familia activa: <span className="font-medium">{activeFamily.name}</span>.
-                La selección se conserva entre sesiones para que recuperes el
+                Familia activa:{" "}
+                <span className="font-medium">{activeFamily.name}</span>. La
+                selección se conserva entre sesiones para que recuperes el
                 contexto correcto al volver.
               </p>
             </div>
@@ -73,8 +74,8 @@ export default async function CalendarPage() {
           </h3>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
             La gestión de familias ya permite crear grupos, invitar miembros,
-            cambiar de contexto y mantener la familia activa entre sesiones.
-            En la siguiente fase este espacio cargará los turnos y eventos de{" "}
+            cambiar de contexto y mantener la familia activa entre sesiones. En
+            la siguiente fase este espacio cargará los turnos y eventos de{" "}
             {activeFamily.name}.
           </p>
         </section>

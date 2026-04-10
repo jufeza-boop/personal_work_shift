@@ -115,7 +115,9 @@ export function findMockFamilyById(id: string): Family | null {
 
 export function findMockFamiliesByUserId(userId: string): Family[] {
   return Object.values(getStore().familiesById)
-    .filter((family) => family.members.some((member) => member.userId === userId))
+    .filter((family) =>
+      family.members.some((member) => member.userId === userId),
+    )
     .map(toDomainFamily);
 }
 

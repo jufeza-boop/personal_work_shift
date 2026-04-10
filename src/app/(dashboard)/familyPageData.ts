@@ -27,7 +27,10 @@ export async function getFamilyPageData(redirectPath = "/calendar") {
         activeFamily.members.map(async (member) => {
           const storedUser = await userRepository.findById(member.userId);
 
-          return [member.userId, storedUser?.displayName ?? member.userId] as const;
+          return [
+            member.userId,
+            storedUser?.displayName ?? member.userId,
+          ] as const;
         }),
       )
     : [];

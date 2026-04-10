@@ -1,10 +1,13 @@
 import { expect, test, type Page } from "@playwright/test";
 
-async function registerUser(page: Page, user: {
-  displayName: string;
-  email: string;
-  password: string;
-}) {
+async function registerUser(
+  page: Page,
+  user: {
+    displayName: string;
+    email: string;
+    password: string;
+  },
+) {
   await page.goto("/register");
   await page.getByLabel("Nombre").fill(user.displayName);
   await page.getByLabel("Correo electrónico").fill(user.email);
@@ -13,10 +16,13 @@ async function registerUser(page: Page, user: {
   await expect(page).toHaveURL(/\/login\?message=registered$/);
 }
 
-async function loginUser(page: Page, user: {
-  email: string;
-  password: string;
-}) {
+async function loginUser(
+  page: Page,
+  user: {
+    email: string;
+    password: string;
+  },
+) {
   await page.goto("/login");
   await page.getByLabel("Correo electrónico").fill(user.email);
   await page.getByLabel("Contraseña").fill(user.password);
@@ -72,9 +78,9 @@ test("switches between families, persists the active family, and renames it", as
   await page.getByRole("button", { name: "Crear familia" }).click();
 
   await page.getByRole("link", { name: "Ajustes de familia" }).click();
-  const createFamilyInput = page.locator("aside").getByLabel(
-    "Nombre de la familia",
-  );
+  const createFamilyInput = page
+    .locator("aside")
+    .getByLabel("Nombre de la familia");
 
   await expect(createFamilyInput).toBeVisible();
   await createFamilyInput.fill("Work Team");

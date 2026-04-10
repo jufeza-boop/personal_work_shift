@@ -1,5 +1,8 @@
 import { z } from "zod";
-import { ColorPalette, type ColorPaletteName } from "@/domain/value-objects/ColorPalette";
+import {
+  ColorPalette,
+  type ColorPaletteName,
+} from "@/domain/value-objects/ColorPalette";
 
 const FAMILY_NAME_MESSAGE = "El nombre no puede superar los 100 caracteres.";
 const FAMILY_NAME_REQUIRED_MESSAGE = "Introduce un nombre para la familia.";

@@ -39,12 +39,14 @@ export default async function FamilySettingsPage() {
   }
 
   const isOwner = activeFamily.createdBy === user.id;
-  const paletteOptions = ColorPalette.availablePalettes().map((paletteName) => ({
-    disabled: !activeFamily.isColorPaletteAvailable(
-      ColorPalette.create(paletteName),
-    ),
-    name: paletteName,
-  }));
+  const paletteOptions = ColorPalette.availablePalettes().map(
+    (paletteName) => ({
+      disabled: !activeFamily.isColorPaletteAvailable(
+        ColorPalette.create(paletteName),
+      ),
+      name: paletteName,
+    }),
+  );
 
   return (
     <section className="grid gap-6 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
