@@ -46,12 +46,14 @@ export class SupabaseUserRepository implements IUserRepository {
   }
 
   async save(user: User): Promise<void> {
+    const normalizedEmail = user.email.trim().toLowerCase();
+
     const { error } = await this.client.from("users").upsert(
       {
         avatar_url: user.avatarUrl,
         delegated_by_user_id: user.delegatedByUserId,
         display_name: user.displayName,
-        email: user.email,
+        email: normalizedEmail,
         id: user.id,
       },
       {
