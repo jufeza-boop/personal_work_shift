@@ -8,7 +8,7 @@
 
 ## Current State
 
-- **Phase**: 3 — authentication completed
+- **Phase**: 4 — family management completed
 - **Last Updated**: 2026-04-10
 
 ---
@@ -59,6 +59,12 @@
 - Added `SupabaseAuthAdapter`, server-side auth actions, protected `/calendar`, `/login`, and `/register` routes, plus Next.js proxy-based route protection with cookie-backed sessions
 - Created Zod-validated login/register forms, a dashboard shell with logout, and Playwright auth flow coverage using a mock auth driver for end-to-end execution without Supabase
 
+### 2026-04-10 - Phase 4 Family Management
+
+- Implemented `CreateFamily`, `AddMember`, `SwitchFamily`, and `RenameFamily` use cases with Result-style responses and dedicated Vitest coverage
+- Added authenticated family dashboard/settings flows with server actions, Zod validation, family selector, member list, owner-only rename and invitation forms, and active-family persistence via cookie
+- Expanded mock-mode support with file-backed auth/family stores in `/tmp/personal-work-shift` so Playwright can exercise multi-request family flows reliably across Next.js workers
+
 ---
 
 ## Active Patterns
@@ -70,6 +76,8 @@
 - Supabase infrastructure code lives in `src/infrastructure/supabase`, with explicit row-to-domain mapping and a local `database.types.ts` schema contract
 - Authentication flows are implemented with server actions in `src/app/actions/auth.ts`, while route guarding lives in `src/proxy.ts`
 - Playwright end-to-end auth coverage runs with `AUTH_DRIVER=mock`, which swaps in-memory auth dependencies for the real Supabase integration during browser tests
+- Family management uses `src/app/actions/family.ts` server actions plus a shared active-family cookie (`pws-active-family`) to keep the selected family across sessions and pages
+- Mock browser flows persist auth and family state through JSON files in `/tmp/personal-work-shift` so Next.js route workers share the same test data
 
 ---
 
@@ -119,11 +127,12 @@
 - GitHub branch protection was documented in `.github/branch-protection-rules.md` instead of applied automatically because `gh` is not installed and no authenticated repository-admin tool is available in the environment.
 - `supabase start` fails in this sandbox with `getaddrinfo EAI_AGAIN supabase_db_personal_work_shift`, so Phase 2 test coverage uses repository mapping tests and migration assertions instead of live local Supabase execution.
 - Phase 3 end-to-end auth coverage avoids the sandbox Supabase limitation by switching to an in-memory mock auth driver when `AUTH_DRIVER=mock`.
+- Phase 4 mock browser coverage had to move auth/family stores from process memory to `/tmp/personal-work-shift/*.json` because Next.js dev workers do not consistently share `globalThis` state during Playwright runs.
 
 ---
 
 ## Next Steps
 
 - Apply branch protection rules in GitHub using `.github/branch-protection-rules.md`
-- Begin Phase 4 by implementing family-management use cases and the first authenticated family views
+- Begin Phase 5 by implementing family-scoped event creation flows on top of the active-family selection
 - Add live local Supabase integration coverage once the sandbox DNS issue for `supabase start` is resolved

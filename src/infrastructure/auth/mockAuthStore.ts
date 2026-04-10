@@ -48,15 +48,30 @@ function getStore(): MockAuthStoreShape {
     };
   }
 
-  return JSON.parse(readFileSync(STORE_PATH, "utf8")) as MockAuthStoreShape;
+  try {
+    return JSON.parse(readFileSync(STORE_PATH, "utf8")) as MockAuthStoreShape;
+  } catch {
+    return {
+      usersByEmail: {},
+      usersById: {},
+    };
+  }
 }
 
 function saveStore(store: MockAuthStoreShape): void {
   ensureStoreDirectory();
-  const tempStorePath = `${STORE_PATH}.tmp`;
+  const tempStorePath = `${STORE_PATH}.${randomUUID()}.tmp`;
 
-  writeFileSync(tempStorePath, JSON.stringify(store), "utf8");
-  renameSync(tempStorePath, STORE_PATH);
+  try {
+    writeFileSync(tempStorePath, JSON.stringify(store), "utf8");
+    renameSync(tempStorePath, STORE_PATH);
+  } catch (error) {
+    throw new Error(
+      `Unable to persist the mock auth store at ${STORE_PATH}: ${
+        error instanceof Error ? error.message : "unknown error"
+      }`,
+    );
+  }
 }
 
 function normalizeEmail(email: string): string {

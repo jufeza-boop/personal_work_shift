@@ -72,8 +72,14 @@ test("switches between families, persists the active family, and renames it", as
   await page.getByRole("button", { name: "Crear familia" }).click();
 
   await page.getByRole("link", { name: "Ajustes de familia" }).click();
-  await page.locator("aside").getByLabel("Nombre de la familia").fill("Work Team");
-  await page.locator("aside").getByRole("button", { name: "Crear familia" }).click();
+  const createFamilyInput = page.locator("aside").getByLabel(
+    "Nombre de la familia",
+  );
+
+  await expect(createFamilyInput).toBeVisible();
+  await createFamilyInput.fill("Work Team");
+  await expect(createFamilyInput).toHaveValue("Work Team");
+  await createFamilyInput.press("Enter");
 
   await expect(page.getByText("Familias")).toBeVisible();
   await expect(

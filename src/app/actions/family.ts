@@ -53,10 +53,11 @@ async function persistActiveFamily(familyId: string): Promise<void> {
 }
 
 export async function createFamilyAction(
-  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
   formData: FormData,
 ): Promise<FamilyFormState> {
-  void _previousState;
+  // Required by useActionState, but not needed in this implementation.
+  void previousState;
 
   const parsed = createFamilySchema.safeParse({
     name: formData.get("name"),
@@ -102,10 +103,11 @@ export async function createFamilyAction(
 }
 
 export async function addFamilyMemberAction(
-  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
   formData: FormData,
 ): Promise<FamilyFormState> {
-  void _previousState;
+  // Required by useActionState, but not needed in this implementation.
+  void previousState;
 
   const familyId = formData.get("familyId")?.toString();
 
@@ -180,10 +182,11 @@ export async function addFamilyMemberAction(
 }
 
 export async function renameFamilyAction(
-  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
   formData: FormData,
 ): Promise<FamilyFormState> {
-  void _previousState;
+  // Required by useActionState, but not needed in this implementation.
+  void previousState;
 
   const familyId = formData.get("familyId")?.toString();
 

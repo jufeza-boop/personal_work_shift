@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import {
   existsSync,
   mkdirSync,
@@ -51,15 +52,29 @@ function getStore(): MockFamilyStoreShape {
     };
   }
 
-  return JSON.parse(readFileSync(STORE_PATH, "utf8")) as MockFamilyStoreShape;
+  try {
+    return JSON.parse(readFileSync(STORE_PATH, "utf8")) as MockFamilyStoreShape;
+  } catch {
+    return {
+      familiesById: {},
+    };
+  }
 }
 
 function saveStore(store: MockFamilyStoreShape): void {
   ensureStoreDirectory();
-  const tempStorePath = `${STORE_PATH}.tmp`;
+  const tempStorePath = `${STORE_PATH}.${randomUUID()}.tmp`;
 
-  writeFileSync(tempStorePath, JSON.stringify(store), "utf8");
-  renameSync(tempStorePath, STORE_PATH);
+  try {
+    writeFileSync(tempStorePath, JSON.stringify(store), "utf8");
+    renameSync(tempStorePath, STORE_PATH);
+  } catch (error) {
+    throw new Error(
+      `Unable to persist the mock family store at ${STORE_PATH}: ${
+        error instanceof Error ? error.message : "unknown error"
+      }`,
+    );
+  }
 }
 
 function serializeFamily(family: Family): StoredFamily {
