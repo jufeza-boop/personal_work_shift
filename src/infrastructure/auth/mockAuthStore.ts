@@ -1,4 +1,13 @@
 import { randomUUID } from "node:crypto";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  renameSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
 import { User } from "@/domain/entities/User";
 
 export const MOCK_SESSION_COOKIE = "pws-mock-session";
@@ -11,23 +20,43 @@ interface MockStoredUser {
 }
 
 interface MockAuthStoreShape {
-  usersByEmail: Map<string, MockStoredUser>;
-  usersById: Map<string, MockStoredUser>;
+  usersByEmail: Record<string, MockStoredUser>;
+  usersById: Record<string, MockStoredUser>;
+}
+
+const STORE_PATH = join(
+  tmpdir(),
+  "personal-work-shift",
+  "mock-auth-store.json",
+);
+
+function ensureStoreDirectory(): void {
+  const directory = dirname(STORE_PATH);
+
+  if (!existsSync(directory)) {
+    mkdirSync(directory, { recursive: true });
+  }
 }
 
 function getStore(): MockAuthStoreShape {
-  const globalStore = globalThis as typeof globalThis & {
-    __PERSONAL_WORK_SHIFT_MOCK_AUTH__?: MockAuthStoreShape;
-  };
+  ensureStoreDirectory();
 
-  if (!globalStore.__PERSONAL_WORK_SHIFT_MOCK_AUTH__) {
-    globalStore.__PERSONAL_WORK_SHIFT_MOCK_AUTH__ = {
-      usersByEmail: new Map<string, MockStoredUser>(),
-      usersById: new Map<string, MockStoredUser>(),
+  if (!existsSync(STORE_PATH)) {
+    return {
+      usersByEmail: {},
+      usersById: {},
     };
   }
 
-  return globalStore.__PERSONAL_WORK_SHIFT_MOCK_AUTH__;
+  return JSON.parse(readFileSync(STORE_PATH, "utf8")) as MockAuthStoreShape;
+}
+
+function saveStore(store: MockAuthStoreShape): void {
+  ensureStoreDirectory();
+  const tempStorePath = `${STORE_PATH}.tmp`;
+
+  writeFileSync(tempStorePath, JSON.stringify(store), "utf8");
+  renameSync(tempStorePath, STORE_PATH);
 }
 
 function normalizeEmail(email: string): string {
@@ -48,18 +77,19 @@ export function createMockUser(input: {
 
   const store = getStore();
 
-  store.usersByEmail.set(user.email, user);
-  store.usersById.set(user.id, user);
+  store.usersByEmail[user.email] = user;
+  store.usersById[user.id] = user;
+  saveStore(store);
 
   return user;
 }
 
 export function findMockUserByEmail(email: string): MockStoredUser | null {
-  return getStore().usersByEmail.get(normalizeEmail(email)) ?? null;
+  return getStore().usersByEmail[normalizeEmail(email)] ?? null;
 }
 
 export function findMockUserById(id: string): MockStoredUser | null {
-  return getStore().usersById.get(id) ?? null;
+  return getStore().usersById[id] ?? null;
 }
 
 export function saveMockDomainUser(user: User, password = "Password1"): void {
@@ -71,8 +101,9 @@ export function saveMockDomainUser(user: User, password = "Password1"): void {
   };
   const store = getStore();
 
-  store.usersByEmail.set(storedUser.email, storedUser);
-  store.usersById.set(storedUser.id, storedUser);
+  store.usersByEmail[storedUser.email] = storedUser;
+  store.usersById[storedUser.id] = storedUser;
+  saveStore(store);
 }
 
 export function toDomainUser(user: MockStoredUser): User {

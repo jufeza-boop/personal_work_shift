@@ -12,10 +12,12 @@ test("redirects guests from calendar to login", async ({ page }) => {
 test("registers, logs in, and logs out with the mock auth driver", async ({
   page,
 }) => {
+  const email = `alice-${Date.now()}@example.com`;
+
   await page.goto("/register");
 
   await page.getByLabel("Nombre").fill("Alice Example");
-  await page.getByLabel("Correo electrónico").fill("alice@example.com");
+  await page.getByLabel("Correo electrónico").fill(email);
   await page.getByLabel("Contraseña").fill("Password1");
   await page.getByRole("button", { name: "Crear cuenta" }).click();
 
@@ -26,7 +28,7 @@ test("registers, logs in, and logs out with the mock auth driver", async ({
     ),
   ).toBeVisible();
 
-  await page.getByLabel("Correo electrónico").fill("alice@example.com");
+  await page.getByLabel("Correo electrónico").fill(email);
   await page.getByLabel("Contraseña").fill("Password1");
   await page.getByRole("button", { name: "Entrar" }).click();
 
