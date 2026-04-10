@@ -121,9 +121,10 @@ describe("Supabase repositories", () => {
       { onConflict: "id" },
     );
 
-    await repository.findByEmail("ALICE@EXAMPLE.COM");
+    const foundByEmail = await repository.findByEmail("ALICE@EXAMPLE.COM");
 
     expect(findBuilder.eq).toHaveBeenLastCalledWith("email", "alice@example.com");
+    expect(foundByEmail?.email).toBe("alice@example.com");
   });
 
   it("persists and reads families through the family repository", async () => {

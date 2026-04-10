@@ -28,7 +28,7 @@ function mapEvent(row: EventRow): Event {
     return new PunctualEvent({
       createdAt: new Date(row.created_at),
       createdBy: row.created_by,
-      date: toDate(row.event_date ?? row.created_at.slice(0, 10)),
+      date: toDate(row.event_date as string),
       description: row.description,
       endTime: normalizeTime(row.end_time),
       familyId: row.family_id,
@@ -50,7 +50,7 @@ function mapEvent(row: EventRow): Event {
     frequency: EventFrequency.create(row.frequency_unit ?? "weekly", row.frequency_interval ?? 1),
     id: row.id,
     shiftType: row.shift_type ? ShiftType.create(row.shift_type) : null,
-    startDate: toDate(row.start_date ?? row.created_at.slice(0, 10)),
+    startDate: toDate(row.start_date as string),
     startTime: normalizeTime(row.start_time),
     title: row.title,
     updatedAt: new Date(row.updated_at),
