@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useId } from "react";
-import { Button } from "@/presentation/components/ui/button";
+import { SubmitButton } from "@/presentation/components/ui/SubmitButton";
 import {
   EMPTY_FAMILY_FORM_STATE,
   type FamilyFormAction,
@@ -100,9 +100,11 @@ export function InviteFamilyMemberForm({
           </p>
         ) : null}
 
-        <Button className="w-full" type="submit">
-          Añadir miembro
-        </Button>
+        <SubmitButton
+          className="w-full"
+          label="Añadir miembro"
+          pendingLabel="Añadiendo..."
+        />
       </form>
     </section>
   );

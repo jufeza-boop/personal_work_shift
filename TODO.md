@@ -83,15 +83,15 @@
 
 ## Phase 5: Event Management - Core (US-4.1, US-4.2, US-4.3)
 
-- [ ] Implement `CreateEvent` use case (punctual) + tests
-- [ ] Implement `CreateEvent` use case (recurring work/study) + tests
-- [ ] Implement `CreateEvent` use case (recurring other) + tests
-- [ ] Create event creation form with type selection
-- [ ] Implement recurrence rule builder (every X days/weeks/annual)
-- [ ] Implement shift type selector (Day/Night/Morning/Afternoon)
-- [ ] Validate event ownership on creation
-- [ ] Write unit tests for event creation logic
-- [ ] Write E2E tests for event creation flows
+- [x] Implement `CreateEvent` use case (punctual) + tests
+- [x] Implement `CreateEvent` use case (recurring work/study) + tests
+- [x] Implement `CreateEvent` use case (recurring other) + tests
+- [x] Create event creation form with type selection
+- [x] Implement recurrence rule builder (every X days/weeks/annual)
+- [x] Implement shift type selector (Day/Night/Morning/Afternoon)
+- [x] Validate event ownership on creation
+- [x] Write unit tests for event creation logic
+- [x] Write E2E tests for event creation flows
 
 ---
 
