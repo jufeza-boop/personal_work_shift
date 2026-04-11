@@ -154,7 +154,10 @@ test("deletes an event and it disappears from the list", async ({ page }) => {
   await expect(page.getByText("Event to delete")).toBeVisible();
 
   await page.getByRole("button", { name: "Eliminar" }).first().click();
-  await page.getByRole("button", { name: "Eliminar" }).last().click();
+  await page
+    .getByRole("form", { name: "Eliminar evento" })
+    .getByRole("button", { name: "Eliminar" })
+    .click();
 
   await expect(page).toHaveURL("/calendar");
   await expect(page.getByText("Event to delete")).not.toBeVisible();
