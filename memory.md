@@ -8,8 +8,8 @@
 
 ## Current State
 
-- **Phase**: 4 — family management completed
-- **Last Updated**: 2026-04-10
+- **Phase**: 5 — event management core completed (US-4.1, US-4.2, US-4.3)
+- **Last Updated**: 2026-04-11
 
 ---
 
@@ -65,9 +65,20 @@
 - Added authenticated family dashboard/settings flows with server actions, Zod validation, family selector, member list, owner-only rename and invitation forms, and active-family persistence via cookie
 - Expanded mock-mode support with file-backed auth/family stores in `/tmp/personal-work-shift` so Playwright can exercise multi-request family flows reliably across Next.js workers
 
-### 2026-04-10 - Family Creation RLS Fix
+### 2026-04-11 - Phase 5 Event Management Core (US-4.1, US-4.2, US-4.3)
 
-- Fixed `SupabaseFamilyRepository.save` to use an insert-first path for brand new families and an update path for existing families
+- Implemented `CreateEvent` use case with discriminated union input (`eventType: "punctual" | "recurring"`), Result-style responses, family membership check, and domain entity creation
+- Added `mockEventStore.ts` (file-backed JSON at `/tmp/personal-work-shift/mock-event-store.json`), `MockEventRepository`, and `createServerEventDependencies()` runtime factory following the established family mock pattern
+- Added Zod schemas for punctual, recurring-work, and recurring-other event forms in `eventSchemas.ts`
+- Added `CreateEventForm` client component with tab switcher (Puntual / Trabajo/Estudio / Otro recurrente) using `useActionState`
+- Added `createEventAction` server action dispatching to three schema/use-case branches based on `eventType` hidden input
+- Updated calendar page to render `CreateEventForm` and an event list fetched via `eventRepository.findByFamilyId`
+- Added Playwright E2E tests for all three event creation flows
+- All 82 Vitest tests pass, lint clean, build succeeds
+
+---
+
+### 2026-04-10 - Family Creation RLS Fix
 - The change avoids the Supabase/Postgres RLS failure triggered by `upsert` on `families` during family creation while keeping rename/member updates working
 - Added repository coverage for both the create path and the existing-family update path
 
@@ -85,6 +96,8 @@
 - Playwright end-to-end auth coverage runs with `AUTH_DRIVER=mock`, which swaps in-memory auth dependencies for the real Supabase integration during browser tests
 - Family management uses `src/app/actions/family.ts` server actions plus a shared active-family cookie (`pws-active-family`) to keep the selected family across sessions and pages
 - Mock browser flows persist auth and family state through JSON files in `/tmp/personal-work-shift` so Next.js route workers share the same test data
+- Event management uses `src/app/actions/events.ts` server actions; the `CreateEventForm` component sends a hidden `eventType` field ("punctual" | "recurring-work" | "recurring-other") to route validation and use-case dispatch in the server action
+- Event mock infrastructure (`MockEventRepository`, `mockEventStore`) follows the same file-backed JSON pattern as the family mock infrastructure
 
 ---
 
@@ -141,5 +154,6 @@
 ## Next Steps
 
 - Apply branch protection rules in GitHub using `.github/branch-protection-rules.md`
-- Begin Phase 5 by implementing family-scoped event creation flows on top of the active-family selection
+- Begin Phase 6: Event Management - Edit & Delete (US-4.4, US-4.5, US-4.6)
+- Begin Phase 7: Calendar View (US-3.1, US-3.2, US-3.3) to render events visually on a monthly grid
 - Add live local Supabase integration coverage once the sandbox DNS issue for `supabase start` is resolved

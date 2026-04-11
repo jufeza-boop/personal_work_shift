@@ -1,6 +1,9 @@
 import Link from "next/link";
+import { createEventAction } from "@/app/actions/events";
 import { createFamilyAction, switchFamilyAction } from "@/app/actions/family";
 import { getFamilyPageData } from "@/app/(dashboard)/familyPageData";
+import { createServerEventDependencies } from "@/infrastructure/events/runtime";
+import { CreateEventForm } from "@/presentation/components/events/CreateEventForm";
 import { CreateFamilyForm } from "@/presentation/components/family/CreateFamilyForm";
 import { FamilyMemberList } from "@/presentation/components/family/FamilyMemberList";
 import { FamilySelectorPanel } from "@/presentation/components/family/FamilySelectorPanel";
@@ -9,6 +12,12 @@ import { Button } from "@/presentation/components/ui/button";
 export default async function CalendarPage() {
   const { activeFamily, families, memberDirectory } =
     await getFamilyPageData("/calendar");
+
+  const events = activeFamily
+    ? await createServerEventDependencies().then(({ eventRepository }) =>
+        eventRepository.findByFamilyId(activeFamily.id),
+      )
+    : [];
 
   if (!activeFamily) {
     return (
@@ -68,14 +77,44 @@ export default async function CalendarPage() {
           memberDirectory={memberDirectory}
         />
 
+        <CreateEventForm
+          action={createEventAction}
+          familyId={activeFamily.id}
+          redirectTo="/calendar"
+        />
+
+        <section className="rounded-3xl border border-stone-200 bg-white/80 p-8 shadow-sm">
+          <h3 className="text-xl font-semibold text-slate-900">Eventos</h3>
+          {events.length === 0 ? (
+            <p className="mt-3 text-sm leading-6 text-slate-500">
+              Aún no hay eventos para esta familia.
+            </p>
+          ) : (
+            <ul className="mt-4 divide-y divide-stone-100">
+              {events.map((event) => (
+                <li
+                  className="flex items-center justify-between py-3"
+                  key={event.id}
+                >
+                  <span className="text-sm font-medium text-slate-800">
+                    {event.title}
+                  </span>
+                  <span className="ml-4 shrink-0 rounded-full bg-stone-100 px-3 py-1 text-xs text-slate-500">
+                    {event.type === "punctual" ? "Puntual" : "Recurrente"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
         <section className="rounded-3xl border border-dashed border-stone-300 bg-white/70 p-8 shadow-sm">
           <h3 className="text-xl font-semibold text-slate-900">
-            Próximo paso: eventos y vista mensual
+            Próximo paso: vista mensual
           </h3>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-            La gestión de familias ya permite crear grupos, invitar miembros,
-            cambiar de contexto y mantener la familia activa entre sesiones. En
-            la siguiente fase este espacio cargará los turnos y eventos de{" "}
+            Los eventos ya se pueden crear y listar. En la siguiente fase este
+            espacio cargará la vista de calendario mensual con los turnos de{" "}
             {activeFamily.name}.
           </p>
         </section>
