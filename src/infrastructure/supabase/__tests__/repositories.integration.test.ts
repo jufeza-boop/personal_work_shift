@@ -23,10 +23,12 @@ interface QueryResponse<T> {
 interface MockBuilder<T> {
   readonly delete: ReturnType<typeof vi.fn>;
   readonly eq: ReturnType<typeof vi.fn>;
+  readonly insert: ReturnType<typeof vi.fn>;
   readonly in: ReturnType<typeof vi.fn>;
   readonly maybeSingle: ReturnType<typeof vi.fn>;
   readonly order: ReturnType<typeof vi.fn>;
   readonly select: ReturnType<typeof vi.fn>;
+  readonly update: ReturnType<typeof vi.fn>;
   readonly upsert: ReturnType<typeof vi.fn>;
   then<TResult1 = QueryResponse<T>, TResult2 = never>(
     onfulfilled?:
@@ -49,10 +51,12 @@ function createBuilder<T>(response: QueryResponse<T>): MockBuilder<T> {
   const builder: MockBuilder<T> = {
     delete: vi.fn(() => builder),
     eq: vi.fn(() => builder),
+    insert: vi.fn(async () => response),
     in: vi.fn(() => builder),
     maybeSingle: vi.fn(async () => response),
     order: vi.fn(() => builder),
     select: vi.fn(() => builder),
+    update: vi.fn(() => builder),
     upsert: vi.fn(async () => response),
     then(onfulfilled, onrejected) {
       return Promise.resolve(response).then(onfulfilled, onrejected);
@@ -64,33 +68,34 @@ function createBuilder<T>(response: QueryResponse<T>): MockBuilder<T> {
 
 describe("Supabase repositories", () => {
   it("persists and reads users through the user repository", async () => {
-    const findBuilder = createBuilder({
-      data: {
-        avatar_url: null,
-        created_at: "2026-04-10T00:00:00.000Z",
-        delegated_by_user_id: null,
-        display_name: "Alice Example",
-        email: "alice@example.com",
-        id: "user-1",
-        updated_at: "2026-04-10T00:00:00.000Z",
-      },
-      error: null,
-    });
+    const userRow = {
+      avatar_url: null,
+      created_at: "2026-04-10T00:00:00.000Z",
+      delegated_by_user_id: null,
+      display_name: "Alice Example",
+      email: "alice@example.com",
+      id: "user-1",
+      updated_at: "2026-04-10T00:00:00.000Z",
+    };
     const saveBuilder = createBuilder({
       data: null,
       error: null,
     });
+    const rpcMock = vi.fn().mockResolvedValue({
+      data: [userRow],
+      error: null,
+    });
     const client = {
-      from: vi
-        .fn()
-        .mockReturnValueOnce(findBuilder)
-        .mockReturnValueOnce(saveBuilder)
-        .mockReturnValueOnce(findBuilder),
+      from: vi.fn().mockReturnValue(saveBuilder),
+      rpc: rpcMock,
     } as unknown as SupabaseClient<Database>;
 
     const repository = new SupabaseUserRepository(client);
     const stored = await repository.findById("user-1");
 
+    expect(rpcMock).toHaveBeenCalledWith("lookup_family_member_user", {
+      target_user_id: "user-1",
+    });
     expect(stored).toEqual(
       new User({
         displayName: "Alice Example",
@@ -121,10 +126,9 @@ describe("Supabase repositories", () => {
 
     const foundByEmail = await repository.findByEmail("ALICE@EXAMPLE.COM");
 
-    expect(findBuilder.eq).toHaveBeenLastCalledWith(
-      "email",
-      "alice@example.com",
-    );
+    expect(rpcMock).toHaveBeenCalledWith("lookup_user_by_email", {
+      target_email: "alice@example.com",
+    });
     expect(foundByEmail?.email).toBe("alice@example.com");
   });
 
@@ -168,7 +172,7 @@ describe("Supabase repositories", () => {
       data: [familyRow],
       error: null,
     });
-    const saveFamilyBuilder = createBuilder({
+    const updateFamilyBuilder = createBuilder({
       data: null,
       error: null,
     });
@@ -194,8 +198,8 @@ describe("Supabase repositories", () => {
         .mockReturnValueOnce(findBuilder)
         .mockReturnValueOnce(membershipBuilder)
         .mockReturnValueOnce(listBuilder)
-        .mockReturnValueOnce(saveFamilyBuilder)
         .mockReturnValueOnce(existingMembersBuilder)
+        .mockReturnValueOnce(updateFamilyBuilder)
         .mockReturnValueOnce(deleteRemovedMemberBuilder)
         .mockReturnValueOnce(saveMembersBuilder),
     } as unknown as SupabaseClient<Database>;
@@ -220,13 +224,13 @@ describe("Supabase repositories", () => {
 
     expect(stored).toEqual(family);
     expect(listed).toEqual([family]);
-    expect(saveFamilyBuilder.upsert).toHaveBeenCalledWith(
-      {
-        created_by: "owner-1",
-        id: "family-1",
-        name: "Core Team",
-      },
-      { onConflict: "id" },
+    expect(updateFamilyBuilder.update).toHaveBeenCalledWith({
+      name: "Core Team",
+    });
+    expect(updateFamilyBuilder.eq).toHaveBeenCalledWith("id", "family-1");
+    expect(updateFamilyBuilder.eq).toHaveBeenCalledWith(
+      "created_by",
+      "owner-1",
     );
     expect(saveMembersBuilder.upsert).toHaveBeenCalledWith(
       [
@@ -255,6 +259,77 @@ describe("Supabase repositories", () => {
     expect(deleteRemovedMemberBuilder.in).toHaveBeenCalledWith("user_id", [
       "removed-1",
     ]);
+  });
+
+  it("creates a new family with insert-first persistence to satisfy RLS", async () => {
+    const createFamilyBuilder = createBuilder({
+      data: null,
+      error: null,
+    });
+    const noExistingMembersBuilder = createBuilder({
+      data: [],
+      error: null,
+    });
+    const insertOwnerMemberBuilder = createBuilder({
+      data: null,
+      error: null,
+    });
+    const insertAdditionalMembersBuilder = createBuilder({
+      data: null,
+      error: null,
+    });
+    const client = {
+      from: vi
+        .fn()
+        .mockReturnValueOnce(noExistingMembersBuilder)
+        .mockReturnValueOnce(createFamilyBuilder)
+        .mockReturnValueOnce(insertOwnerMemberBuilder)
+        .mockReturnValueOnce(insertAdditionalMembersBuilder),
+    } as unknown as SupabaseClient<Database>;
+    const repository = new SupabaseFamilyRepository(client);
+    const family = new Family({
+      createdBy: "owner-1",
+      id: "family-2",
+      members: [
+        {
+          colorPalette: ColorPalette.create("sky"),
+          role: "member",
+          userId: "member-1",
+        },
+      ],
+      name: "New Family",
+    });
+
+    await repository.save(family);
+
+    expect(createFamilyBuilder.insert).toHaveBeenCalledWith({
+      created_by: "owner-1",
+      id: "family-2",
+      name: "New Family",
+    });
+    expect(insertOwnerMemberBuilder.insert).toHaveBeenCalledWith({
+      color_palette: null,
+      delegated_by_user_id: null,
+      family_id: "family-2",
+      role: "owner",
+      user_id: "owner-1",
+    });
+    expect(insertAdditionalMembersBuilder.upsert).toHaveBeenCalledWith(
+      [
+        {
+          color_palette: "sky",
+          delegated_by_user_id: null,
+          family_id: "family-2",
+          role: "member",
+          user_id: "member-1",
+        },
+      ],
+      { onConflict: "family_id,user_id" },
+    );
+    expect(noExistingMembersBuilder.eq).toHaveBeenCalledWith(
+      "family_id",
+      "family-2",
+    );
   });
 
   it("persists and reads punctual and recurring events through the event repository", async () => {

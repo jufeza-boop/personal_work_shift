@@ -1,0 +1,109 @@
+"use client";
+
+import { useActionState, useId } from "react";
+import { Button } from "@/presentation/components/ui/button";
+import {
+  EMPTY_FAMILY_FORM_STATE,
+  type FamilyFormAction,
+} from "@/presentation/components/family/types";
+
+interface InviteFamilyMemberFormProps {
+  action: FamilyFormAction;
+  familyId: string;
+  paletteOptions: Array<{
+    disabled: boolean;
+    name: string;
+  }>;
+  redirectTo?: string;
+}
+
+export function InviteFamilyMemberForm({
+  action,
+  familyId,
+  paletteOptions,
+  redirectTo = "/calendar/settings",
+}: InviteFamilyMemberFormProps) {
+  const emailId = useId();
+  const colorPaletteId = useId();
+  const [formState, formAction] = useActionState(
+    action,
+    EMPTY_FAMILY_FORM_STATE,
+  );
+
+  return (
+    <section className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm">
+      <h2 className="text-lg font-semibold text-slate-900">Invitar miembro</h2>
+      <p className="mt-2 text-sm leading-6 text-slate-600">
+        Invita por correo a alguien que ya tenga cuenta y asígnale una paleta
+        libre.
+      </p>
+
+      <form action={formAction} className="mt-4 space-y-4">
+        <input name="familyId" type="hidden" value={familyId} />
+        <input name="redirectTo" type="hidden" value={redirectTo} />
+
+        <div className="space-y-1">
+          <label
+            className="text-sm font-medium text-slate-800"
+            htmlFor={emailId}
+          >
+            Correo electrónico
+          </label>
+          <input
+            className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm"
+            id={emailId}
+            name="email"
+            type="email"
+          />
+          {formState.errors?.email ? (
+            <p className="text-sm text-red-600">{formState.errors.email}</p>
+          ) : null}
+        </div>
+
+        <div className="space-y-1">
+          <label
+            className="text-sm font-medium text-slate-800"
+            htmlFor={colorPaletteId}
+          >
+            Paleta de color
+          </label>
+          <select
+            className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm"
+            defaultValue=""
+            id={colorPaletteId}
+            name="colorPalette"
+          >
+            <option disabled value="">
+              Selecciona una paleta
+            </option>
+            {paletteOptions.map((palette) => (
+              <option
+                disabled={palette.disabled}
+                key={palette.name}
+                value={palette.name}
+              >
+                {palette.name}
+                {palette.disabled ? " · ocupada" : ""}
+              </option>
+            ))}
+          </select>
+          {formState.errors?.colorPalette ? (
+            <p className="text-sm text-red-600">
+              {formState.errors.colorPalette}
+            </p>
+          ) : null}
+        </div>
+
+        {formState.message ? (
+          <p className="rounded-xl bg-stone-100 px-4 py-3 text-sm text-slate-700">
+            {formState.message}
+          </p>
+        ) : null}
+
+        <Button className="w-full" type="submit">
+          Añadir miembro
+        </Button>
+      </form>
+    </section>
+  );
+}

@@ -68,16 +68,16 @@
 
 ## Phase 4: Family Management (US-2.1, US-2.2, US-2.3, US-2.4)
 
-- [ ] Implement `CreateFamily` use case + tests
-- [ ] Implement `AddMember` use case + tests
-- [ ] Implement `SwitchFamily` use case + tests
-- [ ] Implement `RenameFamily` use case + tests
-- [ ] Create family selector panel component
-- [ ] Create family settings page
-- [ ] Create member invitation flow (by email)
-- [ ] Create member list component with roles
-- [ ] Persist active family selection across sessions
-- [ ] Write E2E tests for family management
+- [x] Implement `CreateFamily` use case + tests
+- [x] Implement `AddMember` use case + tests
+- [x] Implement `SwitchFamily` use case + tests
+- [x] Implement `RenameFamily` use case + tests
+- [x] Create family selector panel component
+- [x] Create family settings page
+- [x] Create member invitation flow (by email)
+- [x] Create member list component with roles
+- [x] Persist active family selection across sessions
+- [x] Write E2E tests for family management
 
 ---
 

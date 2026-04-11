@@ -214,6 +214,7 @@ After completing each task, update `memory.md` with:
 6. [ ] Verify no dependency rule violations
 7. [ ] Run full test suite — all tests must pass
 8. [ ] Run linter — zero warnings or errors
-9. [ ] Commit with conventional commit message
-10. [ ] Update `memory.md` with context from this task
-11. [ ] Update `TODO.md` — mark completed items
+9. [ ] Run format
+10. [ ] Commit with conventional commit message
+11. [ ] Update `memory.md` with context from this task
+12. [ ] Update `TODO.md` — mark completed items
