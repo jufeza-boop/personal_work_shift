@@ -272,7 +272,32 @@ export interface Database {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      lookup_family_member_user: {
+        Args: { target_user_id: string };
+        Returns: {
+          id: string;
+          email: string;
+          display_name: string;
+          avatar_url: string | null;
+          delegated_by_user_id: string | null;
+          created_at: string;
+          updated_at: string;
+        }[];
+      };
+      lookup_user_by_email: {
+        Args: { target_email: string };
+        Returns: {
+          id: string;
+          email: string;
+          display_name: string;
+          avatar_url: string | null;
+          delegated_by_user_id: string | null;
+          created_at: string;
+          updated_at: string;
+        }[];
+      };
+    };
     CompositeTypes: Record<string, never>;
   };
 }
