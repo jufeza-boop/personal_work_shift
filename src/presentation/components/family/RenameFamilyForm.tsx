@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useId } from "react";
-import { Button } from "@/presentation/components/ui/button";
+import { SubmitButton } from "@/presentation/components/ui/SubmitButton";
 import {
   EMPTY_FAMILY_FORM_STATE,
   type FamilyFormAction,
@@ -64,7 +64,7 @@ export function RenameFamilyForm({
           </p>
         ) : null}
 
-        <Button type="submit">Guardar nombre</Button>
+        <SubmitButton label="Guardar nombre" pendingLabel="Guardando..." />
       </form>
     </section>
   );

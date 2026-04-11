@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useId, useState } from "react";
-import { Button } from "@/presentation/components/ui/button";
+import { SubmitButton } from "@/presentation/components/ui/SubmitButton";
 import {
   EMPTY_EVENT_FORM_STATE,
   type EventFormAction,
@@ -52,7 +52,10 @@ export function CreateEventForm({
   const shiftTypeId = useId();
 
   const [activeTab, setActiveTab] = useState<EventTab>("punctual");
-  const [formState, formAction] = useActionState(action, EMPTY_EVENT_FORM_STATE);
+  const [formState, formAction] = useActionState(
+    action,
+    EMPTY_EVENT_FORM_STATE,
+  );
 
   return (
     <section className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm">
@@ -472,9 +475,11 @@ export function CreateEventForm({
           </p>
         ) : null}
 
-        <Button className="w-full" type="submit">
-          Crear evento
-        </Button>
+        <SubmitButton
+          className="w-full"
+          label="Crear evento"
+          pendingLabel="Guardando..."
+        />
       </form>
     </section>
   );

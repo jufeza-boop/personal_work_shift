@@ -79,6 +79,7 @@
 ---
 
 ### 2026-04-10 - Family Creation RLS Fix
+
 - The change avoids the Supabase/Postgres RLS failure triggered by `upsert` on `families` during family creation while keeping rename/member updates working
 - Added repository coverage for both the create path and the existing-family update path
 
@@ -98,6 +99,7 @@
 - Mock browser flows persist auth and family state through JSON files in `/tmp/personal-work-shift` so Next.js route workers share the same test data
 - Event management uses `src/app/actions/events.ts` server actions; the `CreateEventForm` component sends a hidden `eventType` field ("punctual" | "recurring-work" | "recurring-other") to route validation and use-case dispatch in the server action
 - Event mock infrastructure (`MockEventRepository`, `mockEventStore`) follows the same file-backed JSON pattern as the family mock infrastructure
+- All form submit buttons use `SubmitButton` (`src/presentation/components/ui/SubmitButton.tsx`), which reads `useFormStatus().pending` to disable itself and swap its label while the server action is in flight — this gives users immediate visual feedback on every form action
 
 ---
 

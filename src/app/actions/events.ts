@@ -36,9 +36,7 @@ function toOptionalDate(value: string | undefined | ""): Date | undefined {
   return toDate(value);
 }
 
-function toOptionalString(
-  value: string | undefined | "",
-): string | undefined {
+function toOptionalString(value: string | undefined | ""): string | undefined {
   if (!value) return undefined;
 
   return value;
