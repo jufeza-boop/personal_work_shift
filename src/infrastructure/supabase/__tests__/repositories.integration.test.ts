@@ -68,33 +68,34 @@ function createBuilder<T>(response: QueryResponse<T>): MockBuilder<T> {
 
 describe("Supabase repositories", () => {
   it("persists and reads users through the user repository", async () => {
-    const findBuilder = createBuilder({
-      data: {
-        avatar_url: null,
-        created_at: "2026-04-10T00:00:00.000Z",
-        delegated_by_user_id: null,
-        display_name: "Alice Example",
-        email: "alice@example.com",
-        id: "user-1",
-        updated_at: "2026-04-10T00:00:00.000Z",
-      },
-      error: null,
-    });
+    const userRow = {
+      avatar_url: null,
+      created_at: "2026-04-10T00:00:00.000Z",
+      delegated_by_user_id: null,
+      display_name: "Alice Example",
+      email: "alice@example.com",
+      id: "user-1",
+      updated_at: "2026-04-10T00:00:00.000Z",
+    };
     const saveBuilder = createBuilder({
       data: null,
       error: null,
     });
+    const rpcMock = vi.fn().mockResolvedValue({
+      data: [userRow],
+      error: null,
+    });
     const client = {
-      from: vi
-        .fn()
-        .mockReturnValueOnce(findBuilder)
-        .mockReturnValueOnce(saveBuilder)
-        .mockReturnValueOnce(findBuilder),
+      from: vi.fn().mockReturnValue(saveBuilder),
+      rpc: rpcMock,
     } as unknown as SupabaseClient<Database>;
 
     const repository = new SupabaseUserRepository(client);
     const stored = await repository.findById("user-1");
 
+    expect(rpcMock).toHaveBeenCalledWith("lookup_family_member_user", {
+      target_user_id: "user-1",
+    });
     expect(stored).toEqual(
       new User({
         displayName: "Alice Example",
@@ -125,10 +126,9 @@ describe("Supabase repositories", () => {
 
     const foundByEmail = await repository.findByEmail("ALICE@EXAMPLE.COM");
 
-    expect(findBuilder.eq).toHaveBeenLastCalledWith(
-      "email",
-      "alice@example.com",
-    );
+    expect(rpcMock).toHaveBeenCalledWith("lookup_user_by_email", {
+      target_email: "alice@example.com",
+    });
     expect(foundByEmail?.email).toBe("alice@example.com");
   });
 
