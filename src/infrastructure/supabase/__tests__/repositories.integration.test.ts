@@ -228,7 +228,10 @@ describe("Supabase repositories", () => {
       name: "Core Team",
     });
     expect(updateFamilyBuilder.eq).toHaveBeenCalledWith("id", "family-1");
-    expect(updateFamilyBuilder.eq).toHaveBeenCalledWith("created_by", "owner-1");
+    expect(updateFamilyBuilder.eq).toHaveBeenCalledWith(
+      "created_by",
+      "owner-1",
+    );
     expect(saveMembersBuilder.upsert).toHaveBeenCalledWith(
       [
         {

@@ -49,10 +49,9 @@ export class SupabaseUserRepository implements IUserRepository {
   }
 
   async findById(id: string): Promise<User | null> {
-    const { data, error } = await this.client.rpc(
-      "lookup_family_member_user",
-      { target_user_id: id },
-    );
+    const { data, error } = await this.client.rpc("lookup_family_member_user", {
+      target_user_id: id,
+    });
 
     if (error) {
       throw error;

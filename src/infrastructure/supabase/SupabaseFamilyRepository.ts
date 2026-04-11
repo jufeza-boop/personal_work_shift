@@ -129,7 +129,9 @@ export class SupabaseFamilyRepository implements IFamilyRepository {
     const existingMembers = existingMembersResponse.data ?? [];
     const isNewFamily = existingMembers.length === 0;
     const members = this.mapMembers(family);
-    const ownerMember = members.find((member) => member.user_id === family.createdBy);
+    const ownerMember = members.find(
+      (member) => member.user_id === family.createdBy,
+    );
 
     if (!ownerMember) {
       throw new Error(
