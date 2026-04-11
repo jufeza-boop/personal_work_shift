@@ -126,7 +126,9 @@ export function EventList({
                         value="all"
                         checked={deleteDialog.scope === "all"}
                         onChange={() =>
-                          setDeleteDialog((d) => d && { ...d, scope: "all" })
+                          setDeleteDialog((d) =>
+                            d ? { ...d, scope: "all" } : null,
+                          )
                         }
                       />
                       Toda la serie
@@ -138,7 +140,9 @@ export function EventList({
                         value="single"
                         checked={deleteDialog.scope === "single"}
                         onChange={() =>
-                          setDeleteDialog((d) => d && { ...d, scope: "single" })
+                          setDeleteDialog((d) =>
+                            d ? { ...d, scope: "single" } : null,
+                          )
                         }
                       />
                       Una ocurrencia

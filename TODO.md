@@ -97,15 +97,15 @@
 
 ## Phase 6: Event Management - Edit & Delete (US-4.4, US-4.5, US-4.6)
 
-- [ ] Implement `EditEvent` use case (single + series) + tests
-- [ ] Implement `DeleteEvent` use case (single + series) + tests
-- [ ] Create edit event form (pre-populated)
-- [ ] Create "Edit this or all?" confirmation dialog for recurring events
-- [ ] Create "Delete this or all?" confirmation dialog for recurring events
-- [ ] Implement event exceptions for single-occurrence edits/deletes
-- [ ] Enforce ownership: hide edit/delete for non-creators
-- [ ] Enforce ownership: server-side rejection for unauthorized modifications
-- [ ] Write E2E tests for edit and delete flows
+- [x] Implement `EditEvent` use case (single + series) + tests
+- [x] Implement `DeleteEvent` use case (single + series) + tests
+- [x] Create edit event form (pre-populated)
+- [x] Create "Edit this or all?" confirmation dialog for recurring events
+- [x] Create "Delete this or all?" confirmation dialog for recurring events
+- [x] Implement event exceptions for single-occurrence edits/deletes
+- [x] Enforce ownership: hide edit/delete for non-creators
+- [x] Enforce ownership: server-side rejection for unauthorized modifications
+- [x] Write E2E tests for edit and delete flows
 
 ---
 

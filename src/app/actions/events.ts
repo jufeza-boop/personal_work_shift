@@ -367,13 +367,11 @@ export async function editEventAction(
         description: parsed.data.description ?? null,
         startTime:
           "startTime" in parsed.data
-            ? (toOptionalString(parsed.data.startTime as string | undefined) ??
-              null)
+            ? (toOptionalString(parsed.data.startTime) ?? null)
             : null,
         endTime:
           "endTime" in parsed.data
-            ? (toOptionalString(parsed.data.endTime as string | undefined) ??
-              null)
+            ? (toOptionalString(parsed.data.endTime) ?? null)
             : null,
       });
 
@@ -402,18 +400,14 @@ export async function editEventAction(
       frequencyUnit: parsed.data.frequencyUnit,
       frequencyInterval: parsed.data.frequencyInterval,
       shiftType:
-        "shiftType" in parsed.data
-          ? (parsed.data.shiftType as string | undefined)
-          : undefined,
+        "shiftType" in parsed.data ? parsed.data.shiftType : undefined,
       startTime:
         "startTime" in parsed.data
-          ? (toOptionalString(parsed.data.startTime as string | undefined) ??
-            null)
+          ? (toOptionalString(parsed.data.startTime) ?? null)
           : null,
       endTime:
         "endTime" in parsed.data
-          ? (toOptionalString(parsed.data.endTime as string | undefined) ??
-            null)
+          ? (toOptionalString(parsed.data.endTime) ?? null)
           : null,
     });
 
