@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { CreateEvent } from "@/application/use-cases/events/CreateEvent";
+import { DeleteEvent } from "@/application/use-cases/events/DeleteEvent";
+import { EditEvent } from "@/application/use-cases/events/EditEvent";
 import { getAuthenticatedUser } from "@/infrastructure/auth/runtime";
 import { createServerEventDependencies } from "@/infrastructure/events/runtime";
 import {
@@ -13,6 +15,9 @@ import {
   createPunctualEventSchema,
   createRecurringOtherEventSchema,
   createRecurringWorkEventSchema,
+  editPunctualEventSchema,
+  editRecurringOtherEventSchema,
+  editRecurringWorkEventSchema,
 } from "@/presentation/validation/eventSchemas";
 import { sanitizeRedirectPath } from "@/shared/auth/routeProtection";
 
@@ -237,12 +242,257 @@ export async function createEventAction(
   };
 }
 
+export async function editEventAction(
+  previousState: EventFormState = EMPTY_EVENT_FORM_STATE,
+  formData: FormData,
+): Promise<EventFormState> {
+  void previousState;
+
+  const eventId = formData.get("eventId")?.toString();
+  const scope = formData.get("scope")?.toString() as
+    | "all"
+    | "single"
+    | undefined;
+  const eventType = formData.get("eventType")?.toString();
+  const occurrenceDateRaw = formData.get("occurrenceDate")?.toString();
+  const redirectTo = sanitizeRedirectPath(
+    formData.get("redirectTo")?.toString(),
+  );
+
+  if (!eventId) {
+    return { success: false, message: "Falta el identificador del evento." };
+  }
+
+  const user = await requireAuthenticatedUser(redirectTo);
+  const { eventRepository } = await createServerEventDependencies();
+  const useCase = new EditEvent(eventRepository);
+
+  if (eventType === "punctual") {
+    const parsed = editPunctualEventSchema.safeParse({
+      eventId,
+      scope,
+      occurrenceDate: occurrenceDateRaw,
+      title: formData.get("title"),
+      description: formData.get("description"),
+      date: formData.get("date"),
+      startTime: formData.get("startTime"),
+      endTime: formData.get("endTime"),
+    });
+
+    if (!parsed.success) {
+      const fieldErrors = parsed.error.flatten().fieldErrors;
+      return {
+        success: false,
+        errors: {
+          title: fieldErrors.title?.[0],
+          description: fieldErrors.description?.[0],
+          date: fieldErrors.date?.[0],
+          startTime: fieldErrors.startTime?.[0],
+          endTime: fieldErrors.endTime?.[0],
+        },
+      };
+    }
+
+    const result = await useCase.execute({
+      scope: "all",
+      eventId,
+      requestedBy: user.id,
+      title: parsed.data.title,
+      description: parsed.data.description ?? null,
+      date: toDate(parsed.data.date),
+      startTime: toOptionalString(parsed.data.startTime) ?? null,
+      endTime: toOptionalString(parsed.data.endTime) ?? null,
+    });
+
+    if (!result.success) {
+      return { success: false, message: buildErrorMessage(result.error.code) };
+    }
+
+    revalidatePath("/calendar");
+    redirect(redirectTo);
+  }
+
+  if (eventType === "recurring-work" || eventType === "recurring-other") {
+    const schema =
+      eventType === "recurring-work"
+        ? editRecurringWorkEventSchema
+        : editRecurringOtherEventSchema;
+    const parsed = schema.safeParse({
+      eventId,
+      scope,
+      occurrenceDate: occurrenceDateRaw,
+      title: formData.get("title"),
+      description: formData.get("description"),
+      startDate: formData.get("startDate"),
+      endDate: formData.get("endDate"),
+      frequencyUnit: formData.get("frequencyUnit"),
+      frequencyInterval: formData.get("frequencyInterval"),
+      shiftType:
+        eventType === "recurring-work" ? formData.get("shiftType") : undefined,
+      startTime:
+        eventType === "recurring-other" ? formData.get("startTime") : undefined,
+      endTime:
+        eventType === "recurring-other" ? formData.get("endTime") : undefined,
+    });
+
+    if (!parsed.success) {
+      const fieldErrors = parsed.error.flatten().fieldErrors;
+      return {
+        success: false,
+        errors: {
+          title: fieldErrors.title?.[0],
+          description: fieldErrors.description?.[0],
+          startDate: fieldErrors.startDate?.[0],
+          endDate: fieldErrors.endDate?.[0],
+          frequencyUnit: fieldErrors.frequencyUnit?.[0],
+          frequencyInterval: fieldErrors.frequencyInterval?.[0],
+        },
+      };
+    }
+
+    if (parsed.data.scope === "single") {
+      if (!occurrenceDateRaw) {
+        return {
+          success: false,
+          message: "Selecciona la fecha de la ocurrencia.",
+        };
+      }
+      const occurrenceDate = toDate(occurrenceDateRaw);
+      const result = await useCase.execute({
+        scope: "single",
+        eventId,
+        requestedBy: user.id,
+        occurrenceDate,
+        title: parsed.data.title,
+        description: parsed.data.description ?? null,
+        startTime:
+          "startTime" in parsed.data
+            ? (toOptionalString(parsed.data.startTime as string | undefined) ??
+              null)
+            : null,
+        endTime:
+          "endTime" in parsed.data
+            ? (toOptionalString(parsed.data.endTime as string | undefined) ??
+              null)
+            : null,
+      });
+
+      if (!result.success) {
+        return {
+          success: false,
+          message: buildErrorMessage(result.error.code),
+        };
+      }
+
+      revalidatePath("/calendar");
+      redirect(redirectTo);
+    }
+
+    // scope "all" for recurring
+    const result = await useCase.execute({
+      scope: "all",
+      eventId,
+      requestedBy: user.id,
+      title: parsed.data.title,
+      description: parsed.data.description ?? null,
+      startDate: parsed.data.startDate
+        ? toDate(parsed.data.startDate)
+        : undefined,
+      endDate: parsed.data.endDate ? toDate(parsed.data.endDate) : undefined,
+      frequencyUnit: parsed.data.frequencyUnit,
+      frequencyInterval: parsed.data.frequencyInterval,
+      shiftType:
+        "shiftType" in parsed.data
+          ? (parsed.data.shiftType as string | undefined)
+          : undefined,
+      startTime:
+        "startTime" in parsed.data
+          ? (toOptionalString(parsed.data.startTime as string | undefined) ??
+            null)
+          : null,
+      endTime:
+        "endTime" in parsed.data
+          ? (toOptionalString(parsed.data.endTime as string | undefined) ??
+            null)
+          : null,
+    });
+
+    if (!result.success) {
+      return { success: false, message: buildErrorMessage(result.error.code) };
+    }
+
+    revalidatePath("/calendar");
+    redirect(redirectTo);
+  }
+
+  return { success: false, message: "Tipo de evento no reconocido." };
+}
+
+export async function deleteEventAction(
+  previousState: EventFormState = EMPTY_EVENT_FORM_STATE,
+  formData: FormData,
+): Promise<EventFormState> {
+  void previousState;
+
+  const eventId = formData.get("eventId")?.toString();
+  const scope = formData.get("scope")?.toString() as
+    | "all"
+    | "single"
+    | undefined;
+  const occurrenceDateRaw = formData.get("occurrenceDate")?.toString();
+  const redirectTo = sanitizeRedirectPath(
+    formData.get("redirectTo")?.toString(),
+  );
+
+  if (!eventId) {
+    return { success: false, message: "Falta el identificador del evento." };
+  }
+
+  const user = await requireAuthenticatedUser(redirectTo);
+  const { eventRepository } = await createServerEventDependencies();
+  const useCase = new DeleteEvent(eventRepository);
+
+  if (scope === "single") {
+    if (!occurrenceDateRaw) {
+      return {
+        success: false,
+        message: "Selecciona la fecha de la ocurrencia.",
+      };
+    }
+    const result = await useCase.execute({
+      scope: "single",
+      eventId,
+      requestedBy: user.id,
+      occurrenceDate: toDate(occurrenceDateRaw),
+    });
+
+    if (!result.success) {
+      return { success: false, message: buildErrorMessage(result.error.code) };
+    }
+  } else {
+    const result = await useCase.execute({
+      scope: "all",
+      eventId,
+      requestedBy: user.id,
+    });
+
+    if (!result.success) {
+      return { success: false, message: buildErrorMessage(result.error.code) };
+    }
+  }
+
+  revalidatePath("/calendar");
+  redirect(redirectTo);
+}
+
 function buildErrorMessage(
   code:
     | "FAMILY_NOT_FOUND"
     | "FORBIDDEN"
     | "INVALID_EVENT"
-    | "NOT_A_FAMILY_MEMBER",
+    | "NOT_A_FAMILY_MEMBER"
+    | "EVENT_NOT_FOUND"
+    | "INVALID_SCOPE",
 ): string {
   switch (code) {
     case "FAMILY_NOT_FOUND":
@@ -252,6 +502,10 @@ function buildErrorMessage(
     case "INVALID_EVENT":
       return "Los datos del evento no son válidos.";
     case "FORBIDDEN":
-      return "No tienes permiso para crear este evento.";
+      return "No tienes permiso para realizar esta acción.";
+    case "EVENT_NOT_FOUND":
+      return "No se encontró el evento.";
+    case "INVALID_SCOPE":
+      return "Esta acción no es válida para este tipo de evento.";
   }
 }

@@ -8,7 +8,7 @@
 
 ## Current State
 
-- **Phase**: 5 — event management core completed (US-4.1, US-4.2, US-4.3)
+- **Phase**: 6 — event management edit & delete completed (US-4.4, US-4.5, US-4.6)
 - **Last Updated**: 2026-04-11
 
 ---
@@ -65,7 +65,20 @@
 - Added authenticated family dashboard/settings flows with server actions, Zod validation, family selector, member list, owner-only rename and invitation forms, and active-family persistence via cookie
 - Expanded mock-mode support with file-backed auth/family stores in `/tmp/personal-work-shift` so Playwright can exercise multi-request family flows reliably across Next.js workers
 
-### 2026-04-11 - Phase 5 Event Management Core (US-4.1, US-4.2, US-4.3)
+### 2026-04-11 - Phase 6 Event Management Edit & Delete (US-4.4, US-4.5, US-4.6)
+
+- Added `EventException` domain entity with validation; used for recording overrides or soft-deletes of individual recurring event occurrences
+- Added `IEventRepository.saveException()` method; updated `MockEventRepository`, `SupabaseEventRepository`, and `mockEventStore` accordingly
+- Added `EditEvent` and `DeleteEvent` application use cases with discriminated `scope: "all" | "single"` input; scope "all" mutates the event directly, scope "single" creates an `EventException` record
+- Added edit schemas (`editPunctualEventSchema`, `editRecurringWorkEventSchema`, `editRecurringOtherEventSchema`) to `eventSchemas.ts`
+- Added `editEventAction` and `deleteEventAction` server actions
+- Added `EditEventForm` client component and `EventList` client component (with delete dialog and edit links)
+- Added edit page at `/calendar/events/[id]/edit` (Next.js 15 dynamic route, params as Promise)
+- Updated calendar page to use `EventList` with edit/delete support and to include `user` from `getFamilyPageData`
+- Added E2E tests for edit and delete flows
+- TypeScript 5.9 in this project has a known issue where `EventTarget & HTMLInputElement` intersection does not expose `.value` when `@types/react/global.d.ts` empty interfaces are in scope — worked around by using uncontrolled date input inside the form and avoiding any `.value` reads on HTMLInputElement refs in EventList component
+
+
 
 - Implemented `CreateEvent` use case with discriminated union input (`eventType: "punctual" | "recurring"`), Result-style responses, family membership check, and domain entity creation
 - Added `mockEventStore.ts` (file-backed JSON at `/tmp/personal-work-shift/mock-event-store.json`), `MockEventRepository`, and `createServerEventDependencies()` runtime factory following the established family mock pattern
@@ -156,6 +169,6 @@
 ## Next Steps
 
 - Apply branch protection rules in GitHub using `.github/branch-protection-rules.md`
-- Begin Phase 6: Event Management - Edit & Delete (US-4.4, US-4.5, US-4.6)
+- ~~Begin Phase 6: Event Management - Edit & Delete (US-4.4, US-4.5, US-4.6)~~ ✅ Done
 - Begin Phase 7: Calendar View (US-3.1, US-3.2, US-3.3) to render events visually on a monthly grid
 - Add live local Supabase integration coverage once the sandbox DNS issue for `supabase start` is resolved

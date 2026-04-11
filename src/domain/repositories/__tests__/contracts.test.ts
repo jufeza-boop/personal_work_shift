@@ -33,6 +33,7 @@ describe("domain repository contracts", () => {
       findByFamilyId: vi.fn<() => Promise<Event[]>>(),
       findById: vi.fn<() => Promise<Event | null>>(),
       save: vi.fn<() => Promise<void>>(),
+      saveException: vi.fn<() => Promise<void>>(),
     } satisfies IEventRepository;
 
     expectTypeOf(repository).toMatchTypeOf<IEventRepository>();
