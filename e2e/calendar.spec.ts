@@ -1,5 +1,23 @@
 import { expect, test, type Page } from "@playwright/test";
 
+const MONTH_NAMES = [
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre",
+] as const;
+
+const MONTH_PATTERN =
+  /Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre/;
+
 async function registerUser(
   page: Page,
   user: { displayName: string; email: string; password: string },
@@ -29,6 +47,38 @@ async function createFamily(page: Page, familyName: string) {
   await expect(page.getByText("Familia activa:")).toContainText(familyName);
 }
 
+/**
+ * Navigates the calendar grid to the specified year and month (1-indexed).
+ * Clicks prev/next at most `maxSteps` times to reach the target.
+ */
+async function navigateToMonth(
+  page: Page,
+  targetYear: number,
+  targetMonth: number,
+  maxSteps = 24,
+) {
+  const heading = page.locator("h3").filter({ hasText: MONTH_PATTERN });
+
+  for (let step = 0; step < maxSteps; step++) {
+    const text = await heading.textContent();
+    if (text === `${MONTH_NAMES[targetMonth - 1]} ${targetYear}`) break;
+
+    const [monthName, yearStr] = (text ?? "").split(" ");
+    const year = Number(yearStr);
+    const monthIndex = MONTH_NAMES.indexOf(
+      monthName as (typeof MONTH_NAMES)[number],
+    );
+    const current = new Date(year, monthIndex, 1);
+    const target = new Date(targetYear, targetMonth - 1, 1);
+
+    if (current < target) {
+      await page.getByRole("button", { name: "Mes siguiente" }).click();
+    } else {
+      await page.getByRole("button", { name: "Mes anterior" }).click();
+    }
+  }
+}
+
 test("shows the monthly calendar grid on the calendar page", async ({
   page,
 }) => {
@@ -48,9 +98,9 @@ test("shows the monthly calendar grid on the calendar page", async ({
   await expect(page.getByText("Dom")).toBeVisible();
 
   // Month name is visible (any month name)
-  const monthPattern =
-    /Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre/;
-  await expect(page.locator("h3").filter({ hasText: monthPattern })).toBeVisible();
+  await expect(
+    page.locator("h3").filter({ hasText: MONTH_PATTERN }),
+  ).toBeVisible();
 });
 
 test("navigates to the next and previous month", async ({ page }) => {
@@ -66,10 +116,7 @@ test("navigates to the next and previous month", async ({ page }) => {
   await createFamily(page, "Nav Family");
 
   // Capture current month heading
-  const heading = page.locator("h3").filter({
-    hasText:
-      /Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre/,
-  });
+  const heading = page.locator("h3").filter({ hasText: MONTH_PATTERN });
   const currentMonth = await heading.textContent();
 
   // Navigate forward
@@ -77,7 +124,7 @@ test("navigates to the next and previous month", async ({ page }) => {
   const nextMonth = await heading.textContent();
   expect(nextMonth).not.toBe(currentMonth);
 
-  // Navigate back twice (one back to original, another to previous)
+  // Navigate back to the original month
   await page.getByRole("button", { name: "Mes anterior" }).click();
   const backMonth = await heading.textContent();
   expect(backMonth).toBe(currentMonth);
@@ -95,42 +142,8 @@ test("shows a punctual event in the calendar grid", async ({ page }) => {
   await loginUser(page, user);
   await createFamily(page, "Event Grid Family");
 
-  // Navigate to April 2026 (a known month for our test date)
-  const heading = page.locator("h3").filter({
-    hasText:
-      /Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre/,
-  });
-
-  // Navigate until we reach April 2026
-  let attempts = 0;
-  while ((await heading.textContent()) !== "Abril 2026" && attempts < 24) {
-    const text = await heading.textContent();
-    const [monthName, yearStr] = (text ?? "").split(" ");
-    const year = Number(yearStr);
-    const months = [
-      "Enero",
-      "Febrero",
-      "Marzo",
-      "Abril",
-      "Mayo",
-      "Junio",
-      "Julio",
-      "Agosto",
-      "Septiembre",
-      "Octubre",
-      "Noviembre",
-      "Diciembre",
-    ];
-    const monthIndex = months.indexOf(monthName ?? "");
-    const currentDate = new Date(year, monthIndex, 1);
-    const targetDate = new Date(2026, 3, 1); // April 2026
-    if (currentDate < targetDate) {
-      await page.getByRole("button", { name: "Mes siguiente" }).click();
-    } else {
-      await page.getByRole("button", { name: "Mes anterior" }).click();
-    }
-    attempts++;
-  }
+  // Navigate to April 2026 (a fixed month for the test date 2026-04-10)
+  await navigateToMonth(page, 2026, 4);
 
   // Create a punctual event on April 10, 2026
   await page.getByRole("button", { name: "Puntual" }).click();
@@ -156,40 +169,7 @@ test("member toggle hides and shows events", async ({ page }) => {
   await createFamily(page, "Toggle Family");
 
   // Navigate to April 2026
-  const heading = page.locator("h3").filter({
-    hasText:
-      /Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre/,
-  });
-
-  let attempts = 0;
-  while ((await heading.textContent()) !== "Abril 2026" && attempts < 24) {
-    const text = await heading.textContent();
-    const [monthName, yearStr] = (text ?? "").split(" ");
-    const year = Number(yearStr);
-    const months = [
-      "Enero",
-      "Febrero",
-      "Marzo",
-      "Abril",
-      "Mayo",
-      "Junio",
-      "Julio",
-      "Agosto",
-      "Septiembre",
-      "Octubre",
-      "Noviembre",
-      "Diciembre",
-    ];
-    const monthIndex = months.indexOf(monthName ?? "");
-    const currentDate = new Date(year, monthIndex, 1);
-    const targetDate = new Date(2026, 3, 1);
-    if (currentDate < targetDate) {
-      await page.getByRole("button", { name: "Mes siguiente" }).click();
-    } else {
-      await page.getByRole("button", { name: "Mes anterior" }).click();
-    }
-    attempts++;
-  }
+  await navigateToMonth(page, 2026, 4);
 
   // Create a punctual event
   await page.getByRole("button", { name: "Puntual" }).click();
@@ -201,12 +181,12 @@ test("member toggle hides and shows events", async ({ page }) => {
   // Event should be visible in the calendar
   await expect(page.getByText("Toggle test event").first()).toBeVisible();
 
-  // Uncheck the member's checkbox (there is only one member so it should be disabled)
+  // Single member: checkbox is disabled; event still shows
   const checkboxes = page.getByRole("checkbox");
   const count = await checkboxes.count();
-  // Single member: checkbox is disabled; event still shows
   if (count === 1) {
     await expect(checkboxes.first()).toBeDisabled();
     await expect(page.getByText("Toggle test event").first()).toBeVisible();
   }
 });
+
