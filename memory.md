@@ -8,7 +8,7 @@
 
 ## Current State
 
-- **Phase**: 7 — Calendar View completed (US-3.1, US-3.2, US-3.3)
+- **Phase**: Navigation + Landing Page update completed
 - **Last Updated**: 2026-04-13
 
 ---
@@ -65,7 +65,16 @@
 - Added authenticated family dashboard/settings flows with server actions, Zod validation, family selector, member list, owner-only rename and invitation forms, and active-family persistence via cookie
 - Expanded mock-mode support with file-backed auth/family stores in `/tmp/personal-work-shift` so Playwright can exercise multi-request family flows reliably across Next.js workers
 
-### 2026-04-13 - Phase 7 Calendar View (US-3.1, US-3.2, US-3.3)
+### 2026-04-13 - Navigation Bar and Landing Page
+
+- Created `UserMenu` client component using native `<details>/<summary>` with controlled React state; Escape key support via `onKeyDown` on the `<details>` element; `onClick` on `<summary>` with `e.preventDefault()` toggles state since `onToggle`'s `e.currentTarget.open` is also blocked by TS 5.9 DOM issue
+- Created `AppNavBar` server component: sticky top bar with logo, Calendario + Ajustes de familia nav links, and `UserMenu`
+- Updated `(dashboard)/layout.tsx` to use `AppNavBar`; removed old email header + logout button; changed `<main>` wrapper to `<div>` with inner `<main>`
+- Redesigned `src/app/page.tsx` as a public landing page with sticky public header (login/register), hero section, and feature cards
+- `document` global is not available in TypeScript client components due to the TS 5.9 + `@types/react/global.d.ts` empty interfaces issue — use React synthetic events instead
+- `HTMLDivElement`, `HTMLDetailsElement`, and other DOM types lose their inherited methods (e.g., `contains`, `open`) in this TypeScript environment — always cast through `unknown` when needed
+
+
 
 - Added `src/application/services/calendarUtils.ts` with `serializeEvent`, `getOccurrencesForMonth`, and `getShiftColor` utilities
 - `serializeEvent` converts domain Event entities to plain JSON-safe objects for server→client prop passing
