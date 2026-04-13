@@ -399,8 +399,7 @@ export async function editEventAction(
       endDate: parsed.data.endDate ? toDate(parsed.data.endDate) : undefined,
       frequencyUnit: parsed.data.frequencyUnit,
       frequencyInterval: parsed.data.frequencyInterval,
-      shiftType:
-        "shiftType" in parsed.data ? parsed.data.shiftType : undefined,
+      shiftType: "shiftType" in parsed.data ? parsed.data.shiftType : undefined,
       startTime:
         "startTime" in parsed.data
           ? (toOptionalString(parsed.data.startTime) ?? null)

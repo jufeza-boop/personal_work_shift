@@ -78,8 +78,6 @@
 - Added E2E tests for edit and delete flows
 - TypeScript 5.9 in this project has a known issue where `EventTarget & HTMLInputElement` intersection does not expose `.value` when `@types/react/global.d.ts` empty interfaces are in scope — worked around by using uncontrolled date input inside the form and avoiding any `.value` reads on HTMLInputElement refs in EventList component
 
-
-
 - Implemented `CreateEvent` use case with discriminated union input (`eventType: "punctual" | "recurring"`), Result-style responses, family membership check, and domain entity creation
 - Added `mockEventStore.ts` (file-backed JSON at `/tmp/personal-work-shift/mock-event-store.json`), `MockEventRepository`, and `createServerEventDependencies()` runtime factory following the established family mock pattern
 - Added Zod schemas for punctual, recurring-work, and recurring-other event forms in `eventSchemas.ts`
