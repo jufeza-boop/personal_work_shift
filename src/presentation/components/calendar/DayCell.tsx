@@ -49,10 +49,8 @@ export function DayCell({ day, isToday, occurrences, members }: DayCellProps) {
       {/* Day number */}
       <span
         className={[
-          "self-end rounded-full px-1 text-[11px] font-medium leading-5",
-          isToday
-            ? "bg-blue-600 text-white"
-            : "text-slate-500",
+          "self-end rounded-full px-1 text-[11px] leading-5 font-medium",
+          isToday ? "bg-blue-600 text-white" : "text-slate-500",
         ].join(" ")}
       >
         {day}
@@ -64,16 +62,18 @@ export function DayCell({ day, isToday, occurrences, members }: DayCellProps) {
           {shiftOccurrences.map((occ) => {
             const member = memberMap.get(occ.createdBy);
             const color =
-              getShiftColor(
-                member?.colorPaletteName ?? null,
-                occ.shiftType,
-              ) ?? "#CBD5E1";
+              getShiftColor(member?.colorPaletteName ?? null, occ.shiftType) ??
+              "#CBD5E1";
             const label = member
               ? getInitials(member.displayName)
               : occ.createdBy.slice(0, 2).toUpperCase();
 
             return (
-              <ShiftBlock key={`${occ.eventId}-${occ.date}`} color={color} label={label} />
+              <ShiftBlock
+                key={`${occ.eventId}-${occ.date}`}
+                color={color}
+                label={label}
+              />
             );
           })}
         </div>

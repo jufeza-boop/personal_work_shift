@@ -189,4 +189,3 @@ test("member toggle hides and shows events", async ({ page }) => {
     await expect(page.getByText("Toggle test event").first()).toBeVisible();
   }
 });
-

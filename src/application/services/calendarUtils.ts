@@ -40,7 +40,9 @@ export interface SerializedRecurringEvent {
   shiftType: ShiftTypeValue | null;
 }
 
-export type SerializedEvent = SerializedPunctualEvent | SerializedRecurringEvent;
+export type SerializedEvent =
+  | SerializedPunctualEvent
+  | SerializedRecurringEvent;
 
 export interface SerializedMember {
   userId: string;
@@ -116,16 +118,11 @@ function getRecurringDatesInRange(
       const steps = Math.floor(diff / (frequencyInterval * 86_400_000));
       current.setUTCDate(current.getUTCDate() + steps * frequencyInterval);
     } else if (frequencyUnit === "weekly") {
-      const steps = Math.floor(
-        diff / (frequencyInterval * 7 * 86_400_000),
-      );
-      current.setUTCDate(
-        current.getUTCDate() + steps * frequencyInterval * 7,
-      );
+      const steps = Math.floor(diff / (frequencyInterval * 7 * 86_400_000));
+      current.setUTCDate(current.getUTCDate() + steps * frequencyInterval * 7);
     } else {
       // annual
-      const yearDiff =
-        rangeStart.getUTCFullYear() - startDate.getUTCFullYear();
+      const yearDiff = rangeStart.getUTCFullYear() - startDate.getUTCFullYear();
       const steps = Math.max(0, Math.floor(yearDiff / frequencyInterval));
       current.setUTCFullYear(
         current.getUTCFullYear() + steps * frequencyInterval,

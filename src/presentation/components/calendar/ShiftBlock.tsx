@@ -8,7 +8,7 @@ interface ShiftBlockProps {
 export function ShiftBlock({ color, label }: ShiftBlockProps) {
   return (
     <div
-      className="flex min-h-4 flex-1 items-center justify-center overflow-hidden px-0.5 text-[9px] font-semibold leading-none"
+      className="flex min-h-4 flex-1 items-center justify-center overflow-hidden px-0.5 text-[9px] leading-none font-semibold"
       style={{ backgroundColor: color }}
       title={label}
     >

@@ -83,6 +83,7 @@
 ---
 
 ### Next steps
+
 - Begin Phase 8: Color Palette System (US-5.1, US-5.2) — palette picker UI + exclusivity enforcement
 
 - Added `EventException` domain entity with validation; used for recording overrides or soft-deletes of individual recurring event occurrences

@@ -23,15 +23,7 @@ const MONTH_NAMES = [
   "Diciembre",
 ] as const;
 
-const DAY_HEADERS = [
-  "Lun",
-  "Mar",
-  "Mié",
-  "Jue",
-  "Vie",
-  "Sáb",
-  "Dom",
-] as const;
+const DAY_HEADERS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"] as const;
 
 interface CalendarGridProps {
   events: SerializedEvent[];

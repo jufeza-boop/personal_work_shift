@@ -68,10 +68,7 @@ export function useCalendarEvents({
   );
 
   const visibleOccurrences = useMemo(
-    () =>
-      allOccurrences.filter(
-        (o) => !hiddenMemberIds.has(o.createdBy),
-      ),
+    () => allOccurrences.filter((o) => !hiddenMemberIds.has(o.createdBy)),
     [allOccurrences, hiddenMemberIds],
   );
 

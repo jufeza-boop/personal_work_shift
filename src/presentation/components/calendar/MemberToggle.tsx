@@ -24,11 +24,13 @@ export function MemberToggle({
   hiddenMemberIds,
   onToggle,
 }: MemberToggleProps) {
-  const visibleCount = members.filter((m) => !hiddenMemberIds.has(m.userId)).length;
+  const visibleCount = members.filter(
+    (m) => !hiddenMemberIds.has(m.userId),
+  ).length;
 
   return (
     <div className="space-y-1">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+      <p className="text-xs font-semibold tracking-wide text-slate-400 uppercase">
         Miembros
       </p>
       <ul className="space-y-1">
