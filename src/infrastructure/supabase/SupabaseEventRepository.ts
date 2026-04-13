@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { type Event } from "@/domain/entities/Event";
+import { EventException } from "@/domain/entities/EventException";
 import { PunctualEvent } from "@/domain/entities/PunctualEvent";
 import { RecurringEvent } from "@/domain/entities/RecurringEvent";
 import type { IEventRepository } from "@/domain/repositories/IEventRepository";
@@ -150,6 +151,26 @@ export class SupabaseEventRepository implements IEventRepository {
     const { error } = await this.client.from("events").upsert(toRow(event), {
       onConflict: "id",
     });
+
+    if (error) {
+      throw error;
+    }
+  }
+
+  async saveException(exception: EventException): Promise<void> {
+    const { error } = await (this.client as unknown as SupabaseClient)
+      .from("event_exceptions")
+      .upsert(
+        {
+          id: exception.id,
+          event_id: exception.eventId,
+          exception_date: exception.exceptionDate.toISOString().slice(0, 10),
+          is_deleted: exception.isDeleted,
+          override_data: exception.overrideData,
+          created_at: exception.createdAt.toISOString(),
+        },
+        { onConflict: "event_id,exception_date" },
+      );
 
     if (error) {
       throw error;

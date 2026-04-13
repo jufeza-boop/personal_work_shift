@@ -1,16 +1,17 @@
 import Link from "next/link";
-import { createEventAction } from "@/app/actions/events";
+import { createEventAction, deleteEventAction } from "@/app/actions/events";
 import { createFamilyAction, switchFamilyAction } from "@/app/actions/family";
 import { getFamilyPageData } from "@/app/(dashboard)/familyPageData";
 import { createServerEventDependencies } from "@/infrastructure/events/runtime";
 import { CreateEventForm } from "@/presentation/components/events/CreateEventForm";
+import { EventList } from "@/presentation/components/events/EventList";
 import { CreateFamilyForm } from "@/presentation/components/family/CreateFamilyForm";
 import { FamilyMemberList } from "@/presentation/components/family/FamilyMemberList";
 import { FamilySelectorPanel } from "@/presentation/components/family/FamilySelectorPanel";
 import { Button } from "@/presentation/components/ui/button";
 
 export default async function CalendarPage() {
-  const { activeFamily, families, memberDirectory } =
+  const { activeFamily, families, memberDirectory, user } =
     await getFamilyPageData("/calendar");
 
   const events = activeFamily
@@ -85,27 +86,17 @@ export default async function CalendarPage() {
 
         <section className="rounded-3xl border border-stone-200 bg-white/80 p-8 shadow-sm">
           <h3 className="text-xl font-semibold text-slate-900">Eventos</h3>
-          {events.length === 0 ? (
-            <p className="mt-3 text-sm leading-6 text-slate-500">
-              Aún no hay eventos para esta familia.
-            </p>
-          ) : (
-            <ul className="mt-4 divide-y divide-stone-100">
-              {events.map((event) => (
-                <li
-                  className="flex items-center justify-between py-3"
-                  key={event.id}
-                >
-                  <span className="text-sm font-medium text-slate-800">
-                    {event.title}
-                  </span>
-                  <span className="ml-4 shrink-0 rounded-full bg-stone-100 px-3 py-1 text-xs text-slate-500">
-                    {event.type === "punctual" ? "Puntual" : "Recurrente"}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
+          <EventList
+            events={events.map((e) => ({
+              id: e.id,
+              title: e.title,
+              type: e.type,
+              createdBy: e.createdBy,
+            }))}
+            currentUserId={user.id}
+            deleteAction={deleteEventAction}
+            redirectTo="/calendar"
+          />
         </section>
 
         <section className="rounded-3xl border border-dashed border-stone-300 bg-white/70 p-8 shadow-sm">

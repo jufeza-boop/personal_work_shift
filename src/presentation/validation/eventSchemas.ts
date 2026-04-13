@@ -70,3 +70,72 @@ export type CreateRecurringWorkEventFormInput = z.infer<
 export type CreateRecurringOtherEventFormInput = z.infer<
   typeof createRecurringOtherEventSchema
 >;
+
+export const editEventBaseSchema = z.object({
+  eventId: z.string().uuid(),
+  scope: z.enum(["all", "single"]),
+  occurrenceDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional()
+    .or(z.literal("")),
+});
+
+export const editPunctualEventSchema = editEventBaseSchema.extend({
+  title: z.string().trim().min(1, "El título es obligatorio.").max(200),
+  description: z.string().trim().optional(),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha inválida."),
+  startTime: z
+    .string()
+    .regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/)
+    .optional()
+    .or(z.literal("")),
+  endTime: z
+    .string()
+    .regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/)
+    .optional()
+    .or(z.literal("")),
+});
+
+export const editRecurringWorkEventSchema = editEventBaseSchema.extend({
+  title: z.string().trim().min(1, "El título es obligatorio.").max(200),
+  description: z.string().trim().optional(),
+  startDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha inválida.")
+    .optional(),
+  endDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional()
+    .or(z.literal("")),
+  frequencyUnit: z.enum(["daily", "weekly", "annual"]).optional(),
+  frequencyInterval: z.coerce.number().int().min(1).max(365).optional(),
+  shiftType: z.enum(["morning", "day", "afternoon", "night"]).optional(),
+});
+
+export const editRecurringOtherEventSchema = editEventBaseSchema.extend({
+  title: z.string().trim().min(1, "El título es obligatorio.").max(200),
+  description: z.string().trim().optional(),
+  startDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha inválida.")
+    .optional(),
+  endDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional()
+    .or(z.literal("")),
+  frequencyUnit: z.enum(["daily", "weekly", "annual"]).optional(),
+  frequencyInterval: z.coerce.number().int().min(1).max(365).optional(),
+  startTime: z
+    .string()
+    .regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/)
+    .optional()
+    .or(z.literal("")),
+  endTime: z
+    .string()
+    .regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/)
+    .optional()
+    .or(z.literal("")),
+});

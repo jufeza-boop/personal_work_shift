@@ -104,3 +104,61 @@ test("creates a recurring other event", async ({ page }) => {
   await expect(page.getByText("Weekly yoga")).toBeVisible();
   await expect(page.getByText("Recurrente")).toBeVisible();
 });
+
+test("edits a punctual event and sees updated title", async ({ page }) => {
+  const suffix = Date.now();
+  const user = {
+    displayName: "Edit User",
+    email: `event-edit-${suffix}@example.com`,
+    password: "Password1",
+  };
+
+  await registerUser(page, user);
+  await loginUser(page, user);
+  await createFamily(page, "Edit Family");
+
+  await page.getByRole("button", { name: "Puntual" }).click();
+  await page.getByLabel("Título").fill("Original title");
+  await page.getByLabel("Fecha").fill("2025-07-01");
+  await page.getByRole("button", { name: "Crear evento" }).click();
+  await expect(page).toHaveURL("/calendar");
+  await expect(page.getByText("Original title")).toBeVisible();
+
+  await page.getByRole("link", { name: "Editar" }).first().click();
+  await expect(page).toHaveURL(/\/calendar\/events\/.+\/edit/);
+
+  await page.getByLabel("Título").fill("Updated title");
+  await page.getByRole("button", { name: "Guardar cambios" }).click();
+
+  await expect(page).toHaveURL("/calendar");
+  await expect(page.getByText("Updated title")).toBeVisible();
+});
+
+test("deletes an event and it disappears from the list", async ({ page }) => {
+  const suffix = Date.now();
+  const user = {
+    displayName: "Delete User",
+    email: `event-delete-${suffix}@example.com`,
+    password: "Password1",
+  };
+
+  await registerUser(page, user);
+  await loginUser(page, user);
+  await createFamily(page, "Delete Family");
+
+  await page.getByRole("button", { name: "Puntual" }).click();
+  await page.getByLabel("Título").fill("Event to delete");
+  await page.getByLabel("Fecha").fill("2025-07-15");
+  await page.getByRole("button", { name: "Crear evento" }).click();
+  await expect(page).toHaveURL("/calendar");
+  await expect(page.getByText("Event to delete")).toBeVisible();
+
+  await page.getByRole("button", { name: "Eliminar" }).first().click();
+  await page
+    .getByRole("form", { name: "Eliminar evento" })
+    .getByRole("button", { name: "Eliminar" })
+    .click();
+
+  await expect(page).toHaveURL("/calendar");
+  await expect(page.getByText("Event to delete")).not.toBeVisible();
+});

@@ -10,6 +10,7 @@ function createEventRepository(): IEventRepository {
     findByFamilyId: vi.fn(),
     findById: vi.fn(),
     save: vi.fn(),
+    saveException: vi.fn(),
   };
 }
 

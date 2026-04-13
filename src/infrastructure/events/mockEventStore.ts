@@ -9,6 +9,10 @@ import {
 import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import type { Event } from "@/domain/entities/Event";
+import {
+  EventException,
+  type EventExceptionOverrideData,
+} from "@/domain/entities/EventException";
 import { PunctualEvent } from "@/domain/entities/PunctualEvent";
 import { RecurringEvent } from "@/domain/entities/RecurringEvent";
 import { EventFrequency } from "@/domain/value-objects/EventFrequency";
@@ -49,8 +53,18 @@ interface StoredRecurringEvent {
 
 type StoredEvent = StoredPunctualEvent | StoredRecurringEvent;
 
+export interface StoredEventException {
+  id: string;
+  eventId: string;
+  exceptionDate: string;
+  isDeleted: boolean;
+  overrideData: EventExceptionOverrideData | null;
+  createdAt: string;
+}
+
 interface MockEventStoreShape {
   eventsById: Record<string, StoredEvent>;
+  exceptionsById: Record<string, StoredEventException>;
 }
 
 const STORE_PATH = join(
@@ -71,13 +85,19 @@ function getStore(): MockEventStoreShape {
   ensureStoreDirectory();
 
   if (!existsSync(STORE_PATH)) {
-    return { eventsById: {} };
+    return { eventsById: {}, exceptionsById: {} };
   }
 
   try {
-    return JSON.parse(readFileSync(STORE_PATH, "utf8")) as MockEventStoreShape;
+    const parsed = JSON.parse(
+      readFileSync(STORE_PATH, "utf8"),
+    ) as MockEventStoreShape;
+    return {
+      eventsById: parsed.eventsById ?? {},
+      exceptionsById: parsed.exceptionsById ?? {},
+    };
   } catch {
-    return { eventsById: {} };
+    return { eventsById: {}, exceptionsById: {} };
   }
 }
 
@@ -198,5 +218,18 @@ export function deleteMockEvent(eventId: string): void {
   const store = getStore();
 
   delete store.eventsById[eventId];
+  saveStore(store);
+}
+
+export function saveMockException(exception: EventException): void {
+  const store = getStore();
+  store.exceptionsById[exception.id] = {
+    id: exception.id,
+    eventId: exception.eventId,
+    exceptionDate: exception.exceptionDate.toISOString(),
+    isDeleted: exception.isDeleted,
+    overrideData: exception.overrideData,
+    createdAt: exception.createdAt.toISOString(),
+  };
   saveStore(store);
 }
