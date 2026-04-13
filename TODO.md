@@ -111,17 +111,17 @@
 
 ## Phase 7: Calendar View (US-3.1, US-3.2, US-3.3)
 
-- [ ] Create `CalendarGrid` component (monthly view)
-- [ ] Create `DayCell` component with event rendering
-- [ ] Create `ShiftBlock` component with color tones
-- [ ] Implement split-day view for multi-member shifts
-- [ ] Create `MemberToggle` checkboxes for show/hide
-- [ ] Implement `useCalendarEvents` hook (fetch + filter)
-- [ ] Display punctual events as text labels
-- [ ] Display recurring work/study events as colored blocks
-- [ ] Display recurring other events as text labels
-- [ ] Write unit tests for calendar rendering logic
-- [ ] Write E2E tests for calendar view
+- [x] Create `CalendarGrid` component (monthly view)
+- [x] Create `DayCell` component with event rendering
+- [x] Create `ShiftBlock` component with color tones
+- [x] Implement split-day view for multi-member shifts
+- [x] Create `MemberToggle` checkboxes for show/hide
+- [x] Implement `useCalendarEvents` hook (fetch + filter)
+- [x] Display punctual events as text labels
+- [x] Display recurring work/study events as colored blocks
+- [x] Display recurring other events as text labels
+- [x] Write unit tests for calendar rendering logic
+- [x] Write E2E tests for calendar view
 
 ---
 
