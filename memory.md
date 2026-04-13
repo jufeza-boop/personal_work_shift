@@ -8,8 +8,8 @@
 
 ## Current State
 
-- **Phase**: 6 — event management edit & delete completed (US-4.4, US-4.5, US-4.6)
-- **Last Updated**: 2026-04-11
+- **Phase**: 7 — Calendar View completed (US-3.1, US-3.2, US-3.3)
+- **Last Updated**: 2026-04-13
 
 ---
 
@@ -65,7 +65,25 @@
 - Added authenticated family dashboard/settings flows with server actions, Zod validation, family selector, member list, owner-only rename and invitation forms, and active-family persistence via cookie
 - Expanded mock-mode support with file-backed auth/family stores in `/tmp/personal-work-shift` so Playwright can exercise multi-request family flows reliably across Next.js workers
 
-### 2026-04-11 - Phase 6 Event Management Edit & Delete (US-4.4, US-4.5, US-4.6)
+### 2026-04-13 - Phase 7 Calendar View (US-3.1, US-3.2, US-3.3)
+
+- Added `src/application/services/calendarUtils.ts` with `serializeEvent`, `getOccurrencesForMonth`, and `getShiftColor` utilities
+- `serializeEvent` converts domain Event entities to plain JSON-safe objects for server→client prop passing
+- `getOccurrencesForMonth` expands recurring events (daily/weekly/annual, with interval and optional endDate) into concrete dated occurrences for a given month using UTC date math and a fast-skip optimization
+- `getShiftColor` resolves the hex color for a (paletteName, shiftType) pair via the domain ColorPalette/ShiftType value objects
+- Added `src/presentation/hooks/useCalendarEvents.ts` — client hook that wraps occurrence expansion with month navigation state and per-member visibility toggle (enforces at least one member visible)
+- Added `CalendarGrid`, `DayCell`, `ShiftBlock`, `MemberToggle` presentation components under `src/presentation/components/calendar/`
+- `CalendarGrid` is a client component; renders a Monday-first 7-column monthly grid with prev/next navigation
+- `DayCell` separates shift blocks (recurring work/studies → colored ShiftBlock) from text labels (punctual + recurring other)
+- `ShiftBlock` renders a proportionally equal-width colored bar with member initials; multiple shifts in a day cell appear side-by-side (split-day view)
+- `MemberToggle` disables the last visible member's checkbox to enforce at least one always-visible rule
+- Updated `calendar/page.tsx` to serialize events + members and render `CalendarGrid` replacing the placeholder section
+- All 133 Vitest tests pass; lint clean; build succeeds
+
+---
+
+### Next steps
+- Begin Phase 8: Color Palette System (US-5.1, US-5.2) — palette picker UI + exclusivity enforcement
 
 - Added `EventException` domain entity with validation; used for recording overrides or soft-deletes of individual recurring event occurrences
 - Added `IEventRepository.saveException()` method; updated `MockEventRepository`, `SupabaseEventRepository`, and `mockEventStore` accordingly
@@ -168,5 +186,6 @@
 
 - Apply branch protection rules in GitHub using `.github/branch-protection-rules.md`
 - ~~Begin Phase 6: Event Management - Edit & Delete (US-4.4, US-4.5, US-4.6)~~ ✅ Done
-- Begin Phase 7: Calendar View (US-3.1, US-3.2, US-3.3) to render events visually on a monthly grid
+- Begin Phase 8: Color Palette System (US-5.1, US-5.2)
+- ~~Begin Phase 7: Calendar View (US-3.1, US-3.2, US-3.3) to render events visually on a monthly grid~~ ✅ Done
 - Add live local Supabase integration coverage once the sandbox DNS issue for `supabase start` is resolved

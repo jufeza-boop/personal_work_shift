@@ -2,7 +2,10 @@ import Link from "next/link";
 import { createEventAction, deleteEventAction } from "@/app/actions/events";
 import { createFamilyAction, switchFamilyAction } from "@/app/actions/family";
 import { getFamilyPageData } from "@/app/(dashboard)/familyPageData";
+import { serializeEvent } from "@/application/services/calendarUtils";
+import type { SerializedMember } from "@/application/services/calendarUtils";
 import { createServerEventDependencies } from "@/infrastructure/events/runtime";
+import { CalendarGrid } from "@/presentation/components/calendar/CalendarGrid";
 import { CreateEventForm } from "@/presentation/components/events/CreateEventForm";
 import { EventList } from "@/presentation/components/events/EventList";
 import { CreateFamilyForm } from "@/presentation/components/family/CreateFamilyForm";
@@ -19,6 +22,12 @@ export default async function CalendarPage() {
         eventRepository.findByFamilyId(activeFamily.id),
       )
     : [];
+
+  const serializedEvents = events.map(serializeEvent);
+
+  const now = new Date();
+  const initialYear = now.getUTCFullYear();
+  const initialMonth = now.getUTCMonth() + 1;
 
   if (!activeFamily) {
     return (
@@ -37,6 +46,14 @@ export default async function CalendarPage() {
       </section>
     );
   }
+
+  const serializedMembers: SerializedMember[] = activeFamily.members.map(
+    (member) => ({
+      userId: member.userId,
+      displayName: memberDirectory.get(member.userId) ?? member.userId,
+      colorPaletteName: member.colorPalette?.name ?? null,
+    }),
+  );
 
   return (
     <section className="grid gap-6 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
@@ -78,6 +95,16 @@ export default async function CalendarPage() {
           memberDirectory={memberDirectory}
         />
 
+        {/* Monthly calendar view (US-3.1, US-3.2, US-3.3) */}
+        <section className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm">
+          <CalendarGrid
+            events={serializedEvents}
+            members={serializedMembers}
+            initialYear={initialYear}
+            initialMonth={initialMonth}
+          />
+        </section>
+
         <CreateEventForm
           action={createEventAction}
           familyId={activeFamily.id}
@@ -97,17 +124,6 @@ export default async function CalendarPage() {
             deleteAction={deleteEventAction}
             redirectTo="/calendar"
           />
-        </section>
-
-        <section className="rounded-3xl border border-dashed border-stone-300 bg-white/70 p-8 shadow-sm">
-          <h3 className="text-xl font-semibold text-slate-900">
-            Próximo paso: vista mensual
-          </h3>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-            Los eventos ya se pueden crear y listar. En la siguiente fase este
-            espacio cargará la vista de calendario mensual con los turnos de{" "}
-            {activeFamily.name}.
-          </p>
         </section>
       </div>
     </section>
