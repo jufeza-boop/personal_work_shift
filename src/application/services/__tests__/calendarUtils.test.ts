@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  getBaseColor,
   getOccurrencesForMonth,
   getShiftColor,
   serializeEvent,
@@ -316,6 +317,28 @@ describe("getOccurrencesForMonth", () => {
 
     expect(result[0]?.shiftType).toBeNull();
     expect(result[0]?.category).toBe("other");
+  });
+});
+
+describe("getBaseColor", () => {
+  it("returns the afternoon tone for a valid palette", () => {
+    const color = getBaseColor("sky");
+
+    expect(typeof color).toBe("string");
+    expect(color).not.toBeNull();
+    expect(color).toBe("#7DD3FC"); // sky afternoon tone
+  });
+
+  it("returns null when palette name is null", () => {
+    expect(getBaseColor(null)).toBeNull();
+  });
+
+  it("returns null for an invalid palette name", () => {
+    expect(getBaseColor("neon")).toBeNull();
+  });
+
+  it("returns different base colors for different palettes", () => {
+    expect(getBaseColor("sky")).not.toBe(getBaseColor("rose"));
   });
 });
 

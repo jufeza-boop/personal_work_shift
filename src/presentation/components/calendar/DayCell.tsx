@@ -2,7 +2,7 @@ import type {
   CalendarOccurrence,
   SerializedMember,
 } from "@/application/services/calendarUtils";
-import { getShiftColor } from "@/application/services/calendarUtils";
+import { getBaseColor, getShiftColor } from "@/application/services/calendarUtils";
 import { ShiftBlock } from "@/presentation/components/calendar/ShiftBlock";
 
 interface DayCellProps {
@@ -32,9 +32,14 @@ export function DayCell({ day, isToday, occurrences, members }: DayCellProps) {
       o.shiftType !== null,
   );
 
-  // Label occurrences: punctual + recurring other events
-  const labelOccurrences = occurrences.filter(
-    (o) => o.type === "punctual" || o.category === "other",
+  // Punctual events: shown as neutral text labels
+  const punctualOccurrences = occurrences.filter(
+    (o) => o.type === "punctual",
+  );
+
+  // Other recurring events: shown as colored text labels
+  const otherOccurrences = occurrences.filter(
+    (o) => o.type === "recurring" && o.category === "other",
   );
 
   return (
@@ -79,8 +84,25 @@ export function DayCell({ day, isToday, occurrences, members }: DayCellProps) {
         </div>
       )}
 
-      {/* Text labels for punctual and other recurring events */}
-      {labelOccurrences.map((occ) => (
+      {/* Colored text labels for "other" recurring events */}
+      {otherOccurrences.map((occ) => {
+        const member = memberMap.get(occ.createdBy);
+        const bgColor = getBaseColor(member?.colorPaletteName ?? null);
+
+        return (
+          <span
+            key={`${occ.eventId}-${occ.date}`}
+            className="truncate rounded px-1 py-px text-[10px] leading-4 text-slate-700"
+            style={bgColor ? { backgroundColor: bgColor } : undefined}
+            title={occ.title}
+          >
+            {occ.title}
+          </span>
+        );
+      })}
+
+      {/* Neutral text labels for punctual events */}
+      {punctualOccurrences.map((occ) => (
         <span
           key={`${occ.eventId}-${occ.date}`}
           className="truncate rounded bg-stone-100 px-1 py-px text-[10px] leading-4 text-slate-700"

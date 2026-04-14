@@ -28,30 +28,36 @@ const FAMILY_SELECT = `
 `;
 
 function mapFamily(row: FamilyRowWithMembers): Family {
-  // The family creator is the canonical owner in the domain model, so we
-  // synthesize that member from the family record and ignore any duplicated
-  // owner row from the relation payload.
-  const ownerMember = {
-    colorPalette: null,
-    delegatedByUserId: null,
-    role: "owner" as const,
-    userId: row.created_by,
-  };
-  const nonOwnerMembers = row.family_members
-    .filter((member) => member.user_id !== row.created_by)
-    .map((member) => ({
-      colorPalette: member.color_palette
-        ? ColorPalette.create(member.color_palette)
-        : null,
-      delegatedByUserId: member.delegated_by_user_id,
-      role: member.role,
-      userId: member.user_id,
-    }));
+  // Read all members (including the owner) from the relation payload so that
+  // the owner's color_palette and other mutable fields are preserved.
+  const allMembers = row.family_members.map((member) => ({
+    colorPalette: member.color_palette
+      ? ColorPalette.create(member.color_palette)
+      : null,
+    delegatedByUserId: member.delegated_by_user_id,
+    role: member.role,
+    userId: member.user_id,
+  }));
+
+  // Ensure the owner member is always present (even if missing from the
+  // relation, which should not happen but guards against stale data).
+  const hasOwnerRow = allMembers.some((m) => m.userId === row.created_by);
+  const members = hasOwnerRow
+    ? allMembers
+    : [
+        {
+          colorPalette: null,
+          delegatedByUserId: null,
+          role: "owner" as const,
+          userId: row.created_by,
+        },
+        ...allMembers,
+      ];
 
   return new Family({
     createdBy: row.created_by,
     id: row.id,
-    members: [ownerMember, ...nonOwnerMembers],
+    members,
     name: row.name,
   });
 }
