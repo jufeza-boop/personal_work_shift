@@ -193,6 +193,7 @@
 ## 2026-04-14 - Phase 8: Color Palette System (US-5.1, US-5.2)
 
 ### What was done
+
 - Added `Family.updateMemberPalette(userId, colorPalette)` method (validates exclusivity against other members, not self)
 - Added `SelectPalette` application use case: allows any family member to pick/change their own palette
 - Added `selectPaletteSchema` Zod schema and `selectPaletteAction` server action
@@ -204,11 +205,13 @@
 - Updated FamilySettingsPage with `buildPaletteOptions()` helper
 
 ### Decisions
+
 - `updateMemberPalette` excludes self from exclusivity check so a member can re-select their own palette
 - `buildPaletteOptions(family, null)` disables all taken palettes (invite form); `buildPaletteOptions(family, userId)` allows the user's own palette to remain enabled
 - Palette hex colors derived from domain `ColorPalette.getToneFor()` via shared utility — no duplicated constants
 
 ### Next steps
+
 - Phase 9: Real-Time Synchronization (US-6.1)
 
 ---
@@ -221,4 +224,3 @@
 - ~~Begin Phase 7: Calendar View (US-3.1, US-3.2, US-3.3) to render events visually on a monthly grid~~ ✅ Done
 - Begin Phase 9: Real-Time Synchronization (US-6.1)
 - Add live local Supabase integration coverage once the sandbox DNS issue for `supabase start` is resolved
-

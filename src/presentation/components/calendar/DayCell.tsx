@@ -2,7 +2,10 @@ import type {
   CalendarOccurrence,
   SerializedMember,
 } from "@/application/services/calendarUtils";
-import { getBaseColor, getShiftColor } from "@/application/services/calendarUtils";
+import {
+  getBaseColor,
+  getShiftColor,
+} from "@/application/services/calendarUtils";
 import { ShiftBlock } from "@/presentation/components/calendar/ShiftBlock";
 
 interface DayCellProps {
@@ -33,9 +36,7 @@ export function DayCell({ day, isToday, occurrences, members }: DayCellProps) {
   );
 
   // Punctual events: shown as neutral text labels
-  const punctualOccurrences = occurrences.filter(
-    (o) => o.type === "punctual",
-  );
+  const punctualOccurrences = occurrences.filter((o) => o.type === "punctual");
 
   // Other recurring events: shown as colored text labels
   const otherOccurrences = occurrences.filter(

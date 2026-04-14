@@ -26,6 +26,7 @@ export const selectPaletteSchema = z.object({
 
 export const createFamilySchema = z.object({
   name: familyNameSchema,
+  colorPalette: z.enum(colorPaletteNames).optional(),
 });
 
 export const renameFamilySchema = z.object({

@@ -68,9 +68,8 @@ export default async function FamilySettingsPage() {
   const paletteOptions = buildPaletteOptions(activeFamily, null);
   // For the current user's picker their own palette remains selectable
   const paletteOptionsForMe = buildPaletteOptions(activeFamily, user.id);
-  const myPaletteName = activeFamily.members.find(
-    (m) => m.userId === user.id,
-  )?.colorPalette?.name;
+  const myPaletteName = activeFamily.members.find((m) => m.userId === user.id)
+    ?.colorPalette?.name;
 
   return (
     <section className="grid gap-6 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">

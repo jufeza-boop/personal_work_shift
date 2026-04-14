@@ -63,6 +63,7 @@ export async function createFamilyAction(
 
   const parsed = createFamilySchema.safeParse({
     name: formData.get("name"),
+    colorPalette: formData.get("colorPalette") || undefined,
   });
 
   if (!parsed.success) {
@@ -82,6 +83,7 @@ export async function createFamilyAction(
   const result = await useCase.execute({
     createdBy: user.id,
     name: parsed.data.name,
+    ownerColorPalette: parsed.data.colorPalette,
   });
 
   if (!result.success) {

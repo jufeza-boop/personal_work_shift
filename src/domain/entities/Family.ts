@@ -114,18 +114,13 @@ export class Family {
     this.members.push(normalizedMember);
   }
 
-  updateMemberPalette(
-    userId: string,
-    colorPalette: ColorPalette | null,
-  ): void {
+  updateMemberPalette(userId: string, colorPalette: ColorPalette | null): void {
     const memberIndex = this.members.findIndex(
       (member) => member.userId === userId,
     );
 
     if (memberIndex === -1) {
-      throw new ValidationError(
-        `Member ${userId} is not part of this family`,
-      );
+      throw new ValidationError(`Member ${userId} is not part of this family`);
     }
 
     if (colorPalette) {
