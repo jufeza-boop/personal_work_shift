@@ -8,8 +8,8 @@
 
 ## Current State
 
-- **Phase**: Navigation + Landing Page update completed
-- **Last Updated**: 2026-04-13
+- **Phase**: Phase 8 Color Palette System (US-5.1, US-5.2) completed
+- **Last Updated**: 2026-04-14
 
 ---
 
@@ -190,10 +190,35 @@
 
 ---
 
+## 2026-04-14 - Phase 8: Color Palette System (US-5.1, US-5.2)
+
+### What was done
+- Added `Family.updateMemberPalette(userId, colorPalette)` method (validates exclusivity against other members, not self)
+- Added `SelectPalette` application use case: allows any family member to pick/change their own palette
+- Added `selectPaletteSchema` Zod schema and `selectPaletteAction` server action
+- Created `ColorPalettePicker` visual component: 4-column grid of palette cards with shift tone swatches
+- Updated `InviteFamilyMemberForm` to use `ColorPalettePicker` instead of plain `<select>`
+- Created `SelectPaletteForm` for current member to pick/change their own palette
+- Updated `FamilyMemberList` to show colored swatch strip instead of plain text
+- Added `src/presentation/utils/paletteUtils.ts` – single source of truth for palette display colors, derived from domain `ColorPalette` value object
+- Updated FamilySettingsPage with `buildPaletteOptions()` helper
+
+### Decisions
+- `updateMemberPalette` excludes self from exclusivity check so a member can re-select their own palette
+- `buildPaletteOptions(family, null)` disables all taken palettes (invite form); `buildPaletteOptions(family, userId)` allows the user's own palette to remain enabled
+- Palette hex colors derived from domain `ColorPalette.getToneFor()` via shared utility — no duplicated constants
+
+### Next steps
+- Phase 9: Real-Time Synchronization (US-6.1)
+
+---
+
 ## Next Steps
 
 - Apply branch protection rules in GitHub using `.github/branch-protection-rules.md`
 - ~~Begin Phase 6: Event Management - Edit & Delete (US-4.4, US-4.5, US-4.6)~~ ✅ Done
-- Begin Phase 8: Color Palette System (US-5.1, US-5.2)
+- ~~Begin Phase 8: Color Palette System (US-5.1, US-5.2)~~ ✅ Done
 - ~~Begin Phase 7: Calendar View (US-3.1, US-3.2, US-3.3) to render events visually on a monthly grid~~ ✅ Done
+- Begin Phase 9: Real-Time Synchronization (US-6.1)
 - Add live local Supabase integration coverage once the sandbox DNS issue for `supabase start` is resolved
+
