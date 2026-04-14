@@ -1,4 +1,5 @@
 import { ColorPalette } from "@/domain/value-objects/ColorPalette";
+import type { Family } from "@/domain/entities/Family";
 import type { PaletteOption } from "@/presentation/components/family/ColorPalettePicker";
 import {
   addFamilyMemberAction,
@@ -14,6 +15,27 @@ import { FamilySelectorPanel } from "@/presentation/components/family/FamilySele
 import { InviteFamilyMemberForm } from "@/presentation/components/family/InviteFamilyMemberForm";
 import { RenameFamilyForm } from "@/presentation/components/family/RenameFamilyForm";
 import { SelectPaletteForm } from "@/presentation/components/family/SelectPaletteForm";
+
+/**
+ * Returns all palette options with availability flags, treating the given
+ * userId's current palette as still available so they can re-select it.
+ * Pass `forUserId = null` to treat all assigned palettes as disabled.
+ */
+function buildPaletteOptions(
+  family: Family,
+  forUserId: string | null,
+): PaletteOption[] {
+  return ColorPalette.availablePalettes().map((paletteName) => {
+    const takenByOther = family.members.some(
+      (m) =>
+        m.userId !== forUserId &&
+        m.colorPalette !== null &&
+        m.colorPalette.name === paletteName,
+    );
+
+    return { disabled: takenByOther, name: paletteName };
+  });
+}
 
 export default async function FamilySettingsPage() {
   const { activeFamily, families, memberDirectory, user } =
@@ -42,31 +64,13 @@ export default async function FamilySettingsPage() {
   }
 
   const isOwner = activeFamily.createdBy === user.id;
-  const paletteOptions: PaletteOption[] = ColorPalette.availablePalettes().map(
-    (paletteName) => ({
-      disabled: !activeFamily.isColorPaletteAvailable(
-        ColorPalette.create(paletteName),
-      ),
-      name: paletteName,
-    }),
-  );
-
-  // Palettes available for the current user (exclude only other members' palettes)
-  const currentMember = activeFamily.members.find(
+  // For the invite form any taken palette is disabled (no user context)
+  const paletteOptions = buildPaletteOptions(activeFamily, null);
+  // For the current user's picker their own palette remains selectable
+  const paletteOptionsForMe = buildPaletteOptions(activeFamily, user.id);
+  const myPaletteName = activeFamily.members.find(
     (m) => m.userId === user.id,
-  );
-  const myPaletteName = currentMember?.colorPalette?.name ?? undefined;
-  const paletteOptionsForMe: PaletteOption[] =
-    ColorPalette.availablePalettes().map((paletteName) => {
-      const takenByOther = activeFamily.members.some(
-        (m) =>
-          m.userId !== user.id &&
-          m.colorPalette !== null &&
-          m.colorPalette.name === paletteName,
-      );
-
-      return { disabled: takenByOther, name: paletteName };
-    });
+  )?.colorPalette?.name;
 
   return (
     <section className="grid gap-6 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
