@@ -1,6 +1,10 @@
 "use client";
 
-import { useActionState, useId } from "react";
+import { useState, useActionState, useId } from "react";
+import type { ColorPaletteName } from "@/domain/value-objects/ColorPalette";
+import { ColorPalette } from "@/domain/value-objects/ColorPalette";
+import { ColorPalettePicker } from "@/presentation/components/family/ColorPalettePicker";
+import type { PaletteOption } from "@/presentation/components/family/ColorPalettePicker";
 import { SubmitButton } from "@/presentation/components/ui/SubmitButton";
 import {
   EMPTY_FAMILY_FORM_STATE,
@@ -9,14 +13,23 @@ import {
 
 interface CreateFamilyFormProps {
   action: FamilyFormAction;
+  paletteOptions?: PaletteOption[];
   redirectTo?: string;
 }
 
 export function CreateFamilyForm({
   action,
+  paletteOptions,
   redirectTo = "/calendar",
 }: CreateFamilyFormProps) {
   const inputId = useId();
+  const colorPickerId = useId();
+  const effectivePaletteOptions =
+    paletteOptions ??
+    ColorPalette.availablePalettes().map((name) => ({ name, disabled: false }));
+  const [selectedPalette, setSelectedPalette] = useState<
+    ColorPaletteName | undefined
+  >(undefined);
   const [formState, formAction] = useActionState(
     action,
     EMPTY_FAMILY_FORM_STATE,
@@ -48,6 +61,23 @@ export function CreateFamilyForm({
           {formState.errors?.name ? (
             <p className="text-sm text-red-600">{formState.errors.name}</p>
           ) : null}
+        </div>
+
+        <div className="space-y-2">
+          <label
+            className="text-sm font-medium text-slate-800"
+            htmlFor={colorPickerId}
+          >
+            Mi paleta de color
+          </label>
+          <ColorPalettePicker
+            id={colorPickerId}
+            name="colorPalette"
+            paletteOptions={effectivePaletteOptions}
+            value={selectedPalette}
+            onChange={setSelectedPalette}
+            error={formState.errors?.colorPalette}
+          />
         </div>
 
         {formState.message ? (

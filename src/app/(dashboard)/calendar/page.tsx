@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createEventAction, deleteEventAction } from "@/app/actions/events";
-import { createFamilyAction, switchFamilyAction } from "@/app/actions/family";
+import { switchFamilyAction } from "@/app/actions/family";
 import { getFamilyPageData } from "@/app/(dashboard)/familyPageData";
 import { serializeEvent } from "@/application/services/calendarUtils";
 import type { SerializedMember } from "@/application/services/calendarUtils";
@@ -8,10 +8,7 @@ import { createServerEventDependencies } from "@/infrastructure/events/runtime";
 import { CalendarGrid } from "@/presentation/components/calendar/CalendarGrid";
 import { CreateEventForm } from "@/presentation/components/events/CreateEventForm";
 import { EventList } from "@/presentation/components/events/EventList";
-import { CreateFamilyForm } from "@/presentation/components/family/CreateFamilyForm";
-import { FamilyMemberList } from "@/presentation/components/family/FamilyMemberList";
 import { FamilySelectorPanel } from "@/presentation/components/family/FamilySelectorPanel";
-import { Button } from "@/presentation/components/ui/button";
 
 export default async function CalendarPage() {
   const { activeFamily, families, memberDirectory, user } =
@@ -31,18 +28,20 @@ export default async function CalendarPage() {
 
   if (!activeFamily) {
     return (
-      <section className="grid gap-6 lg:grid-cols-[minmax(0,24rem)_minmax(0,1fr)]">
-        <CreateFamilyForm action={createFamilyAction} />
-
-        <section className="rounded-3xl border border-stone-200 bg-white/80 p-8 shadow-sm">
-          <h2 className="text-3xl font-semibold tracking-tight text-slate-900">
-            Calendario familiar
-          </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-            Crea tu primera familia para empezar a compartir calendarios con las
-            personas que elijas.
-          </p>
-        </section>
+      <section className="rounded-3xl border border-stone-200 bg-white/80 p-8 shadow-sm">
+        <h2 className="text-3xl font-semibold tracking-tight text-slate-900">
+          Calendario familiar
+        </h2>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
+          Crea tu primera familia desde{" "}
+          <Link
+            href="/settings"
+            className="font-medium text-slate-900 underline"
+          >
+            Ajustes
+          </Link>{" "}
+          para empezar a compartir calendarios.
+        </p>
       </section>
     );
   }
@@ -63,38 +62,9 @@ export default async function CalendarPage() {
           activeFamilyId={activeFamily.id}
           families={families}
         />
-        <CreateFamilyForm
-          action={createFamilyAction}
-          key={`calendar-create-${families.length}-${activeFamily.id}`}
-        />
       </aside>
 
       <div className="space-y-6">
-        <section className="rounded-3xl border border-stone-200 bg-white/80 p-8 shadow-sm">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <h2 className="text-3xl font-semibold tracking-tight text-slate-900">
-                Calendario familiar
-              </h2>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-                Familia activa:{" "}
-                <span className="font-medium">{activeFamily.name}</span>. La
-                selección se conserva entre sesiones para que recuperes el
-                contexto correcto al volver.
-              </p>
-            </div>
-
-            <Button asChild variant="secondary">
-              <Link href="/calendar/settings">Ajustes de familia</Link>
-            </Button>
-          </div>
-        </section>
-
-        <FamilyMemberList
-          family={activeFamily}
-          memberDirectory={memberDirectory}
-        />
-
         {/* Monthly calendar view (US-3.1, US-3.2, US-3.3) */}
         <section className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm">
           <CalendarGrid

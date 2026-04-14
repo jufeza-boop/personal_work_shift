@@ -3,6 +3,7 @@ import { CreateFamily } from "@/application/use-cases/family/CreateFamily";
 import { User } from "@/domain/entities/User";
 import type { IFamilyRepository } from "@/domain/repositories/IFamilyRepository";
 import type { IUserRepository } from "@/domain/repositories/IUserRepository";
+import { ColorPalette } from "@/domain/value-objects/ColorPalette";
 
 function createFamilyRepository(): IFamilyRepository {
   return {
@@ -51,6 +52,35 @@ describe("CreateFamily", () => {
       },
     ]);
     expect(familyRepository.save).toHaveBeenCalledTimes(1);
+  });
+
+  it("assigns the owner palette when ownerColorPalette is provided", async () => {
+    const familyRepository = createFamilyRepository();
+    const userRepository = createUserRepository();
+
+    vi.mocked(userRepository.findById).mockResolvedValue(
+      new User({
+        displayName: "Alice Example",
+        email: "alice@example.com",
+        id: "owner-1",
+      }),
+    );
+
+    const useCase = new CreateFamily(familyRepository, userRepository);
+    const result = await useCase.execute({
+      createdBy: "owner-1",
+      name: "Home Team",
+      ownerColorPalette: "sky",
+    });
+
+    expect(result.success).toBe(true);
+    const owner =
+      result.success &&
+      result.data.family.members.find((m) => m.userId === "owner-1");
+    expect(owner && owner.colorPalette?.name).toBe("sky");
+    expect(
+      owner && owner.colorPalette?.equals(ColorPalette.create("sky")),
+    ).toBe(true);
   });
 
   it("rejects a missing owner", async () => {

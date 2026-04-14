@@ -258,3 +258,19 @@ export function getShiftColor(
     return null;
   }
 }
+
+/**
+ * Returns a representative base color for a palette without a specific shift
+ * type (e.g. "other" recurring events). Uses the `afternoon` tone as a
+ * medium-weight accent. Returns null when the palette name is absent or invalid.
+ */
+export function getBaseColor(paletteName: string | null): string | null {
+  if (!paletteName) return null;
+
+  try {
+    const palette = ColorPalette.create(paletteName);
+    return palette.getToneFor(ShiftType.create("afternoon"));
+  } catch {
+    return null;
+  }
+}

@@ -127,14 +127,14 @@
 
 ## Phase 8: Color Palette System (US-5.1, US-5.2)
 
-- [ ] Define predefined pastel color palettes (8-10 options)
-- [ ] Create color palette selector component
-- [ ] Implement palette exclusivity validation (within family)
-- [ ] Implement shift-type-to-tone mapping per palette
-- [ ] Show color preview with all 4 shift tones
-- [ ] Gray out / disable already-taken palettes
-- [ ] Write unit tests for color rules
-- [ ] Write E2E tests for palette selection
+- [x] Define predefined pastel color palettes (8-10 options)
+- [x] Create color palette selector component
+- [x] Implement palette exclusivity validation (within family)
+- [x] Implement shift-type-to-tone mapping per palette
+- [x] Show color preview with all 4 shift tones
+- [x] Gray out / disable already-taken palettes
+- [x] Write unit tests for color rules
+- [x] Write E2E tests for palette selection
 
 ---
 

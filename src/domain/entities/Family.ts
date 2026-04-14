@@ -2,6 +2,7 @@ import {
   ColorPaletteAlreadyTakenError,
   ValidationError,
 } from "@/domain/errors/DomainError";
+import { assertColorPaletteExclusive } from "@/domain/rules/color-exclusivity";
 import { ColorPalette } from "@/domain/value-objects/ColorPalette";
 
 export type FamilyMemberRole = "owner" | "member" | "delegated";
@@ -111,6 +112,30 @@ export class Family {
     }
 
     this.members.push(normalizedMember);
+  }
+
+  updateMemberPalette(userId: string, colorPalette: ColorPalette | null): void {
+    const memberIndex = this.members.findIndex(
+      (member) => member.userId === userId,
+    );
+
+    if (memberIndex === -1) {
+      throw new ValidationError(`Member ${userId} is not part of this family`);
+    }
+
+    if (colorPalette) {
+      const otherMemberPalettes = this.members
+        .filter((_, idx) => idx !== memberIndex)
+        .map((member) => member.colorPalette)
+        .filter((p): p is ColorPalette => p !== null);
+
+      assertColorPaletteExclusive(colorPalette, otherMemberPalettes);
+    }
+
+    this.members[memberIndex] = {
+      ...this.members[memberIndex]!,
+      colorPalette,
+    };
   }
 
   isColorPaletteAvailable(colorPalette: ColorPalette): boolean {

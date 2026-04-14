@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { AddMember } from "@/application/use-cases/family/AddMember";
 import { CreateFamily } from "@/application/use-cases/family/CreateFamily";
 import { RenameFamily } from "@/application/use-cases/family/RenameFamily";
+import { SelectPalette } from "@/application/use-cases/family/SelectPalette";
 import { SwitchFamily } from "@/application/use-cases/family/SwitchFamily";
 import { getAuthenticatedUser } from "@/infrastructure/auth/runtime";
 import { createServerFamilyDependencies } from "@/infrastructure/family/runtime";
@@ -17,6 +18,7 @@ import {
   createFamilySchema,
   inviteFamilyMemberSchema,
   renameFamilySchema,
+  selectPaletteSchema,
 } from "@/presentation/validation/familySchemas";
 import { sanitizeRedirectPath } from "@/shared/auth/routeProtection";
 import { ACTIVE_FAMILY_COOKIE } from "@/shared/family/activeFamily";
@@ -61,6 +63,7 @@ export async function createFamilyAction(
 
   const parsed = createFamilySchema.safeParse({
     name: formData.get("name"),
+    colorPalette: formData.get("colorPalette") || undefined,
   });
 
   if (!parsed.success) {
@@ -80,6 +83,7 @@ export async function createFamilyAction(
   const result = await useCase.execute({
     createdBy: user.id,
     name: parsed.data.name,
+    ownerColorPalette: parsed.data.colorPalette,
   });
 
   if (!result.success) {
@@ -265,6 +269,68 @@ export async function switchFamilyAction(formData: FormData): Promise<void> {
   }
 
   await persistActiveFamily(result.data.family.id);
+  revalidatePath("/calendar");
+  revalidatePath("/calendar/settings");
+  redirect(redirectTo);
+}
+
+export async function selectPaletteAction(
+  previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  formData: FormData,
+): Promise<FamilyFormState> {
+  // Part of the useActionState API contract, but unused because success redirects.
+  void previousState;
+
+  const familyId = formData.get("familyId")?.toString();
+
+  if (!familyId) {
+    return {
+      message: "No se encontró la familia activa.",
+      success: false,
+    };
+  }
+
+  const parsed = selectPaletteSchema.safeParse({
+    colorPalette: formData.get("colorPalette"),
+  });
+
+  if (!parsed.success) {
+    return {
+      errors: {
+        colorPalette: parsed.error.flatten().fieldErrors.colorPalette?.[0],
+      },
+      success: false,
+    };
+  }
+
+  const redirectTo = sanitizeRedirectPath(
+    formData.get("redirectTo")?.toString(),
+  );
+  const user = await requireAuthenticatedUser(redirectTo);
+  const { familyRepository } = await createServerFamilyDependencies();
+  const useCase = new SelectPalette(familyRepository);
+  const result = await useCase.execute({
+    colorPalette: parsed.data.colorPalette,
+    familyId,
+    userId: user.id,
+  });
+
+  if (!result.success) {
+    if (result.error.code === "COLOR_PALETTE_ALREADY_TAKEN") {
+      return {
+        errors: {
+          colorPalette: "La paleta elegida ya está ocupada en esta familia.",
+        },
+        success: false,
+      };
+    }
+
+    return {
+      message: "No se pudo actualizar tu paleta de color.",
+      success: false,
+    };
+  }
+
   revalidatePath("/calendar");
   revalidatePath("/calendar/settings");
   redirect(redirectTo);

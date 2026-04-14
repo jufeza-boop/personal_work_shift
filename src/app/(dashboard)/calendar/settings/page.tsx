@@ -1,8 +1,11 @@
 import { ColorPalette } from "@/domain/value-objects/ColorPalette";
+import type { Family } from "@/domain/entities/Family";
+import type { PaletteOption } from "@/presentation/components/family/ColorPalettePicker";
 import {
   addFamilyMemberAction,
   createFamilyAction,
   renameFamilyAction,
+  selectPaletteAction,
   switchFamilyAction,
 } from "@/app/actions/family";
 import { getFamilyPageData } from "@/app/(dashboard)/familyPageData";
@@ -11,6 +14,28 @@ import { FamilyMemberList } from "@/presentation/components/family/FamilyMemberL
 import { FamilySelectorPanel } from "@/presentation/components/family/FamilySelectorPanel";
 import { InviteFamilyMemberForm } from "@/presentation/components/family/InviteFamilyMemberForm";
 import { RenameFamilyForm } from "@/presentation/components/family/RenameFamilyForm";
+import { SelectPaletteForm } from "@/presentation/components/family/SelectPaletteForm";
+
+/**
+ * Returns all palette options with availability flags, treating the given
+ * userId's current palette as still available so they can re-select it.
+ * Pass `forUserId = null` to treat all assigned palettes as disabled.
+ */
+function buildPaletteOptions(
+  family: Family,
+  forUserId: string | null,
+): PaletteOption[] {
+  return ColorPalette.availablePalettes().map((paletteName) => {
+    const takenByOther = family.members.some(
+      (m) =>
+        m.userId !== forUserId &&
+        m.colorPalette !== null &&
+        m.colorPalette.name === paletteName,
+    );
+
+    return { disabled: takenByOther, name: paletteName };
+  });
+}
 
 export default async function FamilySettingsPage() {
   const { activeFamily, families, memberDirectory, user } =
@@ -39,14 +64,12 @@ export default async function FamilySettingsPage() {
   }
 
   const isOwner = activeFamily.createdBy === user.id;
-  const paletteOptions = ColorPalette.availablePalettes().map(
-    (paletteName) => ({
-      disabled: !activeFamily.isColorPaletteAvailable(
-        ColorPalette.create(paletteName),
-      ),
-      name: paletteName,
-    }),
-  );
+  // For the invite form any taken palette is disabled (no user context)
+  const paletteOptions = buildPaletteOptions(activeFamily, null);
+  // For the current user's picker their own palette remains selectable
+  const paletteOptionsForMe = buildPaletteOptions(activeFamily, user.id);
+  const myPaletteName = activeFamily.members.find((m) => m.userId === user.id)
+    ?.colorPalette?.name;
 
   return (
     <section className="grid gap-6 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
@@ -89,6 +112,13 @@ export default async function FamilySettingsPage() {
             </p>
           </section>
         )}
+
+        <SelectPaletteForm
+          action={selectPaletteAction}
+          familyId={activeFamily.id}
+          paletteOptions={paletteOptionsForMe}
+          currentPalette={myPaletteName}
+        />
 
         <FamilyMemberList
           family={activeFamily}

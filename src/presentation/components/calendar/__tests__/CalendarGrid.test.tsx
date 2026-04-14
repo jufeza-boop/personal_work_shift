@@ -155,7 +155,7 @@ describe("CalendarGrid", () => {
     expect(screen.getByText("Doctor visit")).toBeInTheDocument();
   });
 
-  it("shows recurring other event title as a text label", () => {
+  it("shows recurring other event title as a colored text label", () => {
     render(
       <CalendarGrid
         events={EVENTS}
@@ -168,6 +168,9 @@ describe("CalendarGrid", () => {
     // Weekly yoga starts 2026-04-01, so it appears on Wednesdays in April
     const labels = screen.getAllByText("Weekly yoga");
     expect(labels.length).toBeGreaterThan(0);
+    // The label for "other" recurring events has an inline style background color
+    // (Alice's sky palette afternoon tone: #7DD3FC)
+    expect(labels[0]).toHaveStyle({ backgroundColor: "#7DD3FC" });
   });
 
   it("hides events for a toggled-off member", async () => {

@@ -3,10 +3,15 @@ import { Family } from "@/domain/entities/Family";
 import { ValidationError } from "@/domain/errors/DomainError";
 import type { IFamilyRepository } from "@/domain/repositories/IFamilyRepository";
 import type { IUserRepository } from "@/domain/repositories/IUserRepository";
+import {
+  ColorPalette,
+  type ColorPaletteName,
+} from "@/domain/value-objects/ColorPalette";
 
 export interface CreateFamilyInput {
   createdBy: string;
   name: string;
+  ownerColorPalette?: ColorPaletteName;
 }
 
 export type CreateFamilyResult =
@@ -49,6 +54,13 @@ export class CreateFamily {
         id: randomUUID(),
         name: input.name,
       });
+
+      if (input.ownerColorPalette) {
+        family.updateMemberPalette(
+          input.createdBy,
+          ColorPalette.create(input.ownerColorPalette),
+        );
+      }
 
       await this.familyRepository.save(family);
 
