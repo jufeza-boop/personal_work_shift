@@ -26,7 +26,10 @@ export function AppNavBar({ userEmail }: AppNavBarProps) {
         </Link>
 
         {/* Nav links */}
-        <nav aria-label="Navegación principal" className="flex items-center gap-1">
+        <nav
+          aria-label="Navegación principal"
+          className="flex items-center gap-1"
+        >
           {NAV_LINKS.map(({ href, icon: Icon, label }) => (
             <Link
               className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm text-slate-600 transition-colors hover:bg-stone-100 hover:text-slate-900"

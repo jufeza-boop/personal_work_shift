@@ -74,8 +74,6 @@
 - `document` global is not available in TypeScript client components due to the TS 5.9 + `@types/react/global.d.ts` empty interfaces issue — use React synthetic events instead
 - `HTMLDivElement`, `HTMLDetailsElement`, and other DOM types lose their inherited methods (e.g., `contains`, `open`) in this TypeScript environment — always cast through `unknown` when needed
 
-
-
 - Added `src/application/services/calendarUtils.ts` with `serializeEvent`, `getOccurrencesForMonth`, and `getShiftColor` utilities
 - `serializeEvent` converts domain Event entities to plain JSON-safe objects for server→client prop passing
 - `getOccurrencesForMonth` expands recurring events (daily/weekly/annual, with interval and optional endDate) into concrete dated occurrences for a given month using UTC date math and a fast-skip optimization

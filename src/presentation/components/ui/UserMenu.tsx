@@ -27,7 +27,7 @@ export function UserMenu({ email, logoutAction }: UserMenuProps) {
           e.preventDefault();
           setOpen((prev) => !prev);
         }}
-        className="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-full bg-amber-700 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2"
+        className="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-full bg-amber-700 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-amber-700 focus-visible:ring-offset-2 focus-visible:outline-none"
       >
         {initial}
       </summary>
