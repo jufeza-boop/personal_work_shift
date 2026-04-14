@@ -1,6 +1,9 @@
 "use client";
 
-import { useActionState, useId } from "react";
+import { useState, useActionState, useId } from "react";
+import type { ColorPaletteName } from "@/domain/value-objects/ColorPalette";
+import { ColorPalettePicker } from "@/presentation/components/family/ColorPalettePicker";
+import type { PaletteOption } from "@/presentation/components/family/ColorPalettePicker";
 import { SubmitButton } from "@/presentation/components/ui/SubmitButton";
 import {
   EMPTY_FAMILY_FORM_STATE,
@@ -10,10 +13,7 @@ import {
 interface InviteFamilyMemberFormProps {
   action: FamilyFormAction;
   familyId: string;
-  paletteOptions: Array<{
-    disabled: boolean;
-    name: string;
-  }>;
+  paletteOptions: PaletteOption[];
   redirectTo?: string;
 }
 
@@ -24,7 +24,10 @@ export function InviteFamilyMemberForm({
   redirectTo = "/calendar/settings",
 }: InviteFamilyMemberFormProps) {
   const emailId = useId();
-  const colorPaletteId = useId();
+  const colorPickerId = useId();
+  const [selectedPalette, setSelectedPalette] = useState<
+    ColorPaletteName | undefined
+  >(undefined);
   const [formState, formAction] = useActionState(
     action,
     EMPTY_FAMILY_FORM_STATE,
@@ -60,38 +63,21 @@ export function InviteFamilyMemberForm({
           ) : null}
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-2">
           <label
             className="text-sm font-medium text-slate-800"
-            htmlFor={colorPaletteId}
+            htmlFor={colorPickerId}
           >
             Paleta de color
           </label>
-          <select
-            className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm"
-            defaultValue=""
-            id={colorPaletteId}
+          <ColorPalettePicker
+            id={colorPickerId}
             name="colorPalette"
-          >
-            <option disabled value="">
-              Selecciona una paleta
-            </option>
-            {paletteOptions.map((palette) => (
-              <option
-                disabled={palette.disabled}
-                key={palette.name}
-                value={palette.name}
-              >
-                {palette.name}
-                {palette.disabled ? " · ocupada" : ""}
-              </option>
-            ))}
-          </select>
-          {formState.errors?.colorPalette ? (
-            <p className="text-sm text-red-600">
-              {formState.errors.colorPalette}
-            </p>
-          ) : null}
+            paletteOptions={paletteOptions}
+            value={selectedPalette}
+            onChange={setSelectedPalette}
+            error={formState.errors?.colorPalette}
+          />
         </div>
 
         {formState.message ? (

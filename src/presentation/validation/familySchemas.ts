@@ -18,6 +18,12 @@ const familyNameSchema = z
   .min(1, FAMILY_NAME_REQUIRED_MESSAGE)
   .max(100, FAMILY_NAME_MESSAGE);
 
+export const selectPaletteSchema = z.object({
+  colorPalette: z.enum(colorPaletteNames, {
+    message: "Selecciona una paleta válida.",
+  }),
+});
+
 export const createFamilySchema = z.object({
   name: familyNameSchema,
 });
@@ -38,3 +44,4 @@ export type InviteFamilyMemberFormInput = z.infer<
   typeof inviteFamilyMemberSchema
 >;
 export type RenameFamilyFormInput = z.infer<typeof renameFamilySchema>;
+export type SelectPaletteFormInput = z.infer<typeof selectPaletteSchema>;

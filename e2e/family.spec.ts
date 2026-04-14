@@ -54,11 +54,11 @@ test("creates a family and adds a registered member", async ({ page }) => {
 
   await page.goto("/calendar/settings");
   await page.getByLabel("Correo electrónico").fill(member.email);
-  await page.getByLabel("Paleta de color").selectOption("sky");
+  await page.getByRole("radio", { name: /cielo/i }).click();
   await page.getByRole("button", { name: "Añadir miembro" }).click();
 
   await expect(page.getByText("Member Example")).toBeVisible();
-  await expect(page.getByText("Paleta sky")).toBeVisible();
+  await expect(page.getByLabel("Paleta sky")).toBeVisible();
 });
 
 test("switches between families, persists the active family, and renames it", async ({
@@ -109,4 +109,36 @@ test("switches between families, persists the active family, and renames it", as
   await expect(page.locator('input[value="Roommates"]')).toBeVisible();
   await page.goto("/calendar");
   await expect(page.getByText("Familia activa:")).toContainText("Roommates");
+});
+
+test("member can select and change their own color palette", async ({
+  page,
+}) => {
+  const suffix = Date.now();
+  const owner = {
+    displayName: "Palette Owner",
+    email: `palette-owner-${suffix}@example.com`,
+    password: "Password1",
+  };
+
+  await registerUser(page, owner);
+  await loginUser(page, owner);
+
+  await page.getByLabel("Nombre de la familia").fill("Color Team");
+  await page.getByRole("button", { name: "Crear familia" }).click();
+
+  await page.goto("/calendar/settings");
+
+  // Select a palette using the visual picker
+  await page.getByRole("radio", { name: /esmeralda/i }).click();
+  await page.getByRole("button", { name: "Guardar paleta" }).click();
+
+  // After saving, the member list should show the palette swatch
+  await expect(page.getByLabelText("Paleta emerald")).toBeVisible();
+
+  // Now change the palette to a different one
+  await page.getByRole("radio", { name: /turquesa/i }).click();
+  await page.getByRole("button", { name: "Guardar paleta" }).click();
+
+  await expect(page.getByLabelText("Paleta teal")).toBeVisible();
 });
