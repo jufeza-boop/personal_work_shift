@@ -145,14 +145,19 @@ test("shows a punctual event in the calendar grid", async ({ page }) => {
   // Navigate to April 2026 (a fixed month for the test date 2026-04-10)
   await navigateToMonth(page, 2026, 4);
 
-  // Create a punctual event on April 10, 2026
-  await page.getByRole("button", { name: "Puntual" }).click();
+  // Click on day 10 to open the day detail panel
+  await page.getByRole("button", { name: "10" }).click();
+
+  // Click "Crear evento" in the day detail panel
+  await page.getByRole("button", { name: /crear evento/i }).click();
+
+  // Fill the title (date is pre-filled by the day cell click)
   await page.getByLabel("Título").fill("Grid test event");
-  await page.getByLabel("Fecha").fill("2026-04-10");
-  await page.getByRole("button", { name: "Crear evento" }).click();
+  await page.getByRole("button", { name: "Crear evento" }).last().click();
   await expect(page).toHaveURL("/calendar");
 
   // The event should appear in the calendar grid
+  await navigateToMonth(page, 2026, 4);
   await expect(page.getByText("Grid test event").first()).toBeVisible();
 });
 
@@ -171,12 +176,19 @@ test("member toggle hides and shows events", async ({ page }) => {
   // Navigate to April 2026
   await navigateToMonth(page, 2026, 4);
 
-  // Create a punctual event
-  await page.getByRole("button", { name: "Puntual" }).click();
+  // Click on day 15 to open the day detail panel
+  await page.getByRole("button", { name: "15" }).click();
+
+  // Click "Crear evento" in the day detail panel
+  await page.getByRole("button", { name: /crear evento/i }).click();
+
+  // Fill in event details (date is pre-filled by day cell click)
   await page.getByLabel("Título").fill("Toggle test event");
-  await page.getByLabel("Fecha").fill("2026-04-15");
-  await page.getByRole("button", { name: "Crear evento" }).click();
+  await page.getByRole("button", { name: "Crear evento" }).last().click();
   await expect(page).toHaveURL("/calendar");
+
+  // Navigate back to April 2026
+  await navigateToMonth(page, 2026, 4);
 
   // Event should be visible in the calendar
   await expect(page.getByText("Toggle test event").first()).toBeVisible();

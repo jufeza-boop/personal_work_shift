@@ -10,10 +10,13 @@ import { ShiftBlock } from "@/presentation/components/calendar/ShiftBlock";
 
 interface DayCellProps {
   day: number;
+  dateStr: string;
   isToday: boolean;
   occurrences: CalendarOccurrence[];
   /** Visible members, used to resolve colors */
   members: SerializedMember[];
+  /** Called when user clicks the day cell */
+  onSelect: (dateStr: string) => void;
 }
 
 function getInitials(displayName: string): string {
@@ -24,7 +27,14 @@ function getInitials(displayName: string): string {
     .join("");
 }
 
-export function DayCell({ day, isToday, occurrences, members }: DayCellProps) {
+export function DayCell({
+  day,
+  dateStr,
+  isToday,
+  occurrences,
+  members,
+  onSelect,
+}: DayCellProps) {
   const memberMap = new Map(members.map((m) => [m.userId, m]));
 
   // Shift occurrences: recurring work/studies events
@@ -44,9 +54,12 @@ export function DayCell({ day, isToday, occurrences, members }: DayCellProps) {
   );
 
   return (
-    <div
+    <button
+      type="button"
+      onClick={() => onSelect(dateStr)}
+      aria-label={`${day}`}
       className={[
-        "flex min-h-[5rem] flex-col gap-0.5 overflow-hidden rounded-lg p-1 text-xs",
+        "flex min-h-[5rem] cursor-pointer flex-col gap-0.5 overflow-hidden rounded-lg p-1 text-left text-xs transition-colors",
         isToday
           ? "bg-blue-50 ring-1 ring-blue-300"
           : "bg-white hover:bg-stone-50",
@@ -112,6 +125,6 @@ export function DayCell({ day, isToday, occurrences, members }: DayCellProps) {
           {occ.title}
         </span>
       ))}
-    </div>
+    </button>
   );
 }

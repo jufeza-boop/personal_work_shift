@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type {
   SerializedEvent,
   SerializedMember,
@@ -51,6 +51,13 @@ const EVENTS: SerializedEvent[] = [
   },
 ];
 
+const DEFAULT_PROPS = {
+  currentUserId: "u1",
+  familyId: "f1",
+  createAction: vi.fn(),
+  deleteAction: vi.fn(),
+};
+
 describe("CalendarGrid", () => {
   it("renders the month name and year", () => {
     render(
@@ -59,6 +66,7 @@ describe("CalendarGrid", () => {
         members={[]}
         initialYear={2026}
         initialMonth={4}
+        {...DEFAULT_PROPS}
       />,
     );
 
@@ -72,6 +80,7 @@ describe("CalendarGrid", () => {
         members={[]}
         initialYear={2026}
         initialMonth={4}
+        {...DEFAULT_PROPS}
       />,
     );
 
@@ -86,6 +95,7 @@ describe("CalendarGrid", () => {
         members={[]}
         initialYear={2026}
         initialMonth={4}
+        {...DEFAULT_PROPS}
       />,
     );
 
@@ -103,6 +113,7 @@ describe("CalendarGrid", () => {
         members={[]}
         initialYear={2026}
         initialMonth={4}
+        {...DEFAULT_PROPS}
       />,
     );
 
@@ -119,6 +130,7 @@ describe("CalendarGrid", () => {
         members={[]}
         initialYear={2026}
         initialMonth={4}
+        {...DEFAULT_PROPS}
       />,
     );
 
@@ -134,6 +146,7 @@ describe("CalendarGrid", () => {
         members={MEMBERS}
         initialYear={2026}
         initialMonth={4}
+        {...DEFAULT_PROPS}
       />,
     );
 
@@ -149,6 +162,7 @@ describe("CalendarGrid", () => {
         members={MEMBERS}
         initialYear={2026}
         initialMonth={4}
+        {...DEFAULT_PROPS}
       />,
     );
 
@@ -162,6 +176,7 @@ describe("CalendarGrid", () => {
         members={MEMBERS}
         initialYear={2026}
         initialMonth={4}
+        {...DEFAULT_PROPS}
       />,
     );
 
@@ -181,6 +196,7 @@ describe("CalendarGrid", () => {
         members={MEMBERS}
         initialYear={2026}
         initialMonth={4}
+        {...DEFAULT_PROPS}
       />,
     );
 
@@ -200,6 +216,7 @@ describe("CalendarGrid", () => {
         members={MEMBERS}
         initialYear={2026}
         initialMonth={4}
+        {...DEFAULT_PROPS}
       />,
     );
 
@@ -220,8 +237,51 @@ describe("CalendarGrid", () => {
           members={[]}
           initialYear={2026}
           initialMonth={4}
+          {...DEFAULT_PROPS}
         />,
       ),
     ).not.toThrow();
+  });
+
+  it("opens the day detail panel when a day cell is clicked", async () => {
+    const user = userEvent.setup();
+    render(
+      <CalendarGrid
+        events={EVENTS}
+        members={MEMBERS}
+        initialYear={2026}
+        initialMonth={4}
+        {...DEFAULT_PROPS}
+      />,
+    );
+
+    // Click on day 10 (which has the Doctor visit event)
+    await user.click(screen.getByRole("button", { name: "10" }));
+
+    // The day detail panel should show the date heading and the event
+    expect(screen.getByText(/10 de abril 2026/i)).toBeInTheDocument();
+    // And a create event button
+    expect(
+      screen.getByRole("button", { name: /crear evento/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("closes the day detail panel when close is clicked", async () => {
+    const user = userEvent.setup();
+    render(
+      <CalendarGrid
+        events={EVENTS}
+        members={MEMBERS}
+        initialYear={2026}
+        initialMonth={4}
+        {...DEFAULT_PROPS}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "10" }));
+    expect(screen.getByText(/10 de abril 2026/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /cerrar/i }));
+    expect(screen.queryByText(/10 de abril 2026/i)).not.toBeInTheDocument();
   });
 });

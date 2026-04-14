@@ -1,11 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import type {
   SerializedEvent,
   SerializedMember,
 } from "@/application/services/calendarUtils";
 import { DayCell } from "@/presentation/components/calendar/DayCell";
+import { DayDetailPanel } from "@/presentation/components/calendar/DayDetailPanel";
 import { MemberToggle } from "@/presentation/components/calendar/MemberToggle";
+import type { EventFormAction } from "@/presentation/components/events/types";
 import { useCalendarEvents } from "@/presentation/hooks/useCalendarEvents";
 
 const MONTH_NAMES = [
@@ -30,6 +33,10 @@ interface CalendarGridProps {
   members: SerializedMember[];
   initialYear: number;
   initialMonth: number;
+  currentUserId: string;
+  familyId: string;
+  createAction: EventFormAction;
+  deleteAction: EventFormAction;
 }
 
 export function CalendarGrid({
@@ -37,6 +44,10 @@ export function CalendarGrid({
   members,
   initialYear,
   initialMonth,
+  currentUserId,
+  familyId,
+  createAction,
+  deleteAction,
 }: CalendarGridProps) {
   const {
     year,
@@ -47,6 +58,8 @@ export function CalendarGrid({
     hiddenMemberIds,
     toggleMember,
   } = useCalendarEvents({ events, members, initialYear, initialMonth });
+
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const today = new Date().toISOString().slice(0, 10);
   const todayYear = Number(today.slice(0, 4));
@@ -63,13 +76,23 @@ export function CalendarGrid({
   const totalCells = leadingOffset + daysInMonth;
   const totalRows = Math.ceil(totalCells / 7);
 
+  const selectedDay = selectedDate
+    ? Number(selectedDate.slice(8, 10))
+    : null;
+  const selectedOccurrences = selectedDate
+    ? (occurrencesByDate.get(selectedDate) ?? [])
+    : [];
+
   return (
     <div className="space-y-4">
       {/* Header row: navigation + month label */}
       <div className="flex items-center justify-between gap-4">
         <button
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={() => {
+            navigate(-1);
+            setSelectedDate(null);
+          }}
           aria-label="Mes anterior"
           className="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-stone-100 hover:text-slate-900"
         >
@@ -82,7 +105,10 @@ export function CalendarGrid({
 
         <button
           type="button"
-          onClick={() => navigate(1)}
+          onClick={() => {
+            navigate(1);
+            setSelectedDate(null);
+          }}
           aria-label="Mes siguiente"
           className="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-stone-100 hover:text-slate-900"
         >
@@ -139,14 +165,33 @@ export function CalendarGrid({
               <DayCell
                 key={dateStr}
                 day={dayNumber}
+                dateStr={dateStr}
                 isToday={isToday}
                 occurrences={occs}
                 members={visibleMembers}
+                onSelect={setSelectedDate}
               />
             );
           })}
         </div>
       </div>
+
+      {/* Day detail panel */}
+      {selectedDate && selectedDay !== null && (
+        <DayDetailPanel
+          date={selectedDate}
+          day={selectedDay}
+          month={month}
+          year={year}
+          occurrences={selectedOccurrences}
+          members={visibleMembers}
+          currentUserId={currentUserId}
+          familyId={familyId}
+          createAction={createAction}
+          deleteAction={deleteAction}
+          onClose={() => setSelectedDate(null)}
+        />
+      )}
     </div>
   );
 }
