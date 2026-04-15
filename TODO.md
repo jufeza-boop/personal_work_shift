@@ -140,14 +140,14 @@
 
 ## Phase 9: Real-Time Synchronization (US-6.1)
 
-- [ ] Configure Supabase Realtime subscriptions for events table
-- [ ] Create `RealtimeSubscriptionManager` service
-- [ ] Create `useRealtimeSync` hook
-- [ ] Handle INSERT events (new event appears)
-- [ ] Handle UPDATE events (event updates in place)
-- [ ] Handle DELETE events (event disappears)
-- [ ] Subscribe/unsubscribe on family switch
-- [ ] Write integration tests for realtime sync
+- [x] Configure Supabase Realtime subscriptions for events table
+- [x] Create `RealtimeSubscriptionManager` service
+- [x] Create `useRealtimeSync` hook
+- [x] Handle INSERT events (new event appears)
+- [x] Handle UPDATE events (event updates in place)
+- [x] Handle DELETE events (event disappears)
+- [x] Subscribe/unsubscribe on family switch
+- [x] Write integration tests for realtime sync
 
 ---
 

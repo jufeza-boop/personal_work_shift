@@ -1,15 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type {
   SerializedEvent,
   SerializedMember,
 } from "@/application/services/calendarUtils";
+import { SupabaseRealtimeService } from "@/infrastructure/realtime/SupabaseRealtimeService";
+import { createBrowserSupabaseClient } from "@/infrastructure/supabase/browser";
 import { DayCell } from "@/presentation/components/calendar/DayCell";
 import { DayDetailPanel } from "@/presentation/components/calendar/DayDetailPanel";
 import { MemberToggle } from "@/presentation/components/calendar/MemberToggle";
 import type { EventFormAction } from "@/presentation/components/events/types";
 import { useCalendarEvents } from "@/presentation/hooks/useCalendarEvents";
+import { useRealtimeSync } from "@/presentation/hooks/useRealtimeSync";
 
 const MONTH_NAMES = [
   "Enero",
@@ -29,7 +32,7 @@ const MONTH_NAMES = [
 const DAY_HEADERS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"] as const;
 
 interface CalendarGridProps {
-  events: SerializedEvent[];
+  initialEvents: SerializedEvent[];
   members: SerializedMember[];
   initialYear: number;
   initialMonth: number;
@@ -40,7 +43,7 @@ interface CalendarGridProps {
 }
 
 export function CalendarGrid({
-  events,
+  initialEvents,
   members,
   initialYear,
   initialMonth,
@@ -49,6 +52,23 @@ export function CalendarGrid({
   createAction,
   deleteAction,
 }: CalendarGridProps) {
+  const [events, setEvents] = useState<SerializedEvent[]>(initialEvents);
+
+  const realtimeService = useMemo(
+    () => new SupabaseRealtimeService(createBrowserSupabaseClient()),
+    [],
+  );
+
+  useRealtimeSync({
+    familyId,
+    onDelete: (eventId) =>
+      setEvents((prev) => prev.filter((e) => e.id !== eventId)),
+    onInsert: (event) => setEvents((prev) => [...prev, event]),
+    onUpdate: (event) =>
+      setEvents((prev) => prev.map((e) => (e.id === event.id ? event : e))),
+    service: realtimeService,
+  });
+
   const {
     year,
     month,

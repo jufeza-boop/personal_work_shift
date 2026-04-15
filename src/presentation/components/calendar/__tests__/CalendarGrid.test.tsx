@@ -7,6 +7,22 @@ import type {
 } from "@/application/services/calendarUtils";
 import { CalendarGrid } from "@/presentation/components/calendar/CalendarGrid";
 
+// Prevent real Supabase/realtime connections during unit tests.
+// We mock the hook instead of the individual infrastructure modules so the
+// CalendarGrid component renders without any network activity.
+vi.mock("@/presentation/hooks/useRealtimeSync", () => ({
+  useRealtimeSync: vi.fn(),
+}));
+vi.mock("@/infrastructure/supabase/browser", () => ({
+  createBrowserSupabaseClient: vi.fn(() => ({})),
+}));
+vi.mock("@/infrastructure/realtime/SupabaseRealtimeService", () => ({
+  SupabaseRealtimeService: class {
+    subscribe() {}
+    unsubscribe() {}
+  },
+}));
+
 const MEMBERS: SerializedMember[] = [
   { userId: "u1", displayName: "Alice Smith", colorPaletteName: "sky" },
   { userId: "u2", displayName: "Bob Jones", colorPaletteName: "rose" },
@@ -62,7 +78,7 @@ describe("CalendarGrid", () => {
   it("renders the month name and year", () => {
     render(
       <CalendarGrid
-        events={[]}
+        initialEvents={[]}
         members={[]}
         initialYear={2026}
         initialMonth={4}
@@ -76,7 +92,7 @@ describe("CalendarGrid", () => {
   it("renders day-of-week headers in Spanish", () => {
     render(
       <CalendarGrid
-        events={[]}
+        initialEvents={[]}
         members={[]}
         initialYear={2026}
         initialMonth={4}
@@ -91,7 +107,7 @@ describe("CalendarGrid", () => {
   it("renders the correct number of day cells for the month", () => {
     render(
       <CalendarGrid
-        events={[]}
+        initialEvents={[]}
         members={[]}
         initialYear={2026}
         initialMonth={4}
@@ -109,7 +125,7 @@ describe("CalendarGrid", () => {
     const user = userEvent.setup();
     render(
       <CalendarGrid
-        events={[]}
+        initialEvents={[]}
         members={[]}
         initialYear={2026}
         initialMonth={4}
@@ -126,7 +142,7 @@ describe("CalendarGrid", () => {
     const user = userEvent.setup();
     render(
       <CalendarGrid
-        events={[]}
+        initialEvents={[]}
         members={[]}
         initialYear={2026}
         initialMonth={4}
@@ -142,7 +158,7 @@ describe("CalendarGrid", () => {
   it("renders member toggle checkboxes for each member", () => {
     render(
       <CalendarGrid
-        events={[]}
+        initialEvents={[]}
         members={MEMBERS}
         initialYear={2026}
         initialMonth={4}
@@ -158,7 +174,7 @@ describe("CalendarGrid", () => {
   it("shows punctual event title as a text label in the correct day cell", () => {
     render(
       <CalendarGrid
-        events={EVENTS}
+        initialEvents={EVENTS}
         members={MEMBERS}
         initialYear={2026}
         initialMonth={4}
@@ -172,7 +188,7 @@ describe("CalendarGrid", () => {
   it("shows recurring other event title as a colored text label", () => {
     render(
       <CalendarGrid
-        events={EVENTS}
+        initialEvents={EVENTS}
         members={MEMBERS}
         initialYear={2026}
         initialMonth={4}
@@ -192,7 +208,7 @@ describe("CalendarGrid", () => {
     const user = userEvent.setup();
     render(
       <CalendarGrid
-        events={EVENTS}
+        initialEvents={EVENTS}
         members={MEMBERS}
         initialYear={2026}
         initialMonth={4}
@@ -212,7 +228,7 @@ describe("CalendarGrid", () => {
     const user = userEvent.setup();
     render(
       <CalendarGrid
-        events={[]}
+        initialEvents={[]}
         members={MEMBERS}
         initialYear={2026}
         initialMonth={4}
@@ -233,7 +249,7 @@ describe("CalendarGrid", () => {
     expect(() =>
       render(
         <CalendarGrid
-          events={[]}
+          initialEvents={[]}
           members={[]}
           initialYear={2026}
           initialMonth={4}
@@ -247,7 +263,7 @@ describe("CalendarGrid", () => {
     const user = userEvent.setup();
     render(
       <CalendarGrid
-        events={EVENTS}
+        initialEvents={EVENTS}
         members={MEMBERS}
         initialYear={2026}
         initialMonth={4}
@@ -270,7 +286,7 @@ describe("CalendarGrid", () => {
     const user = userEvent.setup();
     render(
       <CalendarGrid
-        events={EVENTS}
+        initialEvents={EVENTS}
         members={MEMBERS}
         initialYear={2026}
         initialMonth={4}
