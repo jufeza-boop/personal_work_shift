@@ -25,13 +25,15 @@ vi.mock("@/infrastructure/realtime/SupabaseRealtimeService", () => ({
 }));
 vi.mock("@/infrastructure/offline/OfflineQueueStore", () => ({
   OfflineQueueStore: class {
-    enqueue = vi.fn(async (op: { type: string; formFields: Record<string, string> }) => ({
-      id: "mock-id",
-      type: op.type,
-      formFields: op.formFields,
-      timestamp: Date.now(),
-      retryCount: 0,
-    }));
+    enqueue = vi.fn(
+      async (op: { type: string; formFields: Record<string, string> }) => ({
+        id: "mock-id",
+        type: op.type,
+        formFields: op.formFields,
+        timestamp: Date.now(),
+        retryCount: 0,
+      }),
+    );
     getAll = vi.fn(async () => []);
     remove = vi.fn(async () => {});
     count = vi.fn(async () => 0);

@@ -93,6 +93,7 @@
 ### 2026-04-15 - Phase 10 PWA & Offline Support (US-6.2)
 
 #### What was done
+
 - Added `IOfflineQueue` interface and `PendingOperation` type in `src/application/services/IOfflineQueue.ts`
 - Added `OfflineQueueStore` IndexedDB implementation in `src/infrastructure/offline/OfflineQueueStore.ts` with injected `DbBackend` for testability (default uses IndexedDB `pws-offline-queue` DB)
 - Added `useOfflineSync` hook in `src/presentation/hooks/useOfflineSync.ts` — tracks `navigator.onLine`, polls queue count, auto-syncs on reconnect, exposes `enqueueOperation`/`syncNow`
@@ -100,16 +101,19 @@
 - Updated `CalendarGrid` to integrate offline queue: create/delete actions wrapped to enqueue when offline, `OfflineBanner` rendered at top, `OfflineQueueStore` initialized with `useState` for stable reference
 
 #### Decisions
+
 - `IOfflineQueue.enqueue` accepts optional `retryCount` to allow re-enqueuing with incremented count on failure
 - `OfflineQueueStore` uses injectable `DbBackend` factory to enable pure in-memory testing without mocking IndexedDB
 - `CalendarGrid` uses `useState(() => new OfflineQueueStore())` instead of `useMemo` to guarantee a single stable instance
 
 #### Patterns
+
 - IndexedDB operations wrapped with `idbReq<T>()` Promise helper
 - `useOfflineSync` uses `useRef` to guard against parallel sync runs (`isSyncingRef`)
 - Test isolation: `afterEach` must call `cleanup()` + `await act(async () => {})` when hook tests dispatch window events or run async sync logic across tests
 
 #### Next steps
+
 - Phase 11: Notifications (US-7.x) — push notification subscription and dispatch
 
 - Added `EventException` domain entity with validation; used for recording overrides or soft-deletes of individual recurring event occurrences

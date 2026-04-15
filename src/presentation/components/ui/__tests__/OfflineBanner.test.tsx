@@ -15,9 +15,7 @@ describe("OfflineBanner", () => {
   });
 
   it("shows syncing message when isSyncing=true", () => {
-    render(
-      <OfflineBanner isOnline={true} isSyncing={true} pendingCount={0} />,
-    );
+    render(<OfflineBanner isOnline={true} isSyncing={true} pendingCount={0} />);
     expect(
       screen.getByText(/Sincronizando cambios pendientes/i),
     ).toBeInTheDocument();
