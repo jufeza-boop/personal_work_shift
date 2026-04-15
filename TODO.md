@@ -153,15 +153,15 @@
 
 ## Phase 10: PWA & Offline Support (US-6.2)
 
-- [ ] Configure Serwist service worker
-- [ ] Implement cache-first strategy for static assets
-- [ ] Implement network-first strategy for API calls
-- [ ] Implement offline event viewing (cached data)
-- [ ] Implement offline event creation/edit queue
-- [ ] Implement background sync on reconnection
-- [ ] Implement server-wins conflict resolution
-- [ ] Add PWA manifest (icons, theme color, display mode)
-- [ ] Write tests for offline/online transitions
+- [x] Configure Serwist service worker
+- [x] Implement cache-first strategy for static assets
+- [x] Implement network-first strategy for API calls
+- [x] Implement offline event viewing (cached data)
+- [x] Implement offline event creation/edit queue
+- [x] Implement background sync on reconnection
+- [x] Implement server-wins conflict resolution
+- [x] Add PWA manifest (icons, theme color, display mode)
+- [x] Write tests for offline/online transitions
 
 ---
 

@@ -6,6 +6,7 @@ import type {
   SerializedMember,
 } from "@/application/services/calendarUtils";
 import { CalendarGrid } from "@/presentation/components/calendar/CalendarGrid";
+import { useOfflineSync } from "@/presentation/hooks/useOfflineSync";
 
 // Prevent real Supabase/realtime connections during unit tests.
 // We mock the hook instead of the individual infrastructure modules so the
@@ -20,6 +21,63 @@ vi.mock("@/infrastructure/realtime/SupabaseRealtimeService", () => ({
   SupabaseRealtimeService: class {
     subscribe() {}
     unsubscribe() {}
+  },
+}));
+vi.mock("@/infrastructure/offline/OfflineQueueStore", () => ({
+  OfflineQueueStore: class {
+    enqueue = vi.fn(
+      async (op: { type: string; formFields: Record<string, string> }) => ({
+        id: "mock-id",
+        type: op.type,
+        formFields: op.formFields,
+        timestamp: Date.now(),
+        retryCount: 0,
+      }),
+    );
+    getAll = vi.fn(async () => []);
+    remove = vi.fn(async () => {});
+    count = vi.fn(async () => 0);
+    clear = vi.fn(async () => {});
+  },
+}));
+vi.mock("@/presentation/hooks/useOfflineSync", () => ({
+  useOfflineSync: vi.fn(() => ({
+    isOnline: true,
+    pendingCount: 0,
+    isSyncing: false,
+    enqueueOperation: vi.fn(),
+    syncNow: vi.fn(),
+  })),
+}));
+vi.mock("@/presentation/components/ui/OfflineBanner", () => ({
+  OfflineBanner: ({
+    isOnline,
+    isSyncing,
+    pendingCount,
+  }: {
+    isOnline: boolean;
+    isSyncing: boolean;
+    pendingCount: number;
+  }) => {
+    if (!isOnline)
+      return (
+        <div data-testid="offline-banner">
+          Sin conexión — los cambios se sincronizarán cuando vuelva la red
+        </div>
+      );
+    if (isSyncing)
+      return (
+        <div data-testid="offline-banner">
+          Sincronizando cambios pendientes...
+        </div>
+      );
+    if (pendingCount > 0)
+      return (
+        <div data-testid="offline-banner">
+          {pendingCount} cambios pendientes de sincronizar
+        </div>
+      );
+    return null;
   },
 }));
 
@@ -299,5 +357,46 @@ describe("CalendarGrid", () => {
 
     await user.click(screen.getByRole("button", { name: /cerrar/i }));
     expect(screen.queryByText(/10 de abril 2026/i)).not.toBeInTheDocument();
+  });
+
+  it("shows OfflineBanner when offline", () => {
+    vi.mocked(useOfflineSync).mockReturnValueOnce({
+      isOnline: false,
+      pendingCount: 0,
+      isSyncing: false,
+      enqueueOperation: vi.fn(),
+      syncNow: vi.fn(),
+    });
+
+    render(
+      <CalendarGrid
+        initialEvents={[]}
+        members={[]}
+        initialYear={2026}
+        initialMonth={4}
+        {...DEFAULT_PROPS}
+      />,
+    );
+
+    expect(screen.getByTestId("offline-banner")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /Sin conexión — los cambios se sincronizarán cuando vuelva la red/i,
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("renders without errors with offline-aware actions", () => {
+    expect(() =>
+      render(
+        <CalendarGrid
+          initialEvents={[]}
+          members={[]}
+          initialYear={2026}
+          initialMonth={4}
+          {...DEFAULT_PROPS}
+        />,
+      ),
+    ).not.toThrow();
   });
 });
