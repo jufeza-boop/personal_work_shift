@@ -8,8 +8,8 @@
 
 ## Current State
 
-- **Phase**: Phase 8 Color Palette System (US-5.1, US-5.2) completed
-- **Last Updated**: 2026-04-14
+- **Phase**: Phase 9 Real-Time Synchronization (US-6.1) completed
+- **Last Updated**: 2026-04-15
 
 ---
 
@@ -270,11 +270,49 @@
 
 ---
 
+## 2026-04-15 - Phase 9: Real-Time Synchronization (US-6.1)
+
+### What was done
+
+- Added `IRealtimeService` interface in `src/application/services/IRealtimeService.ts` defining `subscribe(familyId, handlers)` and `unsubscribe()` contract
+- Created `src/infrastructure/supabase/browser.ts` with `createBrowserSupabaseClient()` factory (uses `createBrowserClient` from `@supabase/ssr` with `NEXT_PUBLIC_*` env vars)
+- Implemented `SupabaseRealtimeService` in `src/infrastructure/realtime/SupabaseRealtimeService.ts`:
+  - Subscribes to `events` table Postgres Changes for INSERT/UPDATE/DELETE filtered by `family_id`
+  - Maps `EventRow` to `SerializedEvent` directly (avoiding domain entity overhead in the browser)
+  - `unsubscribe()` calls `client.removeChannel()` and nulls the ref (safe to call multiple times)
+- Created `useRealtimeSync` hook in `src/presentation/hooks/useRealtimeSync.ts`:
+  - Uses `useRef` for handler callbacks to avoid stale closures without causing re-subscription
+  - Re-subscribes only when `service` or `familyId` changes
+  - Calls `service.unsubscribe()` on cleanup
+- Updated `CalendarGrid` to manage `events` in `useState` (initialized from `initialEvents` prop) and call `useRealtimeSync` — INSERT appends, UPDATE replaces by id, DELETE filters out
+- Renamed `CalendarGrid.events` prop to `initialEvents` to clarify that server-supplied events are the starting state; live events are managed in state
+- Added 14 unit tests for `SupabaseRealtimeService` and 7 unit tests for `useRealtimeSync`
+- CalendarGrid tests mock `useRealtimeSync`, `SupabaseRealtimeService`, and `createBrowserSupabaseClient` to prevent real WebSocket connections
+
+### Decisions
+
+- `CalendarGrid` creates the `SupabaseRealtimeService` internally via `useMemo` so each calendar instance owns its own subscription lifetime
+- Handler callbacks are kept in a `useRef` (updated every render) so the subscription effect only has `[service, familyId]` as deps — avoids re-subscribe on every parent re-render
+- `browser.ts` reads `NEXT_PUBLIC_*` env vars directly (Next.js inlines them at build time) rather than going through `getAppEnv()` to avoid `NEXT_PUBLIC_VAPID_PUBLIC_KEY` requiring validation on the browser client
+
+### Patterns
+
+- `SupabaseRealtimeService` follows the same constructor-injection pattern as `SupabaseEventRepository` (accepts a `SupabaseClient` param) — easy to unit test with a mock client
+- `useRealtimeSync` uses the `handlersRef` + two `useEffect` pattern for stable subscriptions with fresh callback references
+- CalendarGrid tests mock the realtime service using a plain class (`class { subscribe() {} unsubscribe() {} }`) to avoid Vitest ESM hoisting issues with `vi.fn()` inside `vi.mock` factories
+
+### Next steps
+
+- Phase 10: PWA & Offline Support (US-6.2)
+
+---
+
 ## Next Steps
 
 - Apply branch protection rules in GitHub using `.github/branch-protection-rules.md`
 - ~~Begin Phase 6: Event Management - Edit & Delete (US-4.4, US-4.5, US-4.6)~~ ✅ Done
 - ~~Begin Phase 8: Color Palette System (US-5.1, US-5.2)~~ ✅ Done
 - ~~Begin Phase 7: Calendar View (US-3.1, US-3.2, US-3.3) to render events visually on a monthly grid~~ ✅ Done
-- Begin Phase 9: Real-Time Synchronization (US-6.1)
+- ~~Begin Phase 9: Real-Time Synchronization (US-6.1)~~ ✅ Done
+- Begin Phase 10: PWA & Offline Support (US-6.2)
 - Add live local Supabase integration coverage once the sandbox DNS issue for `supabase start` is resolved

@@ -53,7 +53,7 @@ export default async function CalendarPage() {
   return (
     <section className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm">
       <CalendarGrid
-        events={serializedEvents}
+        initialEvents={serializedEvents}
         members={serializedMembers}
         initialYear={initialYear}
         initialMonth={initialMonth}
