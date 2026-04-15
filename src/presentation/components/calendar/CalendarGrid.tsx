@@ -1,17 +1,25 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type {
   SerializedEvent,
   SerializedMember,
 } from "@/application/services/calendarUtils";
+import type { PendingOperation } from "@/application/services/IOfflineQueue";
+import { OfflineQueueStore } from "@/infrastructure/offline/OfflineQueueStore";
 import { SupabaseRealtimeService } from "@/infrastructure/realtime/SupabaseRealtimeService";
 import { createBrowserSupabaseClient } from "@/infrastructure/supabase/browser";
 import { DayCell } from "@/presentation/components/calendar/DayCell";
 import { DayDetailPanel } from "@/presentation/components/calendar/DayDetailPanel";
 import { MemberToggle } from "@/presentation/components/calendar/MemberToggle";
-import type { EventFormAction } from "@/presentation/components/events/types";
+import { OfflineBanner } from "@/presentation/components/ui/OfflineBanner";
+import type {
+  EventFormAction,
+  EventFormState,
+} from "@/presentation/components/events/types";
+import { EMPTY_EVENT_FORM_STATE } from "@/presentation/components/events/types";
 import { useCalendarEvents } from "@/presentation/hooks/useCalendarEvents";
+import { useOfflineSync } from "@/presentation/hooks/useOfflineSync";
 import { useRealtimeSync } from "@/presentation/hooks/useRealtimeSync";
 
 const MONTH_NAMES = [
@@ -53,6 +61,64 @@ export function CalendarGrid({
   deleteAction,
 }: CalendarGridProps) {
   const [events, setEvents] = useState<SerializedEvent[]>(initialEvents);
+
+  const [offlineQueue] = useState(() => new OfflineQueueStore());
+
+  const processOperation = useCallback(
+    async (op: PendingOperation) => {
+      const formData = new FormData();
+      Object.entries(op.formFields).forEach(([k, v]) => formData.append(k, v));
+      if (op.type === "create_event") {
+        const result = await createAction(EMPTY_EVENT_FORM_STATE, formData);
+        if (!result.success && result.message) throw new Error(result.message);
+      } else if (op.type === "delete_event") {
+        const result = await deleteAction(EMPTY_EVENT_FORM_STATE, formData);
+        if (!result.success && result.message) throw new Error(result.message);
+      }
+    },
+    [createAction, deleteAction],
+  );
+
+  const { isOnline, pendingCount, isSyncing, enqueueOperation } =
+    useOfflineSync({ queue: offlineQueue, processOperation });
+
+  const offlineCreateAction = useCallback(
+    async (
+      prevState: EventFormState,
+      formData: FormData,
+    ): Promise<EventFormState> => {
+      if (isOnline) return createAction(prevState, formData);
+      const formFields: Record<string, string> = {};
+      formData.forEach((value, key) => {
+        if (typeof value === "string") formFields[key] = value;
+      });
+      await enqueueOperation({ type: "create_event", formFields });
+      return {
+        success: true,
+        message: "Guardado sin conexión. Se sincronizará automáticamente.",
+      };
+    },
+    [isOnline, createAction, enqueueOperation],
+  );
+
+  const offlineDeleteAction = useCallback(
+    async (
+      prevState: EventFormState,
+      formData: FormData,
+    ): Promise<EventFormState> => {
+      if (isOnline) return deleteAction(prevState, formData);
+      const formFields: Record<string, string> = {};
+      formData.forEach((value, key) => {
+        if (typeof value === "string") formFields[key] = value;
+      });
+      await enqueueOperation({ type: "delete_event", formFields });
+      return {
+        success: true,
+        message: "Guardado sin conexión. Se sincronizará automáticamente.",
+      };
+    },
+    [isOnline, deleteAction, enqueueOperation],
+  );
 
   const realtimeService = useMemo(
     () => new SupabaseRealtimeService(createBrowserSupabaseClient()),
@@ -103,7 +169,12 @@ export function CalendarGrid({
 
   return (
     <div className="space-y-4">
-      {/* Header row: navigation + month label */}
+      {/* Offline status banner */}
+      <OfflineBanner
+        isOnline={isOnline}
+        isSyncing={isSyncing}
+        pendingCount={pendingCount}
+      />
       <div className="flex items-center justify-between gap-4">
         <button
           type="button"
@@ -205,8 +276,8 @@ export function CalendarGrid({
           members={visibleMembers}
           currentUserId={currentUserId}
           familyId={familyId}
-          createAction={createAction}
-          deleteAction={deleteAction}
+          createAction={offlineCreateAction}
+          deleteAction={offlineDeleteAction}
           onClose={() => setSelectedDate(null)}
         />
       )}
