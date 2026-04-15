@@ -216,6 +216,33 @@
 
 ---
 
+### 2026-04-14 - UX Change: Day-Level Event Management
+
+### What was done
+
+- Moved event creation, editing, and deletion into the calendar day cells
+- `DayCell` is now a `<button>` that opens a `DayDetailPanel` when clicked
+- `DayDetailPanel` shows events for the selected day with edit/delete actions and an inline create form
+- `DayCreateEventForm` pre-fills the date from the selected day cell (no manual date entry needed)
+- Removed standalone `CreateEventForm` and `EventList` sections from the calendar page
+- `CalendarGrid` now manages `selectedDate` state and resets it on month navigation
+- Updated E2E tests to use the new day-cell-based event management flow
+
+### Decisions
+
+- Pre-fill date automatically: punctual events use the clicked day as `date`, recurring events use it as `startDate`
+- For recurring event deletion with scope "single", the occurrence date is automatically set to the selected day
+- `DayDetailPanel` is rendered inline below the calendar grid (not as a modal) for better UX
+- `selectedDate` resets to null when navigating between months to avoid stale selections
+- Old `CreateEventForm` and `EventList` components retained in codebase but no longer used on the calendar page
+
+### Patterns
+
+- Day cells emit `onSelect(dateStr)` to parent; parent manages which panel is open
+- `DayCreateEventForm` is a compact version of `CreateEventForm` designed for inline use within the day panel
+
+---
+
 ## Next Steps
 
 - Apply branch protection rules in GitHub using `.github/branch-protection-rules.md`

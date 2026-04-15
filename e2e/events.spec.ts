@@ -36,7 +36,53 @@ async function createFamily(page: Page, familyName: string) {
   await expect(page.getByText("Familia activa:")).toContainText(familyName);
 }
 
-test("creates a punctual event and sees it in the list", async ({ page }) => {
+const MONTH_NAMES = [
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre",
+] as const;
+
+const MONTH_PATTERN =
+  /Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre/;
+
+async function navigateToMonth(
+  page: Page,
+  targetYear: number,
+  targetMonth: number,
+  maxSteps = 24,
+) {
+  const heading = page.locator("h3").filter({ hasText: MONTH_PATTERN });
+
+  for (let step = 0; step < maxSteps; step++) {
+    const text = await heading.textContent();
+    if (text === `${MONTH_NAMES[targetMonth - 1]} ${targetYear}`) break;
+
+    const [monthName, yearStr] = (text ?? "").split(" ");
+    const year = Number(yearStr);
+    const monthIndex = MONTH_NAMES.indexOf(
+      monthName as (typeof MONTH_NAMES)[number],
+    );
+    const current = new Date(year, monthIndex, 1);
+    const target = new Date(targetYear, targetMonth - 1, 1);
+
+    if (current < target) {
+      await page.getByRole("button", { name: "Mes siguiente" }).click();
+    } else {
+      await page.getByRole("button", { name: "Mes anterior" }).click();
+    }
+  }
+}
+
+test("creates a punctual event from a day cell", async ({ page }) => {
   const suffix = Date.now();
   const user = {
     displayName: "Event User",
@@ -48,17 +94,22 @@ test("creates a punctual event and sees it in the list", async ({ page }) => {
   await loginUser(page, user);
   await createFamily(page, "Punctual Family");
 
-  await page.getByRole("button", { name: "Puntual" }).click();
+  // Navigate to June 2025 and click on day 15
+  await navigateToMonth(page, 2025, 6);
+  await page.getByRole("button", { name: "15" }).click();
+
+  // Click "Crear evento" in the day detail panel
+  await page.getByRole("button", { name: /crear evento/i }).click();
+
+  // Fill the form (date is pre-filled via the day cell click)
   await page.getByLabel("Título").fill("Doctor appointment");
-  await page.getByLabel("Fecha").fill("2025-06-15");
-  await page.getByRole("button", { name: "Crear evento" }).click();
+  await page.getByRole("button", { name: "Crear evento" }).last().click();
 
   await expect(page).toHaveURL("/calendar");
   await expect(page.getByText("Doctor appointment")).toBeVisible();
-  await expect(page.getByText("Puntual")).toBeVisible();
 });
 
-test("creates a recurring work event with shift type", async ({ page }) => {
+test("creates a recurring work event from a day cell", async ({ page }) => {
   const suffix = Date.now();
   const user = {
     displayName: "Work Event User",
@@ -70,19 +121,26 @@ test("creates a recurring work event with shift type", async ({ page }) => {
   await loginUser(page, user);
   await createFamily(page, "Work Family");
 
+  // Navigate to June 2025 and click on day 1
+  await navigateToMonth(page, 2025, 6);
+  await page.getByRole("button", { name: "1" }).click();
+
+  // Click "Crear evento" in the day detail panel
+  await page.getByRole("button", { name: /crear evento/i }).click();
+
+  // Switch to work tab
   await page.getByRole("button", { name: "Trabajo/Estudio" }).click();
+
   await page.getByLabel("Título").fill("Morning shift");
-  await page.getByLabel("Fecha de inicio").fill("2025-06-01");
   await page.getByLabel("Frecuencia").selectOption("weekly");
   await page.getByLabel("Tipo de turno").selectOption("morning");
-  await page.getByRole("button", { name: "Crear evento" }).click();
+  await page.getByRole("button", { name: "Crear evento" }).last().click();
 
   await expect(page).toHaveURL("/calendar");
   await expect(page.getByText("Morning shift")).toBeVisible();
-  await expect(page.getByText("Recurrente")).toBeVisible();
 });
 
-test("creates a recurring other event", async ({ page }) => {
+test("creates a recurring other event from a day cell", async ({ page }) => {
   const suffix = Date.now();
   const user = {
     displayName: "Other Event User",
@@ -94,18 +152,25 @@ test("creates a recurring other event", async ({ page }) => {
   await loginUser(page, user);
   await createFamily(page, "Other Family");
 
+  // Navigate to June 2025 and click on day 1
+  await navigateToMonth(page, 2025, 6);
+  await page.getByRole("button", { name: "1" }).click();
+
+  // Click "Crear evento" in the day detail panel
+  await page.getByRole("button", { name: /crear evento/i }).click();
+
+  // Switch to other recurring tab
   await page.getByRole("button", { name: "Otro recurrente" }).click();
+
   await page.getByLabel("Título").fill("Weekly yoga");
-  await page.getByLabel("Fecha de inicio").fill("2025-06-01");
   await page.getByLabel("Frecuencia").selectOption("weekly");
-  await page.getByRole("button", { name: "Crear evento" }).click();
+  await page.getByRole("button", { name: "Crear evento" }).last().click();
 
   await expect(page).toHaveURL("/calendar");
   await expect(page.getByText("Weekly yoga")).toBeVisible();
-  await expect(page.getByText("Recurrente")).toBeVisible();
 });
 
-test("edits a punctual event and sees updated title", async ({ page }) => {
+test("edits a punctual event from the day detail panel", async ({ page }) => {
   const suffix = Date.now();
   const user = {
     displayName: "Edit User",
@@ -117,13 +182,20 @@ test("edits a punctual event and sees updated title", async ({ page }) => {
   await loginUser(page, user);
   await createFamily(page, "Edit Family");
 
-  await page.getByRole("button", { name: "Puntual" }).click();
+  // Navigate to July 2025 and create a punctual event on day 1
+  await navigateToMonth(page, 2025, 7);
+  await page.getByRole("button", { name: "1" }).click();
+  await page.getByRole("button", { name: /crear evento/i }).click();
   await page.getByLabel("Título").fill("Original title");
-  await page.getByLabel("Fecha").fill("2025-07-01");
-  await page.getByRole("button", { name: "Crear evento" }).click();
+  await page.getByRole("button", { name: "Crear evento" }).last().click();
   await expect(page).toHaveURL("/calendar");
   await expect(page.getByText("Original title")).toBeVisible();
 
+  // Click on day 1 again to open the day detail panel with the event
+  await navigateToMonth(page, 2025, 7);
+  await page.getByRole("button", { name: "1" }).click();
+
+  // Click edit on the event
   await page.getByRole("link", { name: "Editar" }).first().click();
   await expect(page).toHaveURL(/\/calendar\/events\/.+\/edit/);
 
@@ -134,7 +206,7 @@ test("edits a punctual event and sees updated title", async ({ page }) => {
   await expect(page.getByText("Updated title")).toBeVisible();
 });
 
-test("deletes an event and it disappears from the list", async ({ page }) => {
+test("deletes an event from the day detail panel", async ({ page }) => {
   const suffix = Date.now();
   const user = {
     displayName: "Delete User",
@@ -146,14 +218,23 @@ test("deletes an event and it disappears from the list", async ({ page }) => {
   await loginUser(page, user);
   await createFamily(page, "Delete Family");
 
-  await page.getByRole("button", { name: "Puntual" }).click();
+  // Navigate to July 2025 and create a punctual event on day 15
+  await navigateToMonth(page, 2025, 7);
+  await page.getByRole("button", { name: "15" }).click();
+  await page.getByRole("button", { name: /crear evento/i }).click();
   await page.getByLabel("Título").fill("Event to delete");
-  await page.getByLabel("Fecha").fill("2025-07-15");
-  await page.getByRole("button", { name: "Crear evento" }).click();
+  await page.getByRole("button", { name: "Crear evento" }).last().click();
   await expect(page).toHaveURL("/calendar");
   await expect(page.getByText("Event to delete")).toBeVisible();
 
+  // Click on day 15 again to open the day detail panel
+  await navigateToMonth(page, 2025, 7);
+  await page.getByRole("button", { name: "15" }).click();
+
+  // Click delete on the event in the day detail panel
   await page.getByRole("button", { name: "Eliminar" }).first().click();
+
+  // Confirm deletion in the dialog
   await page
     .getByRole("form", { name: "Eliminar evento" })
     .getByRole("button", { name: "Eliminar" })

@@ -6,8 +6,6 @@ import { serializeEvent } from "@/application/services/calendarUtils";
 import type { SerializedMember } from "@/application/services/calendarUtils";
 import { createServerEventDependencies } from "@/infrastructure/events/runtime";
 import { CalendarGrid } from "@/presentation/components/calendar/CalendarGrid";
-import { CreateEventForm } from "@/presentation/components/events/CreateEventForm";
-import { EventList } from "@/presentation/components/events/EventList";
 import { FamilySelectorPanel } from "@/presentation/components/family/FamilySelectorPanel";
 
 export default async function CalendarPage() {
@@ -65,34 +63,17 @@ export default async function CalendarPage() {
       </aside>
 
       <div className="space-y-6">
-        {/* Monthly calendar view (US-3.1, US-3.2, US-3.3) */}
+        {/* Monthly calendar view with day-level event management */}
         <section className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm">
           <CalendarGrid
             events={serializedEvents}
             members={serializedMembers}
             initialYear={initialYear}
             initialMonth={initialMonth}
-          />
-        </section>
-
-        <CreateEventForm
-          action={createEventAction}
-          familyId={activeFamily.id}
-          redirectTo="/calendar"
-        />
-
-        <section className="rounded-3xl border border-stone-200 bg-white/80 p-8 shadow-sm">
-          <h3 className="text-xl font-semibold text-slate-900">Eventos</h3>
-          <EventList
-            events={events.map((e) => ({
-              id: e.id,
-              title: e.title,
-              type: e.type,
-              createdBy: e.createdBy,
-            }))}
             currentUserId={user.id}
+            familyId={activeFamily.id}
+            createAction={createEventAction}
             deleteAction={deleteEventAction}
-            redirectTo="/calendar"
           />
         </section>
       </div>
