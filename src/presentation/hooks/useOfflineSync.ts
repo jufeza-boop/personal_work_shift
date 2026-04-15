@@ -25,9 +25,7 @@ export function useOfflineSync({
   queue,
   processOperation,
 }: UseOfflineSyncOptions): UseOfflineSyncResult {
-  const [isOnline, setIsOnline] = useState(
-    typeof navigator !== "undefined" ? navigator.onLine : true,
-  );
+  const [isOnline, setIsOnline] = useState(true);
   const [pendingCount, setPendingCount] = useState(0);
   const [isSyncing, setIsSyncing] = useState(false);
   const isSyncingRef = useRef(false);
@@ -82,6 +80,8 @@ export function useOfflineSync({
   }, [refreshCount]);
 
   useEffect(() => {
+    setIsOnline(navigator.onLine);
+
     const handleOnline = () => {
       setIsOnline(true);
       void syncQueue();
