@@ -243,6 +243,33 @@
 
 ---
 
+### 2026-04-15 - UX Change: Family Selector Moved to Top Navigation Bar
+
+### What was done
+
+- Moved the family selector from the calendar sidebar to the top navigation bar
+- Created `FamilySelectorDropdown` — compact `<select>` dropdown that renders only when 2+ families exist
+- Updated `AppNavBar` to accept `families` and `activeFamilyId` props, rendering the dropdown between nav links and user menu
+- Updated `DashboardLayout` to fetch family data (via `createServerFamilyDependencies` + `resolveActiveItem`) and pass to `AppNavBar`
+- Removed `FamilySelectorPanel` and two-column `lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]` layout from calendar page — calendar now uses full page width
+- Removed `FamilySelectorPanel` from settings page sidebar — settings page uses flat `space-y-6` layout
+- Updated E2E family switching test to use dropdown `selectOption` instead of sidebar buttons
+- Added 4 unit tests for `FamilySelectorDropdown`
+
+### Decisions
+
+- Family selector is a `<select>` element with `onChange` auto-submit (via `requestSubmit`) — compact enough for the 14px-height nav bar
+- The `<select>` uses a screen-reader-only label "Familia" for accessibility
+- `FamilySelectorPanel` component is retained in codebase but no longer used on any page (available for future use if needed)
+- `requestSubmit()` on HTMLFormElement requires `as unknown` cast due to known TS 5.9 DOM types issue
+
+### Patterns
+
+- Family data (families list + active family) is now fetched in `DashboardLayout` and passed to `AppNavBar`, making the selector available on all dashboard pages
+- `FamilySelectorDropdown` follows the same render-nothing-if-fewer-than-2 pattern as the old `FamilySelectorPanel`
+
+---
+
 ## Next Steps
 
 - Apply branch protection rules in GitHub using `.github/branch-protection-rules.md`
