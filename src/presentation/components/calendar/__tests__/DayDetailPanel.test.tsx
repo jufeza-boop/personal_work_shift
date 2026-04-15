@@ -134,7 +134,9 @@ describe("DayDetailPanel", () => {
       />,
     );
 
-    expect(screen.queryByRole("link", { name: /editar/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: /editar/i }),
+    ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /eliminar/i }),
     ).not.toBeInTheDocument();

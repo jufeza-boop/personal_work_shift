@@ -233,11 +233,7 @@ export function DayDetailPanel({
 
               {deleteDialog.eventType === "recurring" &&
                 deleteDialog.scope === "single" && (
-                  <input
-                    type="hidden"
-                    name="occurrenceDate"
-                    value={date}
-                  />
+                  <input type="hidden" name="occurrenceDate" value={date} />
                 )}
 
               <div className="flex justify-end gap-2">

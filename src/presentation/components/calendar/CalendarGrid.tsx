@@ -76,9 +76,7 @@ export function CalendarGrid({
   const totalCells = leadingOffset + daysInMonth;
   const totalRows = Math.ceil(totalCells / 7);
 
-  const selectedDay = selectedDate
-    ? Number(selectedDate.slice(8, 10))
-    : null;
+  const selectedDay = selectedDate ? Number(selectedDate.slice(8, 10)) : null;
   const selectedOccurrences = selectedDate
     ? (occurrencesByDate.get(selectedDate) ?? [])
     : [];
