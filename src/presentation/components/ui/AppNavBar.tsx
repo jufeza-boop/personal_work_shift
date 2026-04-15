@@ -22,6 +22,8 @@ export function AppNavBar({
   families,
   userEmail,
 }: AppNavBarProps) {
+  const serializedFamilies = families.map(({ id, name }) => ({ id, name }));
+
   return (
     <header className="sticky top-0 z-40 border-b border-stone-200/80 bg-white/90 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-4 px-6 sm:px-10">
@@ -52,7 +54,7 @@ export function AppNavBar({
           <FamilySelectorDropdown
             action={switchFamilyAction}
             activeFamilyId={activeFamilyId}
-            families={families}
+            families={serializedFamilies}
           />
         </nav>
 

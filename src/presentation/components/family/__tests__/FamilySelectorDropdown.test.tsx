@@ -1,20 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { Family } from "@/domain/entities/Family";
 import { FamilySelectorDropdown } from "@/presentation/components/family/FamilySelectorDropdown";
 
-describe("FamilySelectorDropdown", () => {
-  const primaryFamily = new Family({
-    createdBy: "owner-1",
-    id: "family-1",
-    name: "Home Team",
-  });
-  const secondaryFamily = new Family({
-    createdBy: "owner-1",
-    id: "family-2",
-    name: "Work Team",
-  });
+const primaryFamily = { id: "family-1", name: "Home Team" };
+const secondaryFamily = { id: "family-2", name: "Work Team" };
 
+describe("FamilySelectorDropdown", () => {
   it("renders nothing when there are fewer than 2 families", () => {
     const { container } = render(
       <FamilySelectorDropdown

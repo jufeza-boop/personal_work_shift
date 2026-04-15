@@ -1,12 +1,16 @@
 "use client";
 
 import { useRef } from "react";
-import { Family } from "@/domain/entities/Family";
+
+interface FamilyItem {
+  id: string;
+  name: string;
+}
 
 interface FamilySelectorDropdownProps {
   action: (formData: FormData) => Promise<void>;
   activeFamilyId: string | null;
-  families: Family[];
+  families: FamilyItem[];
   redirectTo?: string;
 }
 
