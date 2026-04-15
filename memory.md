@@ -322,7 +322,41 @@
 
 ### Next steps
 
-- Phase 10: PWA & Offline Support (US-6.2)
+- Phase 11: Delegated Users (US-1.4)
+
+---
+
+## 2026-04-15 - Phase 10: PWA & Offline Support (US-6.2)
+
+### What was done
+
+- Service worker (`src/app/sw.ts`) was already correctly configured with Serwist `defaultCache`: cache-first for static assets, network-first for API GET routes, network-first for HTML navigation with `/~offline` fallback
+- PWA manifest (`src/app/manifest.ts`) was already complete from Phase 0
+- Added `IOfflineQueue` interface in `src/application/services/IOfflineQueue.ts` defining `PendingOperation` type and queue contract
+- Implemented `OfflineQueueStore` in `src/infrastructure/offline/OfflineQueueStore.ts`: IndexedDB-backed queue using `pws-offline-queue` DB, `operations` object store; uses injectable `DbBackend` for testability
+- Implemented `useOfflineSync` hook: tracks `navigator.onLine` via window `online`/`offline` events, auto-syncs queue on reconnect, exposes `enqueueOperation`/`syncNow`/`isSyncing`/`pendingCount`
+- Created `OfflineBanner` component: amber when offline, indigo when syncing, yellow when there are pending operations
+- Updated `CalendarGrid` to use `useOfflineSync` with an `OfflineQueueStore`, wrapping create/delete actions with offline-aware wrappers that enqueue operations when offline, and displaying `OfflineBanner`
+- Added 26 new tests (236 total, was 210)
+
+### Decisions
+
+- `defaultCache` from `@serwist/turbopack/worker` already provides comprehensive caching (cache-first static, network-first API/HTML) — no need to extend the service worker
+- `OfflineQueueStore` uses constructor-injected `DbBackend` factory so tests pass an in-memory backend instead of real IndexedDB
+- Server actions (Next.js POST requests) are intercepted at the CalendarGrid level: offline-aware wrappers check `navigator.onLine` before calling the real server action
+- Conflict resolution strategy: server-wins — when a queued operation fails on replay, it is removed from the queue (no infinite retry loops)
+- `crypto.randomUUID()` used for operation IDs (122-bit entropy, collision risk negligible)
+- `isSyncingRef` prevents parallel sync runs if multiple `online` events fire rapidly
+
+### Patterns
+
+- `useOfflineSync` follows the same `useRef`-for-callbacks pattern as `useRealtimeSync` to avoid stale closures
+- `OfflineQueueStore` mirrors the constructor-injection pattern used by `SupabaseEventRepository`
+- `CalendarGrid` creates its `OfflineQueueStore` via `useState(() => new OfflineQueueStore())` so the queue survives re-renders but is fresh per component mount
+
+### Next steps
+
+- Phase 11: Delegated Users (US-1.4)
 
 ---
 
@@ -333,5 +367,6 @@
 - ~~Begin Phase 8: Color Palette System (US-5.1, US-5.2)~~ ✅ Done
 - ~~Begin Phase 7: Calendar View (US-3.1, US-3.2, US-3.3) to render events visually on a monthly grid~~ ✅ Done
 - ~~Begin Phase 9: Real-Time Synchronization (US-6.1)~~ ✅ Done
-- Begin Phase 10: PWA & Offline Support (US-6.2)
+- ~~Begin Phase 10: PWA & Offline Support (US-6.2)~~ ✅ Done
+- Begin Phase 11: Delegated Users (US-1.4)
 - Add live local Supabase integration coverage once the sandbox DNS issue for `supabase start` is resolved
