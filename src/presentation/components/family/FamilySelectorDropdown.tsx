@@ -33,7 +33,7 @@ export function FamilySelectorDropdown({
         Familia
       </label>
       <select
-        className="rounded-lg border border-stone-200 bg-white/80 px-3 py-1.5 text-sm text-slate-700 transition-colors hover:bg-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-400"
+        className="rounded-lg border border-stone-200 bg-white/80 px-3 py-1.5 text-sm text-slate-700 transition-colors hover:bg-stone-100 focus:ring-2 focus:ring-amber-400 focus:outline-none"
         defaultValue={activeFamilyId ?? ""}
         id="family-selector-dropdown"
         name="familyId"

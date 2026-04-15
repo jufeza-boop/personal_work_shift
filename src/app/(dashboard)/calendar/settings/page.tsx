@@ -1,14 +1,13 @@
+import Link from "next/link";
 import { ColorPalette } from "@/domain/value-objects/ColorPalette";
 import type { Family } from "@/domain/entities/Family";
 import type { PaletteOption } from "@/presentation/components/family/ColorPalettePicker";
 import {
   addFamilyMemberAction,
-  createFamilyAction,
   renameFamilyAction,
   selectPaletteAction,
 } from "@/app/actions/family";
 import { getFamilyPageData } from "@/app/(dashboard)/familyPageData";
-import { CreateFamilyForm } from "@/presentation/components/family/CreateFamilyForm";
 import { FamilyMemberList } from "@/presentation/components/family/FamilyMemberList";
 import { InviteFamilyMemberForm } from "@/presentation/components/family/InviteFamilyMemberForm";
 import { RenameFamilyForm } from "@/presentation/components/family/RenameFamilyForm";
@@ -36,17 +35,27 @@ function buildPaletteOptions(
 }
 
 export default async function FamilySettingsPage() {
-  const { activeFamily, families, memberDirectory, user } =
+  const { activeFamily, memberDirectory, user } =
     await getFamilyPageData("/calendar/settings");
 
   if (!activeFamily) {
     return (
       <section className="grid gap-6 lg:grid-cols-[minmax(0,24rem)_minmax(0,1fr)]">
-        <CreateFamilyForm
-          action={createFamilyAction}
-          key="settings-create-empty"
-          redirectTo="/calendar/settings"
-        />
+        <section className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-slate-900">
+            Crear familia
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Añade un nuevo grupo para separar contextos como casa, trabajo o
+            estudios.
+          </p>
+          <Link
+            href="/calendar/family/new"
+            className="mt-4 inline-block rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-slate-700"
+          >
+            Crear familia
+          </Link>
+        </section>
 
         <section className="rounded-3xl border border-stone-200 bg-white/80 p-8 shadow-sm">
           <h2 className="text-3xl font-semibold tracking-tight text-slate-900">
@@ -71,11 +80,19 @@ export default async function FamilySettingsPage() {
 
   return (
     <section className="space-y-6">
-      <CreateFamilyForm
-        action={createFamilyAction}
-        key={`settings-create-${families.length}-${activeFamily.id}`}
-        redirectTo="/calendar/settings"
-      />
+      <section className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-slate-900">Crear familia</h2>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          Añade un nuevo grupo para separar contextos como casa, trabajo o
+          estudios.
+        </p>
+        <Link
+          href="/calendar/family/new"
+          className="mt-4 inline-block rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-slate-700"
+        >
+          Crear familia
+        </Link>
+      </section>
 
       {isOwner ? (
         <>
