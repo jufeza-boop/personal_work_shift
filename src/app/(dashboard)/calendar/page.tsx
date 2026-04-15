@@ -1,15 +1,13 @@
 import Link from "next/link";
 import { createEventAction, deleteEventAction } from "@/app/actions/events";
-import { switchFamilyAction } from "@/app/actions/family";
 import { getFamilyPageData } from "@/app/(dashboard)/familyPageData";
 import { serializeEvent } from "@/application/services/calendarUtils";
 import type { SerializedMember } from "@/application/services/calendarUtils";
 import { createServerEventDependencies } from "@/infrastructure/events/runtime";
 import { CalendarGrid } from "@/presentation/components/calendar/CalendarGrid";
-import { FamilySelectorPanel } from "@/presentation/components/family/FamilySelectorPanel";
 
 export default async function CalendarPage() {
-  const { activeFamily, families, memberDirectory, user } =
+  const { activeFamily, memberDirectory, user } =
     await getFamilyPageData("/calendar");
 
   const events = activeFamily
@@ -53,30 +51,17 @@ export default async function CalendarPage() {
   );
 
   return (
-    <section className="grid gap-6 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
-      <aside className="space-y-6">
-        <FamilySelectorPanel
-          action={switchFamilyAction}
-          activeFamilyId={activeFamily.id}
-          families={families}
-        />
-      </aside>
-
-      <div className="space-y-6">
-        {/* Monthly calendar view with day-level event management */}
-        <section className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm">
-          <CalendarGrid
-            events={serializedEvents}
-            members={serializedMembers}
-            initialYear={initialYear}
-            initialMonth={initialMonth}
-            currentUserId={user.id}
-            familyId={activeFamily.id}
-            createAction={createEventAction}
-            deleteAction={deleteEventAction}
-          />
-        </section>
-      </div>
+    <section className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm">
+      <CalendarGrid
+        events={serializedEvents}
+        members={serializedMembers}
+        initialYear={initialYear}
+        initialMonth={initialMonth}
+        currentUserId={user.id}
+        familyId={activeFamily.id}
+        createAction={createEventAction}
+        deleteAction={deleteEventAction}
+      />
     </section>
   );
 }
