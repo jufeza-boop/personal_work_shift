@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarDays, Settings2 } from "lucide-react";
+import { CalendarDays, Plus, Settings2 } from "lucide-react";
 import { logoutAction } from "@/app/actions/auth";
 import { switchFamilyAction } from "@/app/actions/family";
 import type { Family } from "@/domain/entities/Family";
@@ -56,6 +56,13 @@ export function AppNavBar({
             activeFamilyId={activeFamilyId}
             families={serializedFamilies}
           />
+          <Link
+            className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm text-slate-600 transition-colors hover:bg-stone-100 hover:text-slate-900"
+            href="/calendar/family/new"
+          >
+            <Plus className="h-4 w-4" />
+            <span className="hidden sm:inline">Nueva familia</span>
+          </Link>
         </nav>
 
         {/* User menu */}
