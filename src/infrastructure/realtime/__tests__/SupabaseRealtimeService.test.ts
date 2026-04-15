@@ -2,7 +2,10 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { RealtimeEventHandlers } from "@/application/services/IRealtimeService";
 import { SupabaseRealtimeService } from "@/infrastructure/realtime/SupabaseRealtimeService";
-import type { Database, EventRow } from "@/infrastructure/supabase/database.types";
+import type {
+  Database,
+  EventRow,
+} from "@/infrastructure/supabase/database.types";
 
 // ---------------------------------------------------------------------------
 // Helpers

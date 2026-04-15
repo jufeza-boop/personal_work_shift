@@ -1,7 +1,10 @@
 import { renderHook } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import type { SerializedEvent } from "@/application/services/calendarUtils";
-import type { IRealtimeService, RealtimeEventHandlers } from "@/application/services/IRealtimeService";
+import type {
+  IRealtimeService,
+  RealtimeEventHandlers,
+} from "@/application/services/IRealtimeService";
 import { useRealtimeSync } from "@/presentation/hooks/useRealtimeSync";
 
 // ---------------------------------------------------------------------------
