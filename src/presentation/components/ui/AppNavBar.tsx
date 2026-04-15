@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { CalendarDays, Settings2 } from "lucide-react";
 import { logoutAction } from "@/app/actions/auth";
+import { switchFamilyAction } from "@/app/actions/family";
+import type { Family } from "@/domain/entities/Family";
+import { FamilySelectorDropdown } from "@/presentation/components/family/FamilySelectorDropdown";
 import { UserMenu } from "@/presentation/components/ui/UserMenu";
 
 const NAV_LINKS = [
@@ -9,10 +12,16 @@ const NAV_LINKS = [
 ] as const;
 
 interface AppNavBarProps {
+  activeFamilyId: string | null;
+  families: Family[];
   userEmail: string;
 }
 
-export function AppNavBar({ userEmail }: AppNavBarProps) {
+export function AppNavBar({
+  activeFamilyId,
+  families,
+  userEmail,
+}: AppNavBarProps) {
   return (
     <header className="sticky top-0 z-40 border-b border-stone-200/80 bg-white/90 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-4 px-6 sm:px-10">
@@ -25,7 +34,7 @@ export function AppNavBar({ userEmail }: AppNavBarProps) {
           <span className="hidden sm:inline">Personal Work Shift</span>
         </Link>
 
-        {/* Nav links */}
+        {/* Nav links + family selector */}
         <nav
           aria-label="Navegación principal"
           className="flex items-center gap-1"
@@ -40,6 +49,11 @@ export function AppNavBar({ userEmail }: AppNavBarProps) {
               <span>{label}</span>
             </Link>
           ))}
+          <FamilySelectorDropdown
+            action={switchFamilyAction}
+            activeFamilyId={activeFamilyId}
+            families={families}
+          />
         </nav>
 
         {/* User menu */}

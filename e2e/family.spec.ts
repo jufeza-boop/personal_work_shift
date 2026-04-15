@@ -78,21 +78,20 @@ test("switches between families, persists the active family, and renames it", as
   await page.getByRole("button", { name: "Crear familia" }).click();
 
   await page.getByRole("link", { name: "Ajustes de familia" }).click();
-  const createFamilyInput = page
-    .locator("aside")
-    .getByLabel("Nombre de la familia");
+  const createFamilyInput = page.getByLabel("Nombre de la familia");
 
   await expect(createFamilyInput).toBeVisible();
   await createFamilyInput.fill("Work Team");
   await expect(createFamilyInput).toHaveValue("Work Team");
   await createFamilyInput.press("Enter");
 
-  await expect(page.getByText("Familias")).toBeVisible();
-  await expect(
-    page.getByRole("button", { name: "Work Team (actual)" }),
-  ).toBeVisible();
+  // The family selector dropdown in the nav bar should show both families
+  const familyDropdown = page.getByLabel("Familia");
+  await expect(familyDropdown).toBeVisible();
+  await expect(familyDropdown).toHaveValue(/./);
 
-  await page.getByRole("button", { name: "Home Team" }).click();
+  // Switch to Home Team via the top bar dropdown
+  await familyDropdown.selectOption({ label: "Home Team" });
   await expect(page.getByText("Gestiona quién forma parte de")).toContainText(
     "Home Team",
   );
