@@ -127,3 +127,10 @@ export function saveMockFamily(family: Family): void {
   store.familiesById[family.id] = serializeFamily(family);
   saveStore(store);
 }
+
+export function deleteMockFamily(id: string): void {
+  const store = getStore();
+
+  delete store.familiesById[id];
+  saveStore(store);
+}

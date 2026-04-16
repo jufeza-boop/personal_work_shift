@@ -227,4 +227,12 @@ export class SupabaseFamilyRepository implements IFamilyRepository {
       throw membersUpsert.error;
     }
   }
+
+  async delete(id: string): Promise<void> {
+    const { error } = await this.client.from("families").delete().eq("id", id);
+
+    if (error) {
+      throw error;
+    }
+  }
 }

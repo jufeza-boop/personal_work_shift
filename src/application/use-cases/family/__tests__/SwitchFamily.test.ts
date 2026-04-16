@@ -5,6 +5,7 @@ import type { IFamilyRepository } from "@/domain/repositories/IFamilyRepository"
 
 function createFamilyRepository(): IFamilyRepository {
   return {
+    delete: vi.fn(),
     findById: vi.fn(),
     findByUserId: vi.fn(),
     save: vi.fn(),

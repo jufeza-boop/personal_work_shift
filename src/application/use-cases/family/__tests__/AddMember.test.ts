@@ -8,6 +8,7 @@ import type { IUserRepository } from "@/domain/repositories/IUserRepository";
 
 function createFamilyRepository(): IFamilyRepository {
   return {
+    delete: vi.fn(),
     findById: vi.fn(),
     findByUserId: vi.fn(),
     save: vi.fn(),

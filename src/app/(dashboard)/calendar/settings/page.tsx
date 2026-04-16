@@ -3,10 +3,12 @@ import type { Family } from "@/domain/entities/Family";
 import type { PaletteOption } from "@/presentation/components/family/ColorPalettePicker";
 import {
   addFamilyMemberAction,
+  deleteFamilyAction,
   renameFamilyAction,
   selectPaletteAction,
 } from "@/app/actions/family";
 import { getFamilyPageData } from "@/app/(dashboard)/familyPageData";
+import { DeleteFamilyForm } from "@/presentation/components/family/DeleteFamilyForm";
 import { FamilyMemberList } from "@/presentation/components/family/FamilyMemberList";
 import { InviteFamilyMemberForm } from "@/presentation/components/family/InviteFamilyMemberForm";
 import { RenameFamilyForm } from "@/presentation/components/family/RenameFamilyForm";
@@ -97,6 +99,14 @@ export default async function FamilySettingsPage() {
         family={activeFamily}
         memberDirectory={memberDirectory}
       />
+
+      {isOwner ? (
+        <DeleteFamilyForm
+          action={deleteFamilyAction}
+          familyId={activeFamily.id}
+          familyName={activeFamily.name}
+        />
+      ) : null}
     </section>
   );
 }

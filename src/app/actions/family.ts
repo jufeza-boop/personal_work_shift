@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { AddMember } from "@/application/use-cases/family/AddMember";
 import { CreateFamily } from "@/application/use-cases/family/CreateFamily";
+import { DeleteFamily } from "@/application/use-cases/family/DeleteFamily";
 import { RenameFamily } from "@/application/use-cases/family/RenameFamily";
 import { SelectPalette } from "@/application/use-cases/family/SelectPalette";
 import { SwitchFamily } from "@/application/use-cases/family/SwitchFamily";
@@ -334,4 +335,33 @@ export async function selectPaletteAction(
   revalidatePath("/calendar");
   revalidatePath("/calendar/settings");
   redirect(redirectTo);
+}
+
+export async function deleteFamilyAction(formData: FormData): Promise<void> {
+  const familyId = formData.get("familyId")?.toString();
+  const redirectTo = sanitizeRedirectPath(
+    formData.get("redirectTo")?.toString(),
+  );
+
+  if (!familyId) {
+    redirect(redirectTo);
+  }
+
+  const user = await requireAuthenticatedUser(redirectTo);
+  const { familyRepository } = await createServerFamilyDependencies();
+  const useCase = new DeleteFamily(familyRepository);
+  const result = await useCase.execute({
+    familyId,
+    requesterUserId: user.id,
+  });
+
+  if (!result.success) {
+    redirect(redirectTo);
+  }
+
+  const cookieStore = await cookies();
+  cookieStore.delete(ACTIVE_FAMILY_COOKIE);
+  revalidatePath("/calendar");
+  revalidatePath("/calendar/settings");
+  redirect("/calendar");
 }

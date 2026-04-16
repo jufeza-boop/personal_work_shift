@@ -7,6 +7,7 @@ import { ColorPalette } from "@/domain/value-objects/ColorPalette";
 
 function createFamilyRepository(): IFamilyRepository {
   return {
+    delete: vi.fn(),
     findById: vi.fn(),
     findByUserId: vi.fn(),
     save: vi.fn(),

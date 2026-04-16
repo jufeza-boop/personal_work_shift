@@ -20,6 +20,7 @@ describe("domain repository contracts", () => {
 
   it("defines the family repository contract", () => {
     const repository = {
+      delete: vi.fn<() => Promise<void>>(),
       findById: vi.fn<() => Promise<Family | null>>(),
       findByUserId: vi.fn<() => Promise<Family[]>>(),
       save: vi.fn<() => Promise<void>>(),

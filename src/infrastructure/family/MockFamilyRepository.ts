@@ -1,6 +1,7 @@
 import { Family } from "@/domain/entities/Family";
 import type { IFamilyRepository } from "@/domain/repositories/IFamilyRepository";
 import {
+  deleteMockFamily,
   findMockFamiliesByUserId,
   findMockFamilyById,
   saveMockFamily,
@@ -17,5 +18,9 @@ export class MockFamilyRepository implements IFamilyRepository {
 
   async save(family: Family): Promise<void> {
     saveMockFamily(family);
+  }
+
+  async delete(id: string): Promise<void> {
+    deleteMockFamily(id);
   }
 }
