@@ -19,7 +19,9 @@ export class MockEventRepository implements IEventRepository {
     return findMockEventsByFamilyId(familyId);
   }
 
-  async findExceptionsByEventIds(eventIds: string[]): Promise<EventException[]> {
+  async findExceptionsByEventIds(
+    eventIds: string[],
+  ): Promise<EventException[]> {
     return findMockExceptionsByEventIds(eventIds);
   }
 

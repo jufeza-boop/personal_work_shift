@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { createEventAction, deleteEventAction } from "@/app/actions/events";
 import { getFamilyPageData } from "@/app/(dashboard)/familyPageData";
-import { serializeEvent, serializeException } from "@/application/services/calendarUtils";
+import {
+  serializeEvent,
+  serializeException,
+} from "@/application/services/calendarUtils";
 import type { SerializedMember } from "@/application/services/calendarUtils";
 import { createServerEventDependencies } from "@/infrastructure/events/runtime";
 import { CalendarGrid } from "@/presentation/components/calendar/CalendarGrid";
@@ -16,9 +19,10 @@ export default async function CalendarPage() {
     ? await eventRepository.findByFamilyId(activeFamily.id)
     : [];
 
-  const exceptions = events.length > 0
-    ? await eventRepository.findExceptionsByEventIds(events.map((e) => e.id))
-    : [];
+  const exceptions =
+    events.length > 0
+      ? await eventRepository.findExceptionsByEventIds(events.map((e) => e.id))
+      : [];
 
   const serializedEvents = events.map(serializeEvent);
   const serializedExceptions = exceptions.map(serializeException);

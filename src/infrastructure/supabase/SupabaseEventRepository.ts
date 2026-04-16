@@ -147,7 +147,9 @@ export class SupabaseEventRepository implements IEventRepository {
     return data ? mapEvent(data) : null;
   }
 
-  async findExceptionsByEventIds(eventIds: string[]): Promise<EventException[]> {
+  async findExceptionsByEventIds(
+    eventIds: string[],
+  ): Promise<EventException[]> {
     if (eventIds.length === 0) {
       return [];
     }
