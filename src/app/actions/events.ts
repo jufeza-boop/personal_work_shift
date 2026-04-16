@@ -634,7 +634,7 @@ export async function deleteEventAction(
     }
   }
 
-  if (event?.familyId && event?.title) {
+  if (event?.familyId) {
     void dispatchFamilyNotification(user.id, event.familyId, event.title, "deleted", occurrenceDateRaw);
   }
 

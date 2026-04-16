@@ -13,6 +13,10 @@ export interface UsePushNotificationsResult {
   unsubscribe: () => Promise<void>;
 }
 
+/**
+ * Converts a base64url-encoded VAPID public key string to the ArrayBuffer format
+ * required by PushManager.subscribe()'s applicationServerKey option.
+ */
 function urlBase64ToUint8Array(base64String: string): ArrayBuffer {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
