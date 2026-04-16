@@ -1,6 +1,7 @@
 export interface FamilyFormState {
   errors?: {
     colorPalette?: string;
+    displayName?: string;
     email?: string;
     name?: string;
   };

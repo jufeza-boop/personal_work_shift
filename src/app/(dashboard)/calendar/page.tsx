@@ -10,7 +10,7 @@ import { createServerEventDependencies } from "@/infrastructure/events/runtime";
 import { CalendarGrid } from "@/presentation/components/calendar/CalendarGrid";
 
 export default async function CalendarPage() {
-  const { activeFamily, memberDirectory, user } =
+  const { activeFamily, delegatedUsers, memberDirectory, user } =
     await getFamilyPageData("/calendar");
 
   const { eventRepository } = await createServerEventDependencies();
@@ -59,6 +59,11 @@ export default async function CalendarPage() {
     }),
   );
 
+  const serializedDelegatedUsers = delegatedUsers.map((u) => ({
+    displayName: u.displayName,
+    id: u.id,
+  }));
+
   return (
     <section className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm">
       <CalendarGrid
@@ -68,6 +73,7 @@ export default async function CalendarPage() {
         initialYear={initialYear}
         initialMonth={initialMonth}
         currentUserId={user.id}
+        delegatedUsers={serializedDelegatedUsers}
         familyId={activeFamily.id}
         createAction={createEventAction}
         deleteAction={deleteEventAction}

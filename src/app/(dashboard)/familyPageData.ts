@@ -35,8 +35,11 @@ export async function getFamilyPageData(redirectPath = "/calendar") {
       )
     : [];
 
+  const delegatedUsers = await userRepository.findDelegatedUsers(user.id);
+
   return {
     activeFamily,
+    delegatedUsers,
     families,
     memberDirectory: new Map(memberEntries),
     user,

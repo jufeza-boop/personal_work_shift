@@ -14,6 +14,7 @@ interface DayCreateEventFormProps {
   familyId: string;
   /** Pre-filled date in YYYY-MM-DD format */
   date: string;
+  delegatedUsers?: { id: string; displayName: string }[];
   onCancel: () => void;
 }
 
@@ -40,6 +41,7 @@ export function DayCreateEventForm({
   action,
   familyId,
   date,
+  delegatedUsers = [],
   onCancel,
 }: DayCreateEventFormProps) {
   const titleId = useId();
@@ -51,6 +53,7 @@ export function DayCreateEventForm({
   const frequencyUnitId = useId();
   const frequencyIntervalId = useId();
   const shiftTypeId = useId();
+  const targetUserId = useId();
 
   const [activeTab, setActiveTab] = useState<EventTab>("punctual");
   const [formState, formAction] = useActionState(
@@ -101,6 +104,30 @@ export function DayCreateEventForm({
         {/* Pre-fill startDate for recurring events */}
         {activeTab !== "punctual" && (
           <input name="startDate" type="hidden" value={date} />
+        )}
+
+        {/* Optional delegated user selector */}
+        {delegatedUsers.length > 0 && (
+          <div className="space-y-1">
+            <label
+              className="text-xs font-medium text-slate-700"
+              htmlFor={targetUserId}
+            >
+              Crear para
+            </label>
+            <select
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
+              id={targetUserId}
+              name="targetUserId"
+            >
+              <option value="">Yo mismo</option>
+              {delegatedUsers.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.displayName}
+                </option>
+              ))}
+            </select>
+          </div>
         )}
 
         {/* Title */}

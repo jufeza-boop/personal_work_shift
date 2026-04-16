@@ -47,6 +47,7 @@ interface CalendarGridProps {
   initialYear: number;
   initialMonth: number;
   currentUserId: string;
+  delegatedUsers?: { id: string; displayName: string }[];
   familyId: string;
   createAction: EventFormAction;
   deleteAction: EventFormAction;
@@ -59,6 +60,7 @@ export function CalendarGrid({
   initialYear,
   initialMonth,
   currentUserId,
+  delegatedUsers = [],
   familyId,
   createAction,
   deleteAction,
@@ -291,6 +293,7 @@ export function CalendarGrid({
           occurrences={selectedOccurrences}
           members={visibleMembers}
           currentUserId={currentUserId}
+          delegatedUsers={delegatedUsers}
           familyId={familyId}
           createAction={offlineCreateAction}
           deleteAction={offlineDeleteAction}

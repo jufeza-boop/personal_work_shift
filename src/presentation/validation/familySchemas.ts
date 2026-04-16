@@ -40,6 +40,17 @@ export const inviteFamilyMemberSchema = z.object({
   email: z.string().trim().toLowerCase().email("Introduce un correo válido."),
 });
 
+export const createDelegatedUserSchema = z.object({
+  displayName: z
+    .string()
+    .trim()
+    .min(1, "Introduce un nombre para el usuario delegado.")
+    .max(100, "El nombre no puede superar los 100 caracteres."),
+});
+
+export type CreateDelegatedUserFormInput = z.infer<
+  typeof createDelegatedUserSchema
+>;
 export type CreateFamilyFormInput = z.infer<typeof createFamilySchema>;
 export type InviteFamilyMemberFormInput = z.infer<
   typeof inviteFamilyMemberSchema

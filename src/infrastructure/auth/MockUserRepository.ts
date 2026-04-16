@@ -1,6 +1,8 @@
 import { User } from "@/domain/entities/User";
 import type { IUserRepository } from "@/domain/repositories/IUserRepository";
 import {
+  deleteMockUser,
+  findMockDelegatedUsers,
   findMockUserByEmail,
   findMockUserById,
   saveMockDomainUser,
@@ -20,7 +22,15 @@ export class MockUserRepository implements IUserRepository {
     return user ? toDomainUser(user) : null;
   }
 
+  async findDelegatedUsers(parentId: string): Promise<User[]> {
+    return findMockDelegatedUsers(parentId).map(toDomainUser);
+  }
+
   async save(user: User): Promise<void> {
     saveMockDomainUser(user);
+  }
+
+  async delete(id: string): Promise<void> {
+    deleteMockUser(id);
   }
 }
