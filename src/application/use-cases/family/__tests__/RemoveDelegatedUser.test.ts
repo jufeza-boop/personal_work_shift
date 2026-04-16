@@ -38,7 +38,11 @@ describe("RemoveDelegatedUser", () => {
       createdBy: "parent-1",
       id: "family-1",
       members: [
-        { delegatedByUserId: "parent-1", role: "delegated", userId: "delegated-1" },
+        {
+          delegatedByUserId: "parent-1",
+          role: "delegated",
+          userId: "delegated-1",
+        },
       ],
       name: "Home Team",
     });

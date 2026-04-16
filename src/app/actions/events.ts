@@ -145,15 +145,14 @@ export async function createEventAction(
     const user = await requireAuthenticatedUser(redirectTo);
     const { eventRepository, familyRepository, userRepository } =
       await createServerEventDependencies();
-    const createdBy = await resolveCreatedBy(
-      user.id,
-      targetUserId,
-      () => userRepository.findDelegatedUsers(user.id),
+    const createdBy = await resolveCreatedBy(user.id, targetUserId, () =>
+      userRepository.findDelegatedUsers(user.id),
     );
 
     if (!createdBy) {
       return {
-        message: "No tienes permiso para crear eventos en nombre de ese usuario.",
+        message:
+          "No tienes permiso para crear eventos en nombre de ese usuario.",
         success: false,
       };
     }
@@ -214,15 +213,14 @@ export async function createEventAction(
     const user = await requireAuthenticatedUser(redirectTo);
     const { eventRepository, familyRepository, userRepository } =
       await createServerEventDependencies();
-    const createdBy = await resolveCreatedBy(
-      user.id,
-      targetUserId,
-      () => userRepository.findDelegatedUsers(user.id),
+    const createdBy = await resolveCreatedBy(user.id, targetUserId, () =>
+      userRepository.findDelegatedUsers(user.id),
     );
 
     if (!createdBy) {
       return {
-        message: "No tienes permiso para crear eventos en nombre de ese usuario.",
+        message:
+          "No tienes permiso para crear eventos en nombre de ese usuario.",
         success: false,
       };
     }
@@ -286,15 +284,14 @@ export async function createEventAction(
     const user = await requireAuthenticatedUser(redirectTo);
     const { eventRepository, familyRepository, userRepository } =
       await createServerEventDependencies();
-    const createdBy = await resolveCreatedBy(
-      user.id,
-      targetUserId,
-      () => userRepository.findDelegatedUsers(user.id),
+    const createdBy = await resolveCreatedBy(user.id, targetUserId, () =>
+      userRepository.findDelegatedUsers(user.id),
     );
 
     if (!createdBy) {
       return {
-        message: "No tienes permiso para crear eventos en nombre de ese usuario.",
+        message:
+          "No tienes permiso para crear eventos en nombre de ese usuario.",
         success: false,
       };
     }
@@ -361,10 +358,8 @@ export async function editEventAction(
   // Resolve the effective requestedBy to support delegation.
   const event = await eventRepository.findById(eventId);
   const requestedBy = event
-    ? await resolveRequestedBy(
-        user.id,
-        event.createdBy,
-        () => userRepository.findDelegatedUsers(user.id),
+    ? await resolveRequestedBy(user.id, event.createdBy, () =>
+        userRepository.findDelegatedUsers(user.id),
       )
     : user.id;
 
@@ -550,10 +545,8 @@ export async function deleteEventAction(
   // Resolve the effective requestedBy to support delegation.
   const event = await eventRepository.findById(eventId);
   const requestedBy = event
-    ? await resolveRequestedBy(
-        user.id,
-        event.createdBy,
-        () => userRepository.findDelegatedUsers(user.id),
+    ? await resolveRequestedBy(user.id, event.createdBy, () =>
+        userRepository.findDelegatedUsers(user.id),
       )
     : user.id;
 
