@@ -130,6 +130,7 @@ const DEFAULT_PROPS = {
   familyId: "f1",
   createAction: vi.fn(),
   deleteAction: vi.fn(),
+  initialExceptions: [],
 };
 
 describe("CalendarGrid", () => {

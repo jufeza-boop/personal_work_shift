@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createEventAction, deleteEventAction } from "@/app/actions/events";
 import { getFamilyPageData } from "@/app/(dashboard)/familyPageData";
-import { serializeEvent } from "@/application/services/calendarUtils";
+import { serializeEvent, serializeException } from "@/application/services/calendarUtils";
 import type { SerializedMember } from "@/application/services/calendarUtils";
 import { createServerEventDependencies } from "@/infrastructure/events/runtime";
 import { CalendarGrid } from "@/presentation/components/calendar/CalendarGrid";
@@ -10,13 +10,18 @@ export default async function CalendarPage() {
   const { activeFamily, memberDirectory, user } =
     await getFamilyPageData("/calendar");
 
+  const { eventRepository } = await createServerEventDependencies();
+
   const events = activeFamily
-    ? await createServerEventDependencies().then(({ eventRepository }) =>
-        eventRepository.findByFamilyId(activeFamily.id),
-      )
+    ? await eventRepository.findByFamilyId(activeFamily.id)
+    : [];
+
+  const exceptions = events.length > 0
+    ? await eventRepository.findExceptionsByEventIds(events.map((e) => e.id))
     : [];
 
   const serializedEvents = events.map(serializeEvent);
+  const serializedExceptions = exceptions.map(serializeException);
 
   const now = new Date();
   const initialYear = now.getUTCFullYear();
@@ -54,6 +59,7 @@ export default async function CalendarPage() {
     <section className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm">
       <CalendarGrid
         initialEvents={serializedEvents}
+        initialExceptions={serializedExceptions}
         members={serializedMembers}
         initialYear={initialYear}
         initialMonth={initialMonth}

@@ -147,6 +147,40 @@ export class SupabaseEventRepository implements IEventRepository {
     return data ? mapEvent(data) : null;
   }
 
+  async findExceptionsByEventIds(eventIds: string[]): Promise<EventException[]> {
+    if (eventIds.length === 0) {
+      return [];
+    }
+
+    const { data, error } = await (this.client as unknown as SupabaseClient)
+      .from("event_exceptions")
+      .select("*")
+      .in("event_id", eventIds);
+
+    if (error) {
+      throw error;
+    }
+
+    return (data ?? []).map(
+      (row: {
+        id: string;
+        event_id: string;
+        exception_date: string;
+        is_deleted: boolean;
+        override_data: unknown;
+        created_at: string;
+      }) =>
+        new EventException({
+          id: row.id,
+          eventId: row.event_id,
+          exceptionDate: new Date(`${row.exception_date}T00:00:00.000Z`),
+          isDeleted: row.is_deleted,
+          overrideData: row.override_data as EventException["overrideData"],
+          createdAt: new Date(row.created_at),
+        }),
+    );
+  }
+
   async save(event: Event): Promise<void> {
     const { error } = await this.client.from("events").upsert(toRow(event), {
       onConflict: "id",

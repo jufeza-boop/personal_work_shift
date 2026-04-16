@@ -1,4 +1,5 @@
 import type { Event } from "@/domain/entities/Event";
+import type { EventException } from "@/domain/entities/EventException";
 import { PunctualEvent } from "@/domain/entities/PunctualEvent";
 import type { RecurringEventCategory } from "@/domain/entities/RecurringEvent";
 import { RecurringEvent } from "@/domain/entities/RecurringEvent";
@@ -48,6 +49,13 @@ export interface SerializedMember {
   userId: string;
   displayName: string;
   colorPaletteName: ColorPaletteName | null;
+}
+
+export interface SerializedEventException {
+  eventId: string;
+  /** YYYY-MM-DD */
+  exceptionDate: string;
+  isDeleted: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -189,23 +197,45 @@ export function serializeEvent(event: Event): SerializedEvent {
 }
 
 /**
+ * Converts a domain EventException entity to a plain, JSON-serializable object.
+ */
+export function serializeException(
+  exception: EventException,
+): SerializedEventException {
+  return {
+    eventId: exception.eventId,
+    exceptionDate: toDateString(exception.exceptionDate),
+    isDeleted: exception.isDeleted,
+  };
+}
+
+/**
  * Expands a list of serialized events into individual occurrences that fall
- * within the specified calendar month.
+ * within the specified calendar month, filtering out deleted exceptions.
  *
  * @param events - Serialized events from any source (server action, mock, etc.)
  * @param year   - Full year, e.g. 2026
  * @param month  - 1-indexed month (1 = January … 12 = December)
+ * @param exceptions - Serialized event exceptions to filter out deleted occurrences
  */
 export function getOccurrencesForMonth(
   events: SerializedEvent[],
   year: number,
   month: number,
+  exceptions: SerializedEventException[] = [],
 ): CalendarOccurrence[] {
   const rangeStart = new Date(Date.UTC(year, month - 1, 1));
   const rangeEnd = new Date(Date.UTC(year, month, 0)); // last day of the month
   const monthStartStr = toDateString(rangeStart);
   const monthEndStr = toDateString(rangeEnd);
   const occurrences: CalendarOccurrence[] = [];
+
+  // Build a set of deleted occurrences for fast lookup: "eventId:date"
+  const deletedOccurrences = new Set(
+    exceptions
+      .filter((ex) => ex.isDeleted)
+      .map((ex) => `${ex.eventId}:${ex.exceptionDate}`),
+  );
 
   for (const event of events) {
     if (event.type === "punctual") {
@@ -224,6 +254,11 @@ export function getOccurrencesForMonth(
       const dates = getRecurringDatesInRange(event, rangeStart, rangeEnd);
 
       for (const date of dates) {
+        // Skip deleted occurrences
+        if (deletedOccurrences.has(`${event.id}:${date}`)) {
+          continue;
+        }
+
         occurrences.push({
           eventId: event.id,
           date,

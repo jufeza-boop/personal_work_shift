@@ -11,6 +11,7 @@ function createEventRepository(): IEventRepository {
     delete: vi.fn(),
     findByFamilyId: vi.fn(),
     findById: vi.fn(),
+    findExceptionsByEventIds: vi.fn(),
     save: vi.fn(),
     saveException: vi.fn(),
   };

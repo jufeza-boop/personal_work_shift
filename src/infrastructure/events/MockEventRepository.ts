@@ -5,6 +5,7 @@ import {
   deleteMockEvent,
   findMockEventById,
   findMockEventsByFamilyId,
+  findMockExceptionsByEventIds,
   saveMockEvent,
   saveMockException,
 } from "@/infrastructure/events/mockEventStore";
@@ -16,6 +17,10 @@ export class MockEventRepository implements IEventRepository {
 
   async findByFamilyId(familyId: string): Promise<Event[]> {
     return findMockEventsByFamilyId(familyId);
+  }
+
+  async findExceptionsByEventIds(eventIds: string[]): Promise<EventException[]> {
+    return findMockExceptionsByEventIds(eventIds);
   }
 
   async save(event: Event): Promise<void> {

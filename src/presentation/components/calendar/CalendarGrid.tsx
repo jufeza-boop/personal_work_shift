@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type {
   SerializedEvent,
+  SerializedEventException,
   SerializedMember,
 } from "@/application/services/calendarUtils";
 import type { PendingOperation } from "@/application/services/IOfflineQueue";
@@ -41,6 +42,7 @@ const DAY_HEADERS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"] as const
 
 interface CalendarGridProps {
   initialEvents: SerializedEvent[];
+  initialExceptions: SerializedEventException[];
   members: SerializedMember[];
   initialYear: number;
   initialMonth: number;
@@ -52,6 +54,7 @@ interface CalendarGridProps {
 
 export function CalendarGrid({
   initialEvents,
+  initialExceptions,
   members,
   initialYear,
   initialMonth,
@@ -61,6 +64,13 @@ export function CalendarGrid({
   deleteAction,
 }: CalendarGridProps) {
   const [events, setEvents] = useState<SerializedEvent[]>(initialEvents);
+  const [exceptions, setExceptions] =
+    useState<SerializedEventException[]>(initialExceptions);
+
+  // Sync exceptions when props change (e.g., after redirect/revalidation)
+  useEffect(() => {
+    setExceptions(initialExceptions);
+  }, [initialExceptions]);
 
   const [offlineQueue] = useState(() => new OfflineQueueStore());
 
@@ -143,7 +153,13 @@ export function CalendarGrid({
     visibleMembers,
     hiddenMemberIds,
     toggleMember,
-  } = useCalendarEvents({ events, members, initialYear, initialMonth });
+  } = useCalendarEvents({
+    events,
+    exceptions,
+    members,
+    initialYear,
+    initialMonth,
+  });
 
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 

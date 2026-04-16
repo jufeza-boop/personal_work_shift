@@ -1,5 +1,6 @@
 import { describe, expectTypeOf, it, vi } from "vitest";
 import type { Event } from "@/domain/entities/Event";
+import type { EventException } from "@/domain/entities/EventException";
 import { Family } from "@/domain/entities/Family";
 import { User } from "@/domain/entities/User";
 import type { IEventRepository } from "@/domain/repositories/IEventRepository";
@@ -32,6 +33,7 @@ describe("domain repository contracts", () => {
       delete: vi.fn<() => Promise<void>>(),
       findByFamilyId: vi.fn<() => Promise<Event[]>>(),
       findById: vi.fn<() => Promise<Event | null>>(),
+      findExceptionsByEventIds: vi.fn<() => Promise<EventException[]>>(),
       save: vi.fn<() => Promise<void>>(),
       saveException: vi.fn<() => Promise<void>>(),
     } satisfies IEventRepository;

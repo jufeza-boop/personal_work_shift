@@ -4,12 +4,14 @@ import { useMemo, useState } from "react";
 import type {
   CalendarOccurrence,
   SerializedEvent,
+  SerializedEventException,
   SerializedMember,
 } from "@/application/services/calendarUtils";
 import { getOccurrencesForMonth } from "@/application/services/calendarUtils";
 
 interface UseCalendarEventsOptions {
   events: SerializedEvent[];
+  exceptions: SerializedEventException[];
   members: SerializedMember[];
   initialYear: number;
   initialMonth: number;
@@ -28,6 +30,7 @@ interface UseCalendarEventsResult {
 
 export function useCalendarEvents({
   events,
+  exceptions,
   members,
   initialYear,
   initialMonth,
@@ -63,8 +66,8 @@ export function useCalendarEvents({
   const visibleMembers = members.filter((m) => !hiddenMemberIds.has(m.userId));
 
   const allOccurrences = useMemo(
-    () => getOccurrencesForMonth(events, year, month),
-    [events, year, month],
+    () => getOccurrencesForMonth(events, year, month, exceptions),
+    [events, year, month, exceptions],
   );
 
   const visibleOccurrences = useMemo(

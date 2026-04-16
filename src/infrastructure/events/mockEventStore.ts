@@ -233,3 +233,27 @@ export function saveMockException(exception: EventException): void {
   };
   saveStore(store);
 }
+
+export function findMockExceptionsByEventIds(
+  eventIds: string[],
+): EventException[] {
+  if (eventIds.length === 0) {
+    return [];
+  }
+
+  const eventIdSet = new Set(eventIds);
+
+  return Object.values(getStore().exceptionsById)
+    .filter((stored) => eventIdSet.has(stored.eventId))
+    .map(
+      (stored) =>
+        new EventException({
+          id: stored.id,
+          eventId: stored.eventId,
+          exceptionDate: new Date(stored.exceptionDate),
+          isDeleted: stored.isDeleted,
+          overrideData: stored.overrideData,
+          createdAt: new Date(stored.createdAt),
+        }),
+    );
+}
