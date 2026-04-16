@@ -72,7 +72,8 @@ export class CreateDelegatedUser {
     try {
       const delegatedUserId = randomUUID();
       // Synthetic email for the delegated user — not a real auth account.
-      const syntheticEmail = `delegated-${delegatedUserId}@pws.local`;
+      const SYNTHETIC_EMAIL_DOMAIN = "pws.local";
+      const syntheticEmail = `delegated-${delegatedUserId}@${SYNTHETIC_EMAIL_DOMAIN}`;
 
       const delegatedUser = new User({
         delegatedByUserId: input.parentId,

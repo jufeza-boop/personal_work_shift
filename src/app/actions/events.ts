@@ -54,7 +54,7 @@ async function resolveCreatedBy(
     return targetUserId;
   }
 
-  return null; // not authorised to act on behalf of targetUserId
+  return null; // not authorized to act on behalf of targetUserId
 }
 
 /**

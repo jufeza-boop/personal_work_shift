@@ -437,7 +437,7 @@ export async function removeDelegatedUserAction(
   );
 
   if (!delegatedUserId) {
-    redirect(redirectTo);
+    return redirect(redirectTo);
   }
 
   const user = await requireAuthenticatedUser(redirectTo);
