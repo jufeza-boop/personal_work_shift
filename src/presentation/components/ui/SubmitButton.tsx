@@ -2,6 +2,7 @@
 
 import { useFormStatus } from "react-dom";
 import { Button, type ButtonProps } from "@/presentation/components/ui/button";
+import { Spinner } from "@/presentation/components/ui/Spinner";
 
 interface SubmitButtonProps extends Omit<
   ButtonProps,
@@ -20,7 +21,14 @@ export function SubmitButton({
 
   return (
     <Button disabled={pending} type="submit" {...buttonProps}>
-      {pending ? pendingLabel : label}
+      {pending ? (
+        <span className="flex items-center justify-center gap-2">
+          <Spinner size="sm" />
+          {pendingLabel}
+        </span>
+      ) : (
+        label
+      )}
     </Button>
   );
 }

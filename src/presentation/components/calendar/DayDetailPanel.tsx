@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import type {
   CalendarOccurrence,
@@ -11,6 +12,27 @@ import {
   type EventFormAction,
 } from "@/presentation/components/events/types";
 import { DayCreateEventForm } from "@/presentation/components/calendar/DayCreateEventForm";
+import { Spinner } from "@/presentation/components/ui/Spinner";
+
+function DeleteButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-70"
+    >
+      {pending ? (
+        <span className="flex items-center gap-2">
+          <Spinner size="sm" />
+          Eliminando...
+        </span>
+      ) : (
+        "Eliminar"
+      )}
+    </button>
+  );
+}
 
 const MONTH_NAMES_FULL = [
   "enero",
@@ -244,12 +266,7 @@ export function DayDetailPanel({
                 >
                   Cancelar
                 </button>
-                <button
-                  type="submit"
-                  className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
-                >
-                  Eliminar
-                </button>
+                <DeleteButton />
               </div>
             </form>
           </div>
