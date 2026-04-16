@@ -110,6 +110,58 @@ test("switches between families, persists the active family, and renames it", as
   await expect(page.getByText("Familia activa:")).toContainText("Roommates");
 });
 
+test("creates a delegated user and creates an event on their behalf", async ({
+  page,
+}) => {
+  const suffix = Date.now();
+  const owner = {
+    displayName: "Delegator",
+    email: `delegator-${suffix}@example.com`,
+    password: "Password1",
+  };
+
+  await registerUser(page, owner);
+  await loginUser(page, owner);
+
+  // Create a family first
+  await page.getByLabel("Nombre de la familia").fill("Delegate Team");
+  await page.getByRole("button", { name: "Crear familia" }).click();
+  await expect(page.getByText("Familia activa:")).toContainText(
+    "Delegate Team",
+  );
+
+  // Go to settings and create a delegated user
+  await page.goto("/calendar/settings");
+  await page.getByLabel("Nombre").fill("Junior");
+  await page.getByRole("button", { name: "Crear usuario delegado" }).click();
+
+  // The delegated user should now appear in the list
+  await expect(page.getByText("Junior")).toBeVisible();
+
+  // Go to the calendar and create an event on behalf of Junior
+  await page.goto("/calendar");
+  const today = new Date();
+  const dayNumber = today.getUTCDate();
+  // Click on today's day cell
+  await page.getByText(String(dayNumber), { exact: true }).first().click();
+  await page.getByRole("button", { name: "Crear evento" }).click();
+
+  // Select Junior in the "Crear para" dropdown
+  await page.getByLabel("Crear para").selectOption({ label: "Junior" });
+  await page.getByRole("textbox", { name: "Título" }).fill("Junior event");
+  await page.getByRole("button", { name: "Crear evento" }).click();
+
+  // The event should appear in the calendar
+  await expect(page.getByText("Junior event")).toBeVisible();
+
+  // Navigate back to settings to remove the delegated user
+  await page.goto("/calendar/settings");
+  await page.getByRole("button", { name: "Eliminar" }).first().click();
+
+  // Junior should no longer be listed
+  await expect(page.getByText("Junior")).not.toBeVisible();
+});
+
 test("member can select and change their own color palette", async ({
   page,
 }) => {

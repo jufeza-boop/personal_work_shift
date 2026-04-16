@@ -8,9 +8,9 @@
 
 ## Current State
 
-- **Phase**: Phase 10 PWA & Offline Support (US-6.2) completed
-- **Last Updated**: 2026-04-15
-- **Tests**: 236 passing
+- **Phase**: Phase 11 Delegated Users (US-1.4) completed
+- **Last Updated**: 2026-04-16
+- **Tests**: 245 passing (1 pre-existing SubmitButton test failure unrelated to Phase 11)
 
 ---
 
@@ -360,7 +360,37 @@
 
 ### Next steps
 
-- Phase 11: Delegated Users (US-1.4)
+- Phase 11: Delegated Users (US-1.4) ✅ Done
+
+---
+
+## 2026-04-16 - Phase 11: Delegated Users (US-1.4)
+
+### What was done
+
+- Added `findDelegatedUsers(parentId)` and `delete(id)` to `IUserRepository` interface
+- Added `MockStoredUser.delegatedByUserId` field to `mockAuthStore`; added `findMockDelegatedUsers` and `deleteMockUser` helpers
+- Updated `MockUserRepository` and `SupabaseUserRepository` to implement the two new methods
+- Created `CreateDelegatedUser` use case: generates a UUID-based user with a synthetic email (`delegated-{uuid}@pws.local`), saves the user, adds them as a `delegated` member to the chosen family
+- Created `RemoveDelegatedUser` use case: verifies parent ownership, removes from all families, deletes the user record
+- Added `createDelegatedUserAction` and `removeDelegatedUserAction` server actions
+- Updated `createEventAction`, `editEventAction`, `deleteEventAction` to support delegation via `resolveCreatedBy` / `resolveRequestedBy` helpers
+- Created `CreateDelegatedUserForm` and `DelegatedUserList` presentation components
+- Added delegated user section to the settings page
+- Updated `CalendarGrid → DayDetailPanel → DayCreateEventForm` to show a "Crear para" dropdown when delegated users exist; parents can edit/delete children's events
+- Added Supabase migration: drops `users.id → auth.users.id` FK (allows non-auth delegated user records), adds cleanup trigger, adds parent RLS policies for `users` table
+- Added E2E test for delegated user creation, event creation on behalf of, and removal
+
+### Decisions
+
+- Delegated users use synthetic emails (`delegated-{uuid}@pws.local`) so they don't need Supabase auth accounts; the FK from `users.id → auth.users.id` is dropped in the migration
+- A cleanup trigger on `auth.users DELETE` preserves cascade deletion for real auth-backed users
+- Event ownership for edit/delete is resolved in server actions (not use cases): `resolveRequestedBy` checks if `event.createdBy` is a delegated user of the authenticated parent
+- `createServerEventDependencies()` now also returns `userRepository` (used for delegation checks)
+
+### Next steps
+
+- Phase 12: Push Notifications (US-7.1)
 
 ---
 
@@ -372,5 +402,5 @@
 - ~~Begin Phase 7: Calendar View (US-3.1, US-3.2, US-3.3) to render events visually on a monthly grid~~ ✅ Done
 - ~~Begin Phase 9: Real-Time Synchronization (US-6.1)~~ ✅ Done
 - ~~Begin Phase 10: PWA & Offline Support (US-6.2)~~ ✅ Done
-- Begin Phase 11: Delegated Users (US-1.4)
+- ~~Begin Phase 11: Delegated Users (US-1.4)~~ ✅ Done
 - Add live local Supabase integration coverage once the sandbox DNS issue for `supabase start` is resolved

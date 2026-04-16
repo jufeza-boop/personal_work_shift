@@ -92,4 +92,35 @@ export class SupabaseUserRepository implements IUserRepository {
       throw error;
     }
   }
+
+  async findDelegatedUsers(parentId: string): Promise<User[]> {
+    const { data, error } = await this.client
+      .from("users")
+      .select("*")
+      .eq("delegated_by_user_id", parentId);
+
+    if (error) {
+      throw error;
+    }
+
+    return (data ?? []).map((row) =>
+      mapUser({
+        avatar_url: row.avatar_url,
+        created_at: row.created_at,
+        delegated_by_user_id: row.delegated_by_user_id,
+        display_name: row.display_name,
+        email: row.email,
+        id: row.id,
+        updated_at: row.updated_at,
+      }),
+    );
+  }
+
+  async delete(id: string): Promise<void> {
+    const { error } = await this.client.from("users").delete().eq("id", id);
+
+    if (error) {
+      throw error;
+    }
+  }
 }

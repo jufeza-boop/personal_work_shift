@@ -31,6 +31,56 @@ async function requireAuthenticatedUser(redirectTo: string) {
   return user;
 }
 
+/**
+ * Resolves the effective `createdBy` / `requestedBy` ID for delegation.
+ *
+ * If `targetUserId` is supplied and different from `authenticatedUserId`,
+ * we verify that the target is actually a delegated user of the authenticated
+ * user before allowing the operation.  Returns `null` when the caller does
+ * not have permission to act on behalf of `targetUserId`.
+ */
+async function resolveCreatedBy(
+  authenticatedUserId: string,
+  targetUserId: string | undefined,
+  getDelegatedUsers: () => Promise<{ id: string }[]>,
+): Promise<string | null> {
+  if (!targetUserId || targetUserId === authenticatedUserId) {
+    return authenticatedUserId;
+  }
+
+  const delegatedUsers = await getDelegatedUsers();
+
+  if (delegatedUsers.some((u) => u.id === targetUserId)) {
+    return targetUserId;
+  }
+
+  return null; // not authorized to act on behalf of targetUserId
+}
+
+/**
+ * When editing or deleting an event whose `createdBy` differs from the
+ * authenticated user, check whether the event creator is a delegated user of
+ * the authenticated user and, if so, return the creator's ID as the effective
+ * requester so the ownership check inside the use case passes.
+ */
+async function resolveRequestedBy(
+  authenticatedUserId: string,
+  eventCreatedBy: string,
+  getDelegatedUsers: () => Promise<{ id: string }[]>,
+): Promise<string> {
+  if (eventCreatedBy === authenticatedUserId) {
+    return authenticatedUserId;
+  }
+
+  const delegatedUsers = await getDelegatedUsers();
+
+  if (delegatedUsers.some((u) => u.id === eventCreatedBy)) {
+    return eventCreatedBy;
+  }
+
+  return authenticatedUserId; // will result in FORBIDDEN inside the use case
+}
+
 function toDate(value: string): Date {
   return new Date(`${value}T00:00:00.000Z`);
 }
@@ -56,6 +106,7 @@ export async function createEventAction(
 
   const eventType = formData.get("eventType")?.toString();
   const familyId = formData.get("familyId")?.toString();
+  const targetUserId = formData.get("targetUserId")?.toString() || undefined;
   const redirectTo = sanitizeRedirectPath(
     formData.get("redirectTo")?.toString(),
   );
@@ -92,11 +143,23 @@ export async function createEventAction(
     }
 
     const user = await requireAuthenticatedUser(redirectTo);
-    const { eventRepository, familyRepository } =
+    const { eventRepository, familyRepository, userRepository } =
       await createServerEventDependencies();
+    const createdBy = await resolveCreatedBy(user.id, targetUserId, () =>
+      userRepository.findDelegatedUsers(user.id),
+    );
+
+    if (!createdBy) {
+      return {
+        message:
+          "No tienes permiso para crear eventos en nombre de ese usuario.",
+        success: false,
+      };
+    }
+
     const useCase = new CreateEvent(eventRepository, familyRepository);
     const result = await useCase.execute({
-      createdBy: user.id,
+      createdBy,
       date: toDate(parsed.data.date),
       description: parsed.data.description,
       endTime: toOptionalString(parsed.data.endTime),
@@ -148,12 +211,24 @@ export async function createEventAction(
     }
 
     const user = await requireAuthenticatedUser(redirectTo);
-    const { eventRepository, familyRepository } =
+    const { eventRepository, familyRepository, userRepository } =
       await createServerEventDependencies();
+    const createdBy = await resolveCreatedBy(user.id, targetUserId, () =>
+      userRepository.findDelegatedUsers(user.id),
+    );
+
+    if (!createdBy) {
+      return {
+        message:
+          "No tienes permiso para crear eventos en nombre de ese usuario.",
+        success: false,
+      };
+    }
+
     const useCase = new CreateEvent(eventRepository, familyRepository);
     const result = await useCase.execute({
       category: parsed.data.category,
-      createdBy: user.id,
+      createdBy,
       description: parsed.data.description,
       endDate: toOptionalDate(parsed.data.endDate),
       eventType: "recurring",
@@ -207,12 +282,24 @@ export async function createEventAction(
     }
 
     const user = await requireAuthenticatedUser(redirectTo);
-    const { eventRepository, familyRepository } =
+    const { eventRepository, familyRepository, userRepository } =
       await createServerEventDependencies();
+    const createdBy = await resolveCreatedBy(user.id, targetUserId, () =>
+      userRepository.findDelegatedUsers(user.id),
+    );
+
+    if (!createdBy) {
+      return {
+        message:
+          "No tienes permiso para crear eventos en nombre de ese usuario.",
+        success: false,
+      };
+    }
+
     const useCase = new CreateEvent(eventRepository, familyRepository);
     const result = await useCase.execute({
       category: "other",
-      createdBy: user.id,
+      createdBy,
       description: parsed.data.description,
       endDate: toOptionalDate(parsed.data.endDate),
       endTime: toOptionalString(parsed.data.endTime),
@@ -264,8 +351,17 @@ export async function editEventAction(
   }
 
   const user = await requireAuthenticatedUser(redirectTo);
-  const { eventRepository } = await createServerEventDependencies();
+  const { eventRepository, userRepository } =
+    await createServerEventDependencies();
   const useCase = new EditEvent(eventRepository);
+
+  // Resolve the effective requestedBy to support delegation.
+  const event = await eventRepository.findById(eventId);
+  const requestedBy = event
+    ? await resolveRequestedBy(user.id, event.createdBy, () =>
+        userRepository.findDelegatedUsers(user.id),
+      )
+    : user.id;
 
   if (eventType === "punctual") {
     const parsed = editPunctualEventSchema.safeParse({
@@ -296,7 +392,7 @@ export async function editEventAction(
     const result = await useCase.execute({
       scope: "all",
       eventId,
-      requestedBy: user.id,
+      requestedBy,
       title: parsed.data.title,
       description: parsed.data.description ?? null,
       date: toDate(parsed.data.date),
@@ -361,7 +457,7 @@ export async function editEventAction(
       const result = await useCase.execute({
         scope: "single",
         eventId,
-        requestedBy: user.id,
+        requestedBy,
         occurrenceDate,
         title: parsed.data.title,
         description: parsed.data.description ?? null,
@@ -390,7 +486,7 @@ export async function editEventAction(
     const result = await useCase.execute({
       scope: "all",
       eventId,
-      requestedBy: user.id,
+      requestedBy,
       title: parsed.data.title,
       description: parsed.data.description ?? null,
       startDate: parsed.data.startDate
@@ -442,8 +538,17 @@ export async function deleteEventAction(
   }
 
   const user = await requireAuthenticatedUser(redirectTo);
-  const { eventRepository } = await createServerEventDependencies();
+  const { eventRepository, userRepository } =
+    await createServerEventDependencies();
   const useCase = new DeleteEvent(eventRepository);
+
+  // Resolve the effective requestedBy to support delegation.
+  const event = await eventRepository.findById(eventId);
+  const requestedBy = event
+    ? await resolveRequestedBy(user.id, event.createdBy, () =>
+        userRepository.findDelegatedUsers(user.id),
+      )
+    : user.id;
 
   if (scope === "single") {
     if (!occurrenceDateRaw) {
@@ -455,7 +560,7 @@ export async function deleteEventAction(
     const result = await useCase.execute({
       scope: "single",
       eventId,
-      requestedBy: user.id,
+      requestedBy,
       occurrenceDate: toDate(occurrenceDateRaw),
     });
 
@@ -466,7 +571,7 @@ export async function deleteEventAction(
     const result = await useCase.execute({
       scope: "all",
       eventId,
-      requestedBy: user.id,
+      requestedBy,
     });
 
     if (!result.success) {

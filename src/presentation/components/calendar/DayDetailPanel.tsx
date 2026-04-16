@@ -57,6 +57,7 @@ interface DayDetailPanelProps {
   occurrences: CalendarOccurrence[];
   members: SerializedMember[];
   currentUserId: string;
+  delegatedUsers?: { id: string; displayName: string }[];
   familyId: string;
   createAction: EventFormAction;
   deleteAction: EventFormAction;
@@ -77,6 +78,7 @@ export function DayDetailPanel({
   occurrences,
   members,
   currentUserId,
+  delegatedUsers = [],
   familyId,
   createAction,
   deleteAction,
@@ -92,6 +94,7 @@ export function DayDetailPanel({
   );
 
   const memberMap = new Map(members.map((m) => [m.userId, m]));
+  const delegatedUserIds = new Set(delegatedUsers.map((u) => u.id));
 
   return (
     <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-lg">
@@ -121,7 +124,9 @@ export function DayDetailPanel({
         <ul className="mb-4 divide-y divide-stone-100">
           {occurrences.map((occ) => {
             const member = memberMap.get(occ.createdBy);
-            const isOwner = occ.createdBy === currentUserId;
+            const isOwner =
+              occ.createdBy === currentUserId ||
+              delegatedUserIds.has(occ.createdBy);
 
             return (
               <li
@@ -178,6 +183,7 @@ export function DayDetailPanel({
           action={createAction}
           familyId={familyId}
           date={date}
+          delegatedUsers={delegatedUsers}
           onCancel={() => setShowCreateForm(false)}
         />
       ) : (

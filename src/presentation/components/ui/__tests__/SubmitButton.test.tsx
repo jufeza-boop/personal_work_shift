@@ -40,10 +40,10 @@ describe("SubmitButton", () => {
     });
     render(<SubmitButton label="Crear evento" pendingLabel="Guardando..." />);
 
-    expect(
-      screen.getByRole("button", { name: "Guardando..." }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Guardando..." })).toBeDisabled();
+    const button = screen.getByRole("button");
+
+    expect(button).toBeDisabled();
+    expect(button).toHaveTextContent("Guardando...");
   });
 
   it("applies an extra className when provided", () => {

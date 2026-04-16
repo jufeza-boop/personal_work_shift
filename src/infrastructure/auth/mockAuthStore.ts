@@ -13,6 +13,7 @@ import { User } from "@/domain/entities/User";
 export const MOCK_SESSION_COOKIE = "pws-mock-session";
 
 interface MockStoredUser {
+  delegatedByUserId?: string | null;
   displayName: string;
   email: string;
   id: string;
@@ -109,6 +110,7 @@ export function findMockUserById(id: string): MockStoredUser | null {
 
 export function saveMockDomainUser(user: User, password = "Password1"): void {
   const storedUser: MockStoredUser = {
+    delegatedByUserId: user.delegatedByUserId,
     displayName: user.displayName,
     email: normalizeEmail(user.email),
     id: user.id,
@@ -123,8 +125,26 @@ export function saveMockDomainUser(user: User, password = "Password1"): void {
 
 export function toDomainUser(user: MockStoredUser): User {
   return new User({
+    delegatedByUserId: user.delegatedByUserId ?? null,
     displayName: user.displayName,
     email: user.email,
     id: user.id,
   });
+}
+
+export function findMockDelegatedUsers(parentId: string): MockStoredUser[] {
+  return Object.values(getStore().usersById).filter(
+    (u) => u.delegatedByUserId === parentId,
+  );
+}
+
+export function deleteMockUser(id: string): void {
+  const store = getStore();
+  const user = store.usersById[id];
+
+  if (user) {
+    delete store.usersById[id];
+    delete store.usersByEmail[user.email];
+    saveStore(store);
+  }
 }

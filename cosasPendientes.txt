@@ -1,0 +1,3 @@
+. arreglar Testing con Playwright.
+. comprobara algunos errores ofline
+

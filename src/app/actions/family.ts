@@ -4,8 +4,10 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { AddMember } from "@/application/use-cases/family/AddMember";
+import { CreateDelegatedUser } from "@/application/use-cases/family/CreateDelegatedUser";
 import { CreateFamily } from "@/application/use-cases/family/CreateFamily";
 import { DeleteFamily } from "@/application/use-cases/family/DeleteFamily";
+import { RemoveDelegatedUser } from "@/application/use-cases/family/RemoveDelegatedUser";
 import { RenameFamily } from "@/application/use-cases/family/RenameFamily";
 import { SelectPalette } from "@/application/use-cases/family/SelectPalette";
 import { SwitchFamily } from "@/application/use-cases/family/SwitchFamily";
@@ -16,6 +18,7 @@ import {
   type FamilyFormState,
 } from "@/presentation/components/family/types";
 import {
+  createDelegatedUserSchema,
   createFamilySchema,
   inviteFamilyMemberSchema,
   renameFamilySchema,
@@ -29,6 +32,7 @@ function toFieldErrors(
 ): FamilyFormState["errors"] {
   return {
     colorPalette: fieldErrors.colorPalette?.[0],
+    displayName: fieldErrors.displayName?.[0],
     email: fieldErrors.email?.[0],
     name: fieldErrors.name?.[0],
   };
@@ -364,4 +368,89 @@ export async function deleteFamilyAction(formData: FormData): Promise<void> {
   revalidatePath("/calendar");
   revalidatePath("/calendar/settings");
   redirect("/calendar");
+}
+
+export async function createDelegatedUserAction(
+  previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  formData: FormData,
+): Promise<FamilyFormState> {
+  void previousState;
+
+  const familyId = formData.get("familyId")?.toString();
+
+  if (!familyId) {
+    return {
+      message: "No se encontró la familia activa.",
+      success: false,
+    };
+  }
+
+  const parsed = createDelegatedUserSchema.safeParse({
+    displayName: formData.get("displayName"),
+  });
+
+  if (!parsed.success) {
+    return {
+      errors: toFieldErrors(parsed.error.flatten().fieldErrors),
+      success: false,
+    };
+  }
+
+  const redirectTo = sanitizeRedirectPath(
+    formData.get("redirectTo")?.toString(),
+  );
+  const user = await requireAuthenticatedUser(redirectTo);
+  const { familyRepository, userRepository } =
+    await createServerFamilyDependencies();
+  const useCase = new CreateDelegatedUser(userRepository, familyRepository);
+  const result = await useCase.execute({
+    displayName: parsed.data.displayName,
+    familyId,
+    parentId: user.id,
+  });
+
+  if (!result.success) {
+    if (result.error.code === "INVALID_DISPLAY_NAME") {
+      return {
+        errors: { displayName: result.error.message },
+        success: false,
+      };
+    }
+
+    return {
+      message: "No se pudo crear el usuario delegado.",
+      success: false,
+    };
+  }
+
+  revalidatePath("/calendar");
+  revalidatePath("/calendar/settings");
+  redirect(redirectTo);
+}
+
+export async function removeDelegatedUserAction(
+  formData: FormData,
+): Promise<void> {
+  const delegatedUserId = formData.get("delegatedUserId")?.toString();
+  const redirectTo = sanitizeRedirectPath(
+    formData.get("redirectTo")?.toString(),
+  );
+
+  if (!delegatedUserId) {
+    return redirect(redirectTo);
+  }
+
+  const user = await requireAuthenticatedUser(redirectTo);
+  const { familyRepository, userRepository } =
+    await createServerFamilyDependencies();
+  const useCase = new RemoveDelegatedUser(userRepository, familyRepository);
+
+  await useCase.execute({
+    delegatedUserId,
+    parentId: user.id,
+  });
+
+  revalidatePath("/calendar");
+  revalidatePath("/calendar/settings");
+  redirect(redirectTo);
 }

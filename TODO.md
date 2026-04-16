@@ -167,12 +167,13 @@
 
 ## Phase 11: Delegated Users (US-1.4)
 
-- [ ] Extend `family_members` table with `delegated_by` column
-- [ ] Implement `CreateDelegatedUser` use case + tests
-- [ ] Update RLS policies for delegated access
-- [ ] Create delegated user management UI
-- [ ] Allow parent to manage delegated user's events
-- [ ] Write E2E tests for delegated user flows
+- [x] Extend `family_members` table with `delegated_by` column (already present from Phase 2)
+- [x] Implement `CreateDelegatedUser` use case + tests
+- [x] Implement `RemoveDelegatedUser` use case + tests
+- [x] Update RLS policies for delegated access (migration 20260416120000)
+- [x] Create delegated user management UI (CreateDelegatedUserForm, DelegatedUserList)
+- [x] Allow parent to manage delegated user's events (createEventAction, editEventAction, deleteEventAction)
+- [x] Write E2E tests for delegated user flows
 
 ---
 
