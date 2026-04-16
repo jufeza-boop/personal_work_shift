@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useId, useState } from "react";
+import { useRouter } from "next/navigation";
 import { SubmitButton } from "@/presentation/components/ui/SubmitButton";
 import {
   EMPTY_EVENT_FORM_STATE,
@@ -39,6 +40,7 @@ export function CreateEventForm({
   familyId,
   redirectTo = "/calendar",
 }: CreateEventFormProps) {
+  const router = useRouter();
   const titleId = useId();
   const dateId = useId();
   const startDateId = useId();
@@ -475,11 +477,20 @@ export function CreateEventForm({
           </p>
         ) : null}
 
-        <SubmitButton
-          className="w-full"
-          label="Crear evento"
-          pendingLabel="Guardando..."
-        />
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => router.push(redirectTo)}
+            className="flex-1 rounded-xl border border-stone-300 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-stone-50"
+          >
+            Cancelar
+          </button>
+          <SubmitButton
+            className="flex-1"
+            label="Crear evento"
+            pendingLabel="Guardando..."
+          />
+        </div>
       </form>
     </section>
   );

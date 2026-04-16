@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useActionState } from "react";
+import { useRouter } from "next/navigation";
 import {
   EMPTY_EVENT_FORM_STATE,
   type EventFormAction,
@@ -56,6 +57,7 @@ export function EditEventForm({
   defaults,
   redirectTo,
 }: EditEventFormProps) {
+  const router = useRouter();
   const [state, formAction] = useActionState(action, EMPTY_EVENT_FORM_STATE);
   const [scope, setScope] = useState<"all" | "single">("all");
 
@@ -403,7 +405,16 @@ export function EditEventForm({
           <p className="text-sm text-red-500">{state.message}</p>
         )}
 
-        <SubmitButton label="Guardar cambios" pendingLabel="Guardando..." />
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => router.push(redirectTo)}
+            className="flex-1 rounded-xl border border-stone-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-stone-50"
+          >
+            Cancelar
+          </button>
+          <SubmitButton label="Guardar cambios" pendingLabel="Guardando..." />
+        </div>
       </form>
     </section>
   );
