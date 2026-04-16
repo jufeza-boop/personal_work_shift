@@ -232,6 +232,41 @@ export interface Database {
           },
         ];
       };
+      push_subscriptions: {
+        Insert: {
+          created_at?: string;
+          endpoint: string;
+          id?: string;
+          keys_auth: string;
+          keys_p256dh: string;
+          user_id: string;
+        };
+        Row: {
+          created_at: string;
+          endpoint: string;
+          id: string;
+          keys_auth: string;
+          keys_p256dh: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          endpoint?: string;
+          id?: string;
+          keys_auth?: string;
+          keys_p256dh?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "push_subscriptions_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       users: {
         Insert: {
           avatar_url?: string | null;
@@ -306,4 +341,6 @@ export type EventRow = Database["public"]["Tables"]["events"]["Row"];
 export type FamilyMemberRow =
   Database["public"]["Tables"]["family_members"]["Row"];
 export type FamilyRow = Database["public"]["Tables"]["families"]["Row"];
+export type PushSubscriptionRow =
+  Database["public"]["Tables"]["push_subscriptions"]["Row"];
 export type UserRow = Database["public"]["Tables"]["users"]["Row"];

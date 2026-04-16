@@ -179,12 +179,12 @@
 
 ## Phase 12: Push Notifications (US-7.1)
 
-- [ ] Configure Web Push API (VAPID keys)
-- [ ] Create notification opt-in prompt
-- [ ] Implement server-side push notification service
-- [ ] Send notifications on event create/edit/delete
-- [ ] Handle notification click (open app at relevant date)
-- [ ] Write integration tests for push notifications
+- [x] Configure Web Push API (VAPID keys)
+- [x] Create notification opt-in prompt
+- [x] Implement server-side push notification service
+- [x] Send notifications on event create/edit/delete
+- [x] Handle notification click (open app at relevant date)
+- [x] Write integration tests for push notifications
 
 ---
 

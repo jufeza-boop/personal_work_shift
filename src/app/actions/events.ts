@@ -5,8 +5,11 @@ import { redirect } from "next/navigation";
 import { CreateEvent } from "@/application/use-cases/events/CreateEvent";
 import { DeleteEvent } from "@/application/use-cases/events/DeleteEvent";
 import { EditEvent } from "@/application/use-cases/events/EditEvent";
+import { SendEventNotification } from "@/application/use-cases/push/SendEventNotification";
+import type { EventChangeType } from "@/application/use-cases/push/SendEventNotification";
 import { getAuthenticatedUser } from "@/infrastructure/auth/runtime";
 import { createServerEventDependencies } from "@/infrastructure/events/runtime";
+import { createServerPushDependencies } from "@/infrastructure/push/runtime";
 import {
   EMPTY_EVENT_FORM_STATE,
   type EventFormState,
@@ -20,6 +23,47 @@ import {
   editRecurringWorkEventSchema,
 } from "@/presentation/validation/eventSchemas";
 import { sanitizeRedirectPath } from "@/shared/auth/routeProtection";
+
+/**
+ * Sends a push notification to all family members except the actor.
+ * Failures are silently logged so they never break the main event flow.
+ */
+async function notifyFamilyOnEventChange(
+  actorUserId: string,
+  familyId: string,
+  eventTitle: string,
+  changeType: EventChangeType,
+  eventDate?: string,
+): Promise<void> {
+  try {
+    const { familyRepository } = await createServerEventDependencies();
+    const family = await familyRepository.findById(familyId);
+
+    if (!family) return;
+
+    const recipientIds = family.members
+      .map((m) => m.userId)
+      .filter((id) => id !== actorUserId);
+
+    if (recipientIds.length === 0) return;
+
+    const { pushSubscriptionRepository, pushNotificationService } =
+      await createServerPushDependencies();
+    const useCase = new SendEventNotification(
+      pushSubscriptionRepository,
+      pushNotificationService,
+    );
+
+    await useCase.execute({
+      eventChangeType: changeType,
+      eventDate,
+      eventTitle,
+      recipientUserIds: recipientIds,
+    });
+  } catch (error) {
+    console.error("[notifyFamilyOnEventChange] Push notification error:", error);
+  }
+}
 
 async function requireAuthenticatedUser(redirectTo: string) {
   const user = await getAuthenticatedUser();
@@ -176,6 +220,9 @@ export async function createEventAction(
       };
     }
 
+    const eventDate = parsed.data.date;
+    void notifyFamilyOnEventChange(user.id, familyId, parsed.data.title, "created", eventDate);
+
     revalidatePath("/calendar");
     redirect(redirectTo);
   }
@@ -246,6 +293,8 @@ export async function createEventAction(
         success: false,
       };
     }
+
+    void notifyFamilyOnEventChange(user.id, familyId, parsed.data.title, "created");
 
     revalidatePath("/calendar");
     redirect(redirectTo);
@@ -318,6 +367,8 @@ export async function createEventAction(
         success: false,
       };
     }
+
+    void notifyFamilyOnEventChange(user.id, familyId, parsed.data.title, "created");
 
     revalidatePath("/calendar");
     redirect(redirectTo);
@@ -404,6 +455,10 @@ export async function editEventAction(
       return { success: false, message: buildErrorMessage(result.error.code) };
     }
 
+    if (event?.familyId) {
+      void notifyFamilyOnEventChange(user.id, event.familyId, parsed.data.title, "updated", parsed.data.date);
+    }
+
     revalidatePath("/calendar");
     redirect(redirectTo);
   }
@@ -478,6 +533,10 @@ export async function editEventAction(
         };
       }
 
+      if (event?.familyId) {
+        void notifyFamilyOnEventChange(user.id, event.familyId, parsed.data.title, "updated", occurrenceDateRaw);
+      }
+
       revalidatePath("/calendar");
       redirect(redirectTo);
     }
@@ -508,6 +567,10 @@ export async function editEventAction(
 
     if (!result.success) {
       return { success: false, message: buildErrorMessage(result.error.code) };
+    }
+
+    if (event?.familyId) {
+      void notifyFamilyOnEventChange(user.id, event.familyId, parsed.data.title, "updated");
     }
 
     revalidatePath("/calendar");
@@ -577,6 +640,10 @@ export async function deleteEventAction(
     if (!result.success) {
       return { success: false, message: buildErrorMessage(result.error.code) };
     }
+  }
+
+  if (event?.familyId && event?.title) {
+    void notifyFamilyOnEventChange(user.id, event.familyId, event.title, "deleted", occurrenceDateRaw);
   }
 
   revalidatePath("/calendar");
