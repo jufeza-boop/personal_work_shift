@@ -2,19 +2,20 @@ import { ColorPalette } from "@/domain/value-objects/ColorPalette";
 import type { Family } from "@/domain/entities/Family";
 import type { PaletteOption } from "@/presentation/components/family/ColorPalettePicker";
 import {
+  addDelegatedUserToFamilyAction,
   addFamilyMemberAction,
-  createDelegatedUserAction,
   deleteFamilyAction,
-  removeDelegatedUserAction,
+  leaveFamilyAction,
+  removeFamilyMemberAction,
   renameFamilyAction,
   selectPaletteAction,
 } from "@/app/actions/family";
 import { getFamilyPageData } from "@/app/(dashboard)/familyPageData";
-import { CreateDelegatedUserForm } from "@/presentation/components/family/CreateDelegatedUserForm";
+import { AddDelegatedUserToFamilyForm } from "@/presentation/components/family/AddDelegatedUserToFamilyForm";
 import { DeleteFamilyForm } from "@/presentation/components/family/DeleteFamilyForm";
-import { DelegatedUserList } from "@/presentation/components/family/DelegatedUserList";
 import { FamilyMemberList } from "@/presentation/components/family/FamilyMemberList";
 import { InviteFamilyMemberForm } from "@/presentation/components/family/InviteFamilyMemberForm";
+import { LeaveFamilyForm } from "@/presentation/components/family/LeaveFamilyForm";
 import { RenameFamilyForm } from "@/presentation/components/family/RenameFamilyForm";
 import { SelectPaletteForm } from "@/presentation/components/family/SelectPaletteForm";
 
@@ -65,6 +66,14 @@ export default async function FamilySettingsPage() {
   const myPaletteName = activeFamily.members.find((m) => m.userId === user.id)
     ?.colorPalette?.name;
 
+  // Delegated users not yet in this family
+  const activeFamilyMemberIds = new Set(
+    activeFamily.members.map((m) => m.userId),
+  );
+  const availableDelegatedUsers = delegatedUsers
+    .filter((du) => !activeFamilyMemberIds.has(du.id))
+    .map((du) => ({ displayName: du.displayName, id: du.id }));
+
   return (
     <section className="space-y-6">
       {isOwner ? (
@@ -78,6 +87,11 @@ export default async function FamilySettingsPage() {
             action={addFamilyMemberAction}
             familyId={activeFamily.id}
             paletteOptions={paletteOptions}
+          />
+          <AddDelegatedUserToFamilyForm
+            action={addDelegatedUserToFamilyAction}
+            availableDelegatedUsers={availableDelegatedUsers}
+            familyId={activeFamily.id}
           />
         </>
       ) : (
@@ -102,16 +116,8 @@ export default async function FamilySettingsPage() {
       <FamilyMemberList
         family={activeFamily}
         memberDirectory={memberDirectory}
-      />
-
-      <DelegatedUserList
-        delegatedUsers={delegatedUsers}
-        removeAction={removeDelegatedUserAction}
-      />
-
-      <CreateDelegatedUserForm
-        action={createDelegatedUserAction}
-        familyId={activeFamily.id}
+        isOwner={isOwner}
+        removeMemberAction={isOwner ? removeFamilyMemberAction : undefined}
       />
 
       {isOwner ? (
@@ -120,7 +126,13 @@ export default async function FamilySettingsPage() {
           familyId={activeFamily.id}
           familyName={activeFamily.name}
         />
-      ) : null}
+      ) : (
+        <LeaveFamilyForm
+          action={leaveFamilyAction}
+          familyId={activeFamily.id}
+          familyName={activeFamily.name}
+        />
+      )}
     </section>
   );
 }

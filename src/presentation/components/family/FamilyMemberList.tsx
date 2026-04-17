@@ -4,10 +4,14 @@ import {
   getPaletteTones,
   SHIFT_TONE_ORDER,
 } from "@/presentation/utils/paletteUtils";
+import { RemoveFamilyMemberButton } from "@/presentation/components/family/RemoveFamilyMemberButton";
+import type { FamilyFormAction } from "@/presentation/components/family/types";
 
 interface FamilyMemberListProps {
   family: Family;
   memberDirectory: Map<string, string>;
+  isOwner?: boolean;
+  removeMemberAction?: FamilyFormAction;
 }
 
 const ROLE_LABELS = {
@@ -19,6 +23,8 @@ const ROLE_LABELS = {
 export function FamilyMemberList({
   family,
   memberDirectory,
+  isOwner = false,
+  removeMemberAction,
 }: FamilyMemberListProps) {
   return (
     <section className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm">
@@ -40,6 +46,10 @@ export function FamilyMemberList({
             | ColorPaletteName
             | undefined;
           const tones = paletteName ? getPaletteTones(paletteName) : null;
+          const canRemove =
+            isOwner &&
+            removeMemberAction &&
+            member.role !== "owner";
 
           return (
             <li
@@ -56,25 +66,38 @@ export function FamilyMemberList({
                   </p>
                 </div>
 
-                {tones ? (
-                  <div
-                    className="flex h-6 w-24 overflow-hidden rounded-lg"
-                    aria-label={`Paleta ${paletteName}`}
-                    title={`Paleta ${paletteName}`}
-                  >
-                    {SHIFT_TONE_ORDER.map((tone) => (
-                      <div
-                        key={tone}
-                        className="flex-1"
-                        style={{ backgroundColor: tones[tone] }}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-700">
-                    Sin paleta
-                  </span>
-                )}
+                <div className="flex items-center gap-3">
+                  {tones ? (
+                    <div
+                      className="flex h-6 w-24 overflow-hidden rounded-lg"
+                      aria-label={`Paleta ${paletteName}`}
+                      title={`Paleta ${paletteName}`}
+                    >
+                      {SHIFT_TONE_ORDER.map((tone) => (
+                        <div
+                          key={tone}
+                          className="flex-1"
+                          style={{ backgroundColor: tones[tone] }}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-700">
+                      Sin paleta
+                    </span>
+                  )}
+
+                  {canRemove ? (
+                    <RemoveFamilyMemberButton
+                      action={removeMemberAction}
+                      familyId={family.id}
+                      memberName={
+                        memberDirectory.get(member.userId) ?? member.userId
+                      }
+                      memberUserId={member.userId}
+                    />
+                  ) : null}
+                </div>
               </div>
             </li>
           );
