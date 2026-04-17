@@ -53,26 +53,28 @@ async function getExistingSubscription(): Promise<PushSubscription | null> {
 }
 
 export function usePushNotifications(): UsePushNotificationsResult {
-  const isSupported =
-    typeof window !== "undefined" &&
-    "serviceWorker" in navigator &&
-    "PushManager" in window &&
-    "Notification" in window;
-
-  const [permission, setPermission] = useState<NotificationPermission>(
-    isSupported ? (Notification.permission as NotificationPermission) : "denied",
-  );
+  const [isSupported, setIsSupported] = useState(false);
+  const [permission, setPermission] = useState<NotificationPermission>("default");
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Check existing subscription on mount
+  // Detect support and check existing subscription on mount (client-only)
   useEffect(() => {
-    if (!isSupported) return;
+    const supported =
+      "serviceWorker" in navigator &&
+      "PushManager" in window &&
+      "Notification" in window;
+
+    setIsSupported(supported);
+
+    if (!supported) return;
+
+    setPermission(Notification.permission as NotificationPermission);
 
     void getExistingSubscription().then((sub) => {
       setIsSubscribed(sub !== null);
     });
-  }, [isSupported]);
+  }, []);
 
   const subscribe = useCallback(async () => {
     if (!isSupported) return;
@@ -82,8 +84,8 @@ export function usePushNotifications(): UsePushNotificationsResult {
     try {
       const vapidKey = await fetchVapidPublicKey();
 
-      if (!vapidKey) {
-        console.error("[usePushNotifications] VAPID public key not available");
+      if (!vapidKey || !/^[A-Za-z0-9_-]+$/.test(vapidKey)) {
+        console.error("[usePushNotifications] VAPID public key missing or invalid");
         return;
       }
 

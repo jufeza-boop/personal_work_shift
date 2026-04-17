@@ -6,6 +6,7 @@ export function NotificationOptIn() {
   const { isSupported, permission, isSubscribed, isLoading, subscribe, unsubscribe } =
     usePushNotifications();
 
+  // Return null on server and until client-side support detection completes
   if (!isSupported || permission === "denied") {
     return null;
   }
