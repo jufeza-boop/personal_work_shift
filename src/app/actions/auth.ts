@@ -5,6 +5,8 @@ import { LoginUser } from "@/application/use-cases/auth/LoginUser";
 import { LogoutUser } from "@/application/use-cases/auth/LogoutUser";
 import { RegisterUser } from "@/application/use-cases/auth/RegisterUser";
 import { createServerAuthDependencies } from "@/infrastructure/auth/runtime";
+import { authRateLimiter } from "@/infrastructure/security/authRateLimiter";
+import { getClientIp } from "@/infrastructure/security/getClientIp";
 import {
   type AuthFormState,
   EMPTY_AUTH_FORM_STATE,
@@ -31,6 +33,18 @@ export async function registerAction(
 ): Promise<AuthFormState> {
   // Required by the useActionState server action signature.
   void _previousState;
+
+  const clientIp = await getClientIp();
+  const rateCheck = authRateLimiter.check(clientIp);
+
+  if (!rateCheck.allowed) {
+    const retryMinutes = Math.ceil((rateCheck.retryAfterMs ?? 0) / 60_000);
+
+    return {
+      message: `Demasiados intentos. Por favor, espera ${retryMinutes} minuto${retryMinutes !== 1 ? "s" : ""}.`,
+      success: false,
+    };
+  }
 
   const parsed = registerSchema.safeParse({
     displayName: formData.get("displayName"),
@@ -84,6 +98,18 @@ export async function loginAction(
 ): Promise<AuthFormState> {
   // Required by the useActionState server action signature.
   void _previousState;
+
+  const clientIp = await getClientIp();
+  const rateCheck = authRateLimiter.check(clientIp);
+
+  if (!rateCheck.allowed) {
+    const retryMinutes = Math.ceil((rateCheck.retryAfterMs ?? 0) / 60_000);
+
+    return {
+      message: `Demasiados intentos. Por favor, espera ${retryMinutes} minuto${retryMinutes !== 1 ? "s" : ""}.`,
+      success: false,
+    };
+  }
 
   const parsed = loginSchema.safeParse({
     email: formData.get("email"),

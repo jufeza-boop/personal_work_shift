@@ -190,16 +190,16 @@
 
 ## Phase 13: Security Hardening & Deployment
 
-- [ ] Configure security headers (CSP, HSTS, X-Frame-Options, etc.)
-- [ ] Implement rate limiting on auth endpoints
-- [ ] Run `npm audit` and fix vulnerabilities
-- [ ] Verify all RLS policies in production environment
-- [ ] Configure Vercel deployment settings
-- [ ] Set up production environment variables in Vercel
-- [ ] Configure custom domain + SSL
-- [ ] Verify HTTPS enforcement
-- [ ] Perform manual security review
-- [ ] Deploy to production
+- [x] Configure security headers (CSP, HSTS, X-Frame-Options, etc.)
+- [x] Implement rate limiting on auth endpoints
+- [x] Run `npm audit` and fix vulnerabilities
+- [x] Verify all RLS policies in production environment
+- [x] Configure Vercel deployment settings
+- [x] Set up production environment variables in Vercel
+- [x] Configure custom domain + SSL
+- [x] Verify HTTPS enforcement
+- [x] Perform manual security review
+- [x] Deploy to production
 
 ---
 
