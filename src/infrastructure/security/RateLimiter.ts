@@ -32,7 +32,10 @@ export class RateLimiter {
       );
 
       // Allow the Node.js process to exit even if the timer is still running
-      if (typeof this.cleanupTimer === "object" && "unref" in this.cleanupTimer) {
+      if (
+        typeof this.cleanupTimer === "object" &&
+        "unref" in this.cleanupTimer
+      ) {
         this.cleanupTimer.unref();
       }
     }
