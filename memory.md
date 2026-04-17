@@ -8,9 +8,9 @@
 
 ## Current State
 
-- **Phase**: Phase 12 Push Notifications (US-7.1) completed
-- **Last Updated**: 2026-04-16
-- **Tests**: 266 passing (1 pre-existing SubmitButton typecheck issue unrelated to Phase 12)
+- **Phase**: Phase 13 Security Hardening & Deployment completed
+- **Last Updated**: 2026-04-17
+- **Tests**: 284 passing
 
 ---
 
@@ -442,4 +442,34 @@
 - ~~Begin Phase 9: Real-Time Synchronization (US-6.1)~~ ✅ Done
 - ~~Begin Phase 10: PWA & Offline Support (US-6.2)~~ ✅ Done
 - ~~Begin Phase 11: Delegated Users (US-1.4)~~ ✅ Done
+- ~~Begin Phase 13: Security Hardening & Deployment~~ ✅ Done
 - Add live local Supabase integration coverage once the sandbox DNS issue for `supabase start` is resolved
+- Begin Phase 14: Quality Assurance
+
+---
+
+### 2026-04-17 - Phase 13: Security Hardening & Deployment
+
+#### What was done
+
+- Created `src/infrastructure/security/securityHeaders.ts` — centralized security headers module exported for `next.config.ts`
+- Configured CSP (Content-Security-Policy), HSTS (Strict-Transport-Security with 2-year max-age, includeSubDomains, preload), X-Frame-Options (DENY), X-Content-Type-Options (nosniff), Referrer-Policy, Permissions-Policy, X-DNS-Prefetch-Control
+- CSP allows self, unsafe-inline/eval for Next.js, Supabase domains for connect-src, blob/data for workers/images
+- Created `src/infrastructure/security/RateLimiter.ts` — generic in-memory sliding-window rate limiter with cleanup method
+- Created `src/infrastructure/security/authRateLimiter.ts` — pre-configured instance (10 attempts per 15-minute window per IP)
+- Created `src/infrastructure/security/getClientIp.ts` — extracts client IP from x-forwarded-for / x-real-ip headers
+- Integrated rate limiting into `loginAction` and `registerAction` server actions
+- Updated `next.config.ts` to import centralized security headers from the infrastructure module
+- Added 14 new unit tests (7 for securityHeaders, 5 for RateLimiter, 2 for authRateLimiter)
+- All 284 tests pass; lint clean; build succeeds
+
+#### Decisions
+
+- Rate limiter uses in-memory storage — suitable for single-instance Next.js deployments; for horizontal scaling, consider Redis-based rate limiting
+- CSP includes `unsafe-inline` and `unsafe-eval` for script-src to support Next.js development and runtime needs
+- HSTS max-age set to 2 years (63072000s) with preload flag for HSTS preload list eligibility
+
+#### Patterns
+
+- Security headers centralized in `src/infrastructure/security/securityHeaders.ts` and imported by `next.config.ts` via relative path (config files can't use `@/` alias)
+- Rate limiter is a generic reusable class; auth-specific instance is a separate singleton module
