@@ -1,5 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { IPushSubscriptionRepository, PushSubscription } from "@/domain/repositories/IPushSubscriptionRepository";
+import type {
+  IPushSubscriptionRepository,
+  PushSubscription,
+} from "@/domain/repositories/IPushSubscriptionRepository";
 import type { Database } from "@/infrastructure/supabase/database.types";
 
 function mapRow(row: {
@@ -16,23 +19,19 @@ function mapRow(row: {
   };
 }
 
-export class SupabasePushSubscriptionRepository
-  implements IPushSubscriptionRepository
-{
+export class SupabasePushSubscriptionRepository implements IPushSubscriptionRepository {
   constructor(private readonly client: SupabaseClient<Database>) {}
 
   async save(subscription: PushSubscription): Promise<void> {
-    const { error } = await this.client
-      .from("push_subscriptions")
-      .upsert(
-        {
-          endpoint: subscription.endpoint,
-          keys_auth: subscription.keysAuth,
-          keys_p256dh: subscription.keysP256dh,
-          user_id: subscription.userId,
-        },
-        { onConflict: "user_id,endpoint" },
-      );
+    const { error } = await this.client.from("push_subscriptions").upsert(
+      {
+        endpoint: subscription.endpoint,
+        keys_auth: subscription.keysAuth,
+        keys_p256dh: subscription.keysP256dh,
+        user_id: subscription.userId,
+      },
+      { onConflict: "user_id,endpoint" },
+    );
 
     if (error) {
       throw error;

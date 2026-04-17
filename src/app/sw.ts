@@ -77,7 +77,10 @@ self.addEventListener("notificationclick", (event: NotificationEvent) => {
       .matchAll({ includeUncontrolled: true, type: "window" })
       .then((clientList) => {
         for (const client of clientList) {
-          if (client.url.startsWith(self.location.origin) && "focus" in client) {
+          if (
+            client.url.startsWith(self.location.origin) &&
+            "focus" in client
+          ) {
             void (client as WindowClient).navigate(targetUrl);
             return client.focus();
           }

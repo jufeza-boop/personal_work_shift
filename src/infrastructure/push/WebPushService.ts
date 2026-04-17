@@ -1,5 +1,8 @@
 import webpush from "web-push";
-import type { IPushNotificationService, PushNotificationPayload } from "@/application/services/IPushNotificationService";
+import type {
+  IPushNotificationService,
+  PushNotificationPayload,
+} from "@/application/services/IPushNotificationService";
 import type { PushSubscription } from "@/domain/repositories/IPushSubscriptionRepository";
 
 interface WebPushServiceConfig {
@@ -29,9 +32,6 @@ export class WebPushService implements IPushNotificationService {
       },
     };
 
-    await webpush.sendNotification(
-      pushSubscription,
-      JSON.stringify(payload),
-    );
+    await webpush.sendNotification(pushSubscription, JSON.stringify(payload));
   }
 }

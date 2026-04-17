@@ -9,7 +9,10 @@ export interface SubscribeToPushInput {
 
 export type SubscribeToPushResult =
   | { success: true }
-  | { success: false; error: { code: "INVALID_SUBSCRIPTION"; message: string } };
+  | {
+      success: false;
+      error: { code: "INVALID_SUBSCRIPTION"; message: string };
+    };
 
 export class SubscribeToPush {
   constructor(
@@ -17,7 +20,12 @@ export class SubscribeToPush {
   ) {}
 
   async execute(input: SubscribeToPushInput): Promise<SubscribeToPushResult> {
-    if (!input.userId || !input.endpoint || !input.keysAuth || !input.keysP256dh) {
+    if (
+      !input.userId ||
+      !input.endpoint ||
+      !input.keysAuth ||
+      !input.keysP256dh
+    ) {
       return {
         error: {
           code: "INVALID_SUBSCRIPTION",

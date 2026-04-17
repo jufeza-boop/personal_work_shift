@@ -42,9 +42,7 @@ describe("NotificationOptIn", () => {
 
     render(<NotificationOptIn />);
 
-    expect(
-      screen.getByText(/Notificaciones activas/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Notificaciones activas/i)).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /Desactivar/i }),
     ).toBeInTheDocument();

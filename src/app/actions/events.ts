@@ -53,7 +53,10 @@ async function dispatchFamilyNotification(
       pushNotificationService,
     );
   } catch (error) {
-    console.error("[dispatchFamilyNotification] Push notification error:", error);
+    console.error(
+      "[dispatchFamilyNotification] Push notification error:",
+      error,
+    );
   }
 }
 
@@ -213,7 +216,13 @@ export async function createEventAction(
     }
 
     const eventDate = parsed.data.date;
-    void dispatchFamilyNotification(user.id, familyId, parsed.data.title, "created", eventDate);
+    void dispatchFamilyNotification(
+      user.id,
+      familyId,
+      parsed.data.title,
+      "created",
+      eventDate,
+    );
 
     revalidatePath("/calendar");
     redirect(redirectTo);
@@ -286,7 +295,12 @@ export async function createEventAction(
       };
     }
 
-    void dispatchFamilyNotification(user.id, familyId, parsed.data.title, "created");
+    void dispatchFamilyNotification(
+      user.id,
+      familyId,
+      parsed.data.title,
+      "created",
+    );
 
     revalidatePath("/calendar");
     redirect(redirectTo);
@@ -360,7 +374,12 @@ export async function createEventAction(
       };
     }
 
-    void dispatchFamilyNotification(user.id, familyId, parsed.data.title, "created");
+    void dispatchFamilyNotification(
+      user.id,
+      familyId,
+      parsed.data.title,
+      "created",
+    );
 
     revalidatePath("/calendar");
     redirect(redirectTo);
@@ -448,7 +467,13 @@ export async function editEventAction(
     }
 
     if (event?.familyId) {
-      void dispatchFamilyNotification(user.id, event.familyId, parsed.data.title, "updated", parsed.data.date);
+      void dispatchFamilyNotification(
+        user.id,
+        event.familyId,
+        parsed.data.title,
+        "updated",
+        parsed.data.date,
+      );
     }
 
     revalidatePath("/calendar");
@@ -526,7 +551,13 @@ export async function editEventAction(
       }
 
       if (event?.familyId) {
-        void dispatchFamilyNotification(user.id, event.familyId, parsed.data.title, "updated", occurrenceDateRaw);
+        void dispatchFamilyNotification(
+          user.id,
+          event.familyId,
+          parsed.data.title,
+          "updated",
+          occurrenceDateRaw,
+        );
       }
 
       revalidatePath("/calendar");
@@ -562,7 +593,12 @@ export async function editEventAction(
     }
 
     if (event?.familyId) {
-      void dispatchFamilyNotification(user.id, event.familyId, parsed.data.title, "updated");
+      void dispatchFamilyNotification(
+        user.id,
+        event.familyId,
+        parsed.data.title,
+        "updated",
+      );
     }
 
     revalidatePath("/calendar");
@@ -635,7 +671,13 @@ export async function deleteEventAction(
   }
 
   if (event?.familyId) {
-    void dispatchFamilyNotification(user.id, event.familyId, event.title, "deleted", occurrenceDateRaw);
+    void dispatchFamilyNotification(
+      user.id,
+      event.familyId,
+      event.title,
+      "deleted",
+      occurrenceDateRaw,
+    );
   }
 
   revalidatePath("/calendar");

@@ -59,6 +59,8 @@ export async function createServerPushDependencies(): Promise<{
       vapidPublicKey: publicKey,
       vapidSubject: subject,
     }),
-    pushSubscriptionRepository: new SupabasePushSubscriptionRepository(supabase),
+    pushSubscriptionRepository: new SupabasePushSubscriptionRepository(
+      supabase,
+    ),
   };
 }

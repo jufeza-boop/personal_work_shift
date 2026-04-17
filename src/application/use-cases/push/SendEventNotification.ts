@@ -1,4 +1,7 @@
-import type { IPushNotificationService, PushNotificationPayload } from "@/application/services/IPushNotificationService";
+import type {
+  IPushNotificationService,
+  PushNotificationPayload,
+} from "@/application/services/IPushNotificationService";
 import type { IPushSubscriptionRepository } from "@/domain/repositories/IPushSubscriptionRepository";
 
 export type EventChangeType = "created" | "updated" | "deleted";

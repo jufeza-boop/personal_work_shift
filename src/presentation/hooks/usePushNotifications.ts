@@ -54,7 +54,8 @@ async function getExistingSubscription(): Promise<PushSubscription | null> {
 
 export function usePushNotifications(): UsePushNotificationsResult {
   const [isSupported, setIsSupported] = useState(false);
-  const [permission, setPermission] = useState<NotificationPermission>("default");
+  const [permission, setPermission] =
+    useState<NotificationPermission>("default");
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -85,7 +86,9 @@ export function usePushNotifications(): UsePushNotificationsResult {
       const vapidKey = await fetchVapidPublicKey();
 
       if (!vapidKey || !/^[A-Za-z0-9_-]+$/.test(vapidKey)) {
-        console.error("[usePushNotifications] VAPID public key missing or invalid");
+        console.error(
+          "[usePushNotifications] VAPID public key missing or invalid",
+        );
         return;
       }
 

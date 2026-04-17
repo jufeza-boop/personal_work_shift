@@ -29,14 +29,27 @@ function createPushNotificationService(): IPushNotificationService {
   };
 }
 
-function makeFamilyWithMembers(ownerUserId: string, memberUserId: string): Family {
+function makeFamilyWithMembers(
+  ownerUserId: string,
+  memberUserId: string,
+): Family {
   return new Family({
     createdBy: ownerUserId,
     id: "family-1",
     name: "Test",
     members: [
-      { userId: ownerUserId, role: "owner", colorPalette: null, delegatedByUserId: null },
-      { userId: memberUserId, role: "member", colorPalette: null, delegatedByUserId: null },
+      {
+        userId: ownerUserId,
+        role: "owner",
+        colorPalette: null,
+        delegatedByUserId: null,
+      },
+      {
+        userId: memberUserId,
+        role: "member",
+        colorPalette: null,
+        delegatedByUserId: null,
+      },
     ],
   });
 }

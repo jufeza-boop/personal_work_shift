@@ -12,7 +12,9 @@ export class UnsubscribeFromPush {
     private readonly pushSubscriptionRepository: IPushSubscriptionRepository,
   ) {}
 
-  async execute(input: UnsubscribeFromPushInput): Promise<UnsubscribeFromPushResult> {
+  async execute(
+    input: UnsubscribeFromPushInput,
+  ): Promise<UnsubscribeFromPushResult> {
     await this.pushSubscriptionRepository.remove(input.userId, input.endpoint);
 
     return { success: true };
