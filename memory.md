@@ -8,9 +8,9 @@
 
 ## Current State
 
-- **Phase**: Phase 11 Delegated Users (US-1.4) completed
+- **Phase**: Phase 12 Push Notifications (US-7.1) completed
 - **Last Updated**: 2026-04-16
-- **Tests**: 245 passing (1 pre-existing SubmitButton test failure unrelated to Phase 11)
+- **Tests**: 266 passing (1 pre-existing SubmitButton typecheck issue unrelated to Phase 12)
 
 ---
 
@@ -145,6 +145,42 @@
 
 ---
 
+### 2026-04-16 - Phase 12: Push Notifications (US-7.1)
+
+#### What was done
+
+- Added `IPushSubscriptionRepository` domain interface in `src/domain/repositories/IPushSubscriptionRepository.ts`
+- Added `IPushNotificationService` application interface in `src/application/services/IPushNotificationService.ts`
+- Added three use cases in `src/application/use-cases/push/`: `SubscribeToPush`, `UnsubscribeFromPush`, `SendEventNotification`
+- Added `SupabasePushSubscriptionRepository` in `src/infrastructure/push/`
+- Added `WebPushService` (wraps `web-push` npm package) in `src/infrastructure/push/`
+- Added `createServerPushDependencies()` runtime factory in `src/infrastructure/push/runtime.ts` — returns no-op implementations when VAPID keys are not configured
+- Updated `src/app/sw.ts` to handle `push` events (show notification) and `notificationclick` events (open app at relevant calendar date)
+- Added API routes: `POST /api/push/subscribe`, `POST /api/push/unsubscribe`, `GET /api/push/vapid-public-key`
+- Added `usePushNotifications` hook (client) for managing subscription state and permission flow
+- Added `NotificationOptIn` component — shown at top of calendar page; hidden when unsupported or permission denied
+- Integrated `notifyFamilyOnEventChange` helper into all three event server actions (create/edit/delete) — notifies family members via push after each successful operation
+- Supabase migration `20260416200000_phase_12_push_subscriptions.sql` adds `push_subscriptions` table with user_id, endpoint, keys, and RLS policies
+
+#### Decisions
+
+- VAPID keys stored as env vars: `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`
+- No-op service and repository are returned when VAPID keys are absent — app runs normally without push configured
+- Push notification failures are caught and logged; they never break event create/edit/delete flows
+- `findByUserIds` on push repository uses Supabase `.in()` query for batch lookup of family members' subscriptions
+
+#### Patterns
+
+- Service worker event handlers added after `serwist.addEventListeners()` in `sw.ts`
+- `NotificationOptIn` returns `null` when `isSupported=false` or `permission='denied'`
+- `urlBase64ToUint8Array` helper converts VAPID public key from base64url to Uint8Array for `pushManager.subscribe`
+
+#### Next steps
+
+- Phase 13: Security Hardening & Deployment
+
+---
+
 ## Active Patterns
 
 - Next.js App Router stays in `src/app`, while reusable UI lives in `src/presentation`
@@ -165,6 +201,8 @@
 
 ## Dependencies
 
+- `web-push@3.6.7` (server-side Web Push API)
+- `@types/web-push@3.6.4` (dev, TypeScript types)
 - `next@16.2.3`
 - `react@19.2.4`
 - `react-dom@19.2.4`
@@ -199,6 +237,7 @@
 ## Schema Changes
 
 - Added `users`, `families`, `family_members`, `events`, and `event_exceptions` tables in `supabase/migrations/20260410090623_phase_2_infrastructure.sql`
+- Added `push_subscriptions` table in `supabase/migrations/20260416200000_phase_12_push_subscriptions.sql`
 - Added enum types for family roles, event types, recurring categories, shift types, and recurrence frequency units
 - Added RLS policies, ownership helper functions, auth-to-profile sync trigger, and supporting indexes for family/event lookups
 
