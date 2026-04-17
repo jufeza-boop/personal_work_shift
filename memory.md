@@ -8,9 +8,9 @@
 
 ## Current State
 
-- **Phase**: Phase 13 Security Hardening & Deployment completed
+- **Phase**: Delegated User Management Refactoring completed
 - **Last Updated**: 2026-04-17
-- **Tests**: 284 passing
+- **Tests**: 317 passing
 
 ---
 
@@ -178,6 +178,48 @@
 #### Next steps
 
 - Phase 13: Security Hardening & Deployment
+
+---
+
+### 2026-04-17 - Delegated User Management Refactoring
+
+#### What was done
+
+- Moved delegated user CRUD out of family settings into a dedicated page at `/calendar/delegated-users`
+- Added "Usuarios delegados" link in `UserMenu` dropdown (accessible from user icon)
+- Created `DelegatedUserCard` component with confirmation dialog and success/error visual feedback for delete operations
+- Created `RemoveFamilyMember` use case — owner can remove members from family
+- Created `LeaveFamily` use case — non-owner can leave a family voluntarily
+- Created `AddDelegatedUserToFamily` use case — add existing delegated user to a family
+- Added `removeMember` method to `Family` domain entity with validation (cannot remove owner)
+- Created server actions: `removeFamilyMemberAction`, `leaveFamilyAction`, `addDelegatedUserToFamilyAction`
+- Updated `removeDelegatedUserAction` to return `FamilyFormState` with visual feedback instead of void
+- Created `AddDelegatedUserToFamilyForm` — selector for owners to add existing delegated users to family
+- Created `RemoveFamilyMemberButton` — inline confirm/cancel button for removing members from family
+- Created `LeaveFamilyForm` — confirmation form for non-owners to leave family
+- Updated `FamilyMemberList` to show remove buttons for non-owner members when current user is the owner
+- Updated family settings page: removed delegated user CRUD, added member management features
+- Updated E2E test for new delegated user navigation flow
+
+#### Decisions
+
+- Delegated users are managed globally (from user menu), not per-family. This is because a delegated user belongs to the parent user, not to a specific family
+- Adding a delegated user to a family is done from family settings, separate from creating the delegated user
+- `removeDelegatedUserAction` changed from void return to `FamilyFormAction` (breaking change for old callers, but `DelegatedUserList` was replaced)
+- Non-owners see a "Leave family" option instead of "Delete family"
+- All delete/remove operations use two-step confirmation (click → confirm/cancel)
+
+#### Patterns
+
+- `DelegatedUserCard` and `RemoveFamilyMemberButton` both follow a `showConfirm` state pattern with `useActionState` for form feedback
+- Family member list conditionally renders remove buttons based on `isOwner` prop
+- Delegated users page fetches user's delegated users globally (not per-family) using `userRepository.findDelegatedUsers(user.id)`
+- Available delegated users for family are filtered by checking which ones are not already members of the active family
+
+#### Next steps
+
+- Implement email invitation system for non-registered users (when email doesn't exist)
+- Non-delegated member removal could require email consent flow (noted for future)
 
 ---
 
