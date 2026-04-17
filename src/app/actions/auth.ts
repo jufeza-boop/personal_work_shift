@@ -38,8 +38,10 @@ export async function registerAction(
   const rateCheck = authRateLimiter.check(clientIp);
 
   if (!rateCheck.allowed) {
+    const retryMinutes = Math.ceil((rateCheck.retryAfterMs ?? 0) / 60_000);
+
     return {
-      message: "Demasiados intentos. Por favor, espera unos minutos.",
+      message: `Demasiados intentos. Por favor, espera ${retryMinutes} minuto${retryMinutes !== 1 ? "s" : ""}.`,
       success: false,
     };
   }
@@ -101,8 +103,10 @@ export async function loginAction(
   const rateCheck = authRateLimiter.check(clientIp);
 
   if (!rateCheck.allowed) {
+    const retryMinutes = Math.ceil((rateCheck.retryAfterMs ?? 0) / 60_000);
+
     return {
-      message: "Demasiados intentos. Por favor, espera unos minutos.",
+      message: `Demasiados intentos. Por favor, espera ${retryMinutes} minuto${retryMinutes !== 1 ? "s" : ""}.`,
       success: false,
     };
   }

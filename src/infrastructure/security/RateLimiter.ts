@@ -1,4 +1,5 @@
 interface RateLimiterOptions {
+  cleanupIntervalMs?: number;
   maxAttempts: number;
   windowMs: number;
 }
@@ -18,10 +19,23 @@ export class RateLimiter {
   private readonly maxAttempts: number;
   private readonly windowMs: number;
   private readonly entries = new Map<string, RateLimitEntry>();
+  private cleanupTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor(options: RateLimiterOptions) {
     this.maxAttempts = options.maxAttempts;
     this.windowMs = options.windowMs;
+
+    if (options.cleanupIntervalMs) {
+      this.cleanupTimer = setInterval(
+        () => this.cleanup(),
+        options.cleanupIntervalMs,
+      );
+
+      // Allow the Node.js process to exit even if the timer is still running
+      if (typeof this.cleanupTimer === "object" && "unref" in this.cleanupTimer) {
+        this.cleanupTimer.unref();
+      }
+    }
   }
 
   check(key: string): RateLimitResult {

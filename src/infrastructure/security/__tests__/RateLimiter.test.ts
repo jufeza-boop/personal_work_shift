@@ -56,6 +56,23 @@ describe("RateLimiter", () => {
     expect(limiter.check("stale-key").allowed).toBe(true);
   });
 
+  it("runs automatic cleanup when cleanupIntervalMs is set", () => {
+    const limiter = new RateLimiter({
+      cleanupIntervalMs: 200,
+      maxAttempts: 1,
+      windowMs: 100,
+    });
+
+    limiter.check("auto-key");
+    expect(limiter.check("auto-key").allowed).toBe(false);
+
+    // Advance past window + cleanup interval
+    vi.advanceTimersByTime(250);
+
+    // After automatic cleanup, the key should be gone
+    expect(limiter.check("auto-key").allowed).toBe(true);
+  });
+
   beforeEach(() => {
     vi.useFakeTimers();
   });

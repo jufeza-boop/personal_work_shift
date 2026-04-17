@@ -3,6 +3,10 @@ interface SecurityHeader {
   value: string;
 }
 
+// Content-Security-Policy directives.
+// 'unsafe-inline' and 'unsafe-eval' are required for Next.js runtime
+// (inline scripts, style-jsx, webpack hot reload in dev). For stricter CSP,
+// consider using nonce-based script loading with a custom Document.
 const cspDirectives = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
