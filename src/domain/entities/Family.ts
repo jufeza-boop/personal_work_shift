@@ -138,6 +138,22 @@ export class Family {
     };
   }
 
+  removeMember(userId: string): void {
+    const memberIndex = this.members.findIndex(
+      (member) => member.userId === userId,
+    );
+
+    if (memberIndex === -1) {
+      throw new ValidationError(`Member ${userId} is not part of this family`);
+    }
+
+    if (this.members[memberIndex]!.role === "owner") {
+      throw new ValidationError("Cannot remove the owner from the family");
+    }
+
+    this.members.splice(memberIndex, 1);
+  }
+
   isColorPaletteAvailable(colorPalette: ColorPalette): boolean {
     return !this.members.some(
       (member) =>
