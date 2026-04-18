@@ -380,15 +380,6 @@ export async function createDelegatedUserAction(
 ): Promise<FamilyFormState> {
   void previousState;
 
-  const familyId = formData.get("familyId")?.toString();
-
-  if (!familyId) {
-    return {
-      message: "No se encontró la familia activa.",
-      success: false,
-    };
-  }
-
   const parsed = createDelegatedUserSchema.safeParse({
     displayName: formData.get("displayName"),
   });
@@ -404,13 +395,10 @@ export async function createDelegatedUserAction(
     formData.get("redirectTo")?.toString(),
   );
   const user = await requireAuthenticatedUser(redirectTo);
-  const { familyRepository, userRepository } =
-    await createServerFamilyDependencies();
-  const useCase = new CreateDelegatedUser(userRepository, familyRepository);
+  const { userRepository } = await createServerFamilyDependencies();
+  const useCase = new CreateDelegatedUser(userRepository);
   const result = await useCase.execute({
-    colorPalette: formData.get("colorPalette")?.toString() || undefined,
     displayName: parsed.data.displayName,
-    familyId,
     parentId: user.id,
   });
 

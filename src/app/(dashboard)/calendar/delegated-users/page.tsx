@@ -1,8 +1,5 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ColorPalette } from "@/domain/value-objects/ColorPalette";
-import type { Family } from "@/domain/entities/Family";
-import type { PaletteOption } from "@/presentation/components/family/ColorPalettePicker";
 import {
   createDelegatedUserAction,
   removeDelegatedUserAction,
@@ -13,17 +10,6 @@ import { createServerFamilyDependencies } from "@/infrastructure/family/runtime"
 import { CreateDelegatedUserForm } from "@/presentation/components/family/CreateDelegatedUserForm";
 import { DelegatedUserCard } from "@/presentation/components/family/DelegatedUserCard";
 
-function buildPaletteOptions(family: Family | null): PaletteOption[] {
-  return ColorPalette.availablePalettes().map((paletteName) => {
-    const takenByOther =
-      family?.members.some(
-        (m) => m.colorPalette !== null && m.colorPalette.name === paletteName,
-      ) ?? false;
-
-    return { disabled: takenByOther, name: paletteName };
-  });
-}
-
 export default async function DelegatedUsersPage() {
   const user = await getAuthenticatedUser();
 
@@ -31,15 +17,8 @@ export default async function DelegatedUsersPage() {
     redirect("/login?redirectTo=%2Fcalendar%2Fdelegated-users");
   }
 
-  const { familyRepository, userRepository } =
-    await createServerFamilyDependencies();
-
+  const { userRepository } = await createServerFamilyDependencies();
   const delegatedUsers = await userRepository.findDelegatedUsers(user.id);
-  const families = await familyRepository.findByUserId(user.id);
-
-  // Find the first family where the user is a member (for creating delegated users)
-  const defaultFamily = families[0] ?? null;
-  const paletteOptions = buildPaletteOptions(defaultFamily);
 
   return (
     <section className="space-y-6">
@@ -89,32 +68,12 @@ export default async function DelegatedUsersPage() {
       ) : (
         <section className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm">
           <p className="text-sm leading-6 text-slate-600">
-            No tienes usuarios delegados. Crea uno a continuación.
+            No tienes usuarios delegados todavía.
           </p>
         </section>
       )}
 
-      {defaultFamily ? (
-        <CreateDelegatedUserForm
-          action={createDelegatedUserAction}
-          familyId={defaultFamily.id}
-          paletteOptions={paletteOptions}
-          redirectTo="/calendar/delegated-users"
-        />
-      ) : (
-        <section className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm">
-          <p className="text-sm leading-6 text-slate-600">
-            Necesitas crear una familia primero para poder añadir usuarios
-            delegados.
-          </p>
-          <Link
-            className="mt-2 inline-block text-sm font-medium text-amber-800 underline"
-            href="/calendar/family/new"
-          >
-            Crear familia
-          </Link>
-        </section>
-      )}
+      <CreateDelegatedUserForm action={createDelegatedUserAction} />
     </section>
   );
 }
