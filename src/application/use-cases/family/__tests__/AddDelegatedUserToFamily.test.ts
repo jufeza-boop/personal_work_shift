@@ -61,6 +61,46 @@ describe("AddDelegatedUserToFamily", () => {
     expect(savedFamily.hasMember("delegated-1")).toBe(true);
   });
 
+  it("adds a delegated user to the family with a color palette", async () => {
+    const familyRepository = createFamilyRepository();
+    const userRepository = createUserRepository();
+    const delegatedUser = new User({
+      delegatedByUserId: "owner-1",
+      displayName: "Junior",
+      email: "delegated-abc@pws.local",
+      id: "delegated-1",
+    });
+    const family = new Family({
+      createdBy: "owner-1",
+      id: "family-1",
+      name: "Home Team",
+    });
+
+    vi.mocked(userRepository.findById).mockResolvedValue(delegatedUser);
+    vi.mocked(familyRepository.findById).mockResolvedValue(family);
+
+    const useCase = new AddDelegatedUserToFamily(
+      userRepository,
+      familyRepository,
+    );
+    const result = await useCase.execute({
+      colorPalette: "rose",
+      delegatedUserId: "delegated-1",
+      familyId: "family-1",
+      requesterUserId: "owner-1",
+    });
+
+    expect(result).toEqual({ success: true });
+    expect(familyRepository.save).toHaveBeenCalledOnce();
+
+    const savedFamily = vi.mocked(familyRepository.save).mock
+      .calls[0]?.[0] as Family;
+    const member = savedFamily.members.find(
+      (m) => m.userId === "delegated-1",
+    );
+    expect(member?.colorPalette?.name).toBe("rose");
+  });
+
   it("returns USER_NOT_FOUND when the delegated user does not exist", async () => {
     const familyRepository = createFamilyRepository();
     const userRepository = createUserRepository();

@@ -1,10 +1,12 @@
 import type { IFamilyRepository } from "@/domain/repositories/IFamilyRepository";
 import type { IUserRepository } from "@/domain/repositories/IUserRepository";
+import { ColorPalette } from "@/domain/value-objects/ColorPalette";
 
 export interface AddDelegatedUserToFamilyInput {
   delegatedUserId: string;
   familyId: string;
   requesterUserId: string;
+  colorPalette?: string;
 }
 
 export type AddDelegatedUserToFamilyResult =
@@ -87,7 +89,12 @@ export class AddDelegatedUserToFamily {
       };
     }
 
+    const memberColorPalette = input.colorPalette
+      ? ColorPalette.create(input.colorPalette)
+      : undefined;
+
     family.addMember({
+      colorPalette: memberColorPalette,
       delegatedByUserId: input.requesterUserId,
       role: "delegated",
       userId: input.delegatedUserId,

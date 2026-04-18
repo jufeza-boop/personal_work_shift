@@ -66,6 +66,36 @@ describe("CreateDelegatedUser", () => {
     expect(delegatedMember?.role).toBe("delegated");
   });
 
+  it("creates a delegated user with a color palette", async () => {
+    const familyRepository = createFamilyRepository();
+    const userRepository = createUserRepository();
+    const family = new Family({
+      createdBy: "parent-1",
+      id: "family-1",
+      name: "Home Team",
+    });
+
+    vi.mocked(familyRepository.findById).mockResolvedValue(family);
+
+    const useCase = new CreateDelegatedUser(userRepository, familyRepository);
+    const result = await useCase.execute({
+      colorPalette: "sky",
+      displayName: "Junior",
+      familyId: "family-1",
+      parentId: "parent-1",
+    });
+
+    expect(result.success).toBe(true);
+    expect(familyRepository.save).toHaveBeenCalledOnce();
+
+    const savedFamily = vi.mocked(familyRepository.save).mock
+      .calls[0]?.[0] as Family;
+    const delegatedMember = savedFamily.members.find(
+      (m) => m.delegatedByUserId === "parent-1",
+    );
+    expect(delegatedMember?.colorPalette?.name).toBe("sky");
+  });
+
   it("returns INVALID_DISPLAY_NAME when display name is empty", async () => {
     const familyRepository = createFamilyRepository();
     const userRepository = createUserRepository();

@@ -3,11 +3,13 @@ import { User } from "@/domain/entities/User";
 import { ValidationError } from "@/domain/errors/DomainError";
 import type { IFamilyRepository } from "@/domain/repositories/IFamilyRepository";
 import type { IUserRepository } from "@/domain/repositories/IUserRepository";
+import { ColorPalette } from "@/domain/value-objects/ColorPalette";
 
 export interface CreateDelegatedUserInput {
   parentId: string;
   familyId: string;
   displayName: string;
+  colorPalette?: string;
 }
 
 export type CreateDelegatedUserResult =
@@ -84,7 +86,12 @@ export class CreateDelegatedUser {
 
       await this.userRepository.save(delegatedUser);
 
+      const memberColorPalette = input.colorPalette
+        ? ColorPalette.create(input.colorPalette)
+        : undefined;
+
       family.addMember({
+        colorPalette: memberColorPalette,
         delegatedByUserId: input.parentId,
         role: "delegated",
         userId: delegatedUserId,
