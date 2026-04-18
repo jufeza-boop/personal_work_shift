@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { CreateDelegatedUser } from "@/application/use-cases/family/CreateDelegatedUser";
 import { Family } from "@/domain/entities/Family";
+import { ColorPalette } from "@/domain/value-objects/ColorPalette";
 import type { IFamilyRepository } from "@/domain/repositories/IFamilyRepository";
 import type { IUserRepository } from "@/domain/repositories/IUserRepository";
 
@@ -94,6 +95,36 @@ describe("CreateDelegatedUser", () => {
       (m) => m.delegatedByUserId === "parent-1",
     );
     expect(delegatedMember?.colorPalette?.name).toBe("sky");
+  });
+
+  it("throws when color palette is already taken in the family", async () => {
+    const familyRepository = createFamilyRepository();
+    const userRepository = createUserRepository();
+    const family = new Family({
+      createdBy: "parent-1",
+      id: "family-1",
+      members: [
+        {
+          colorPalette: ColorPalette.create("sky"),
+          role: "member",
+          userId: "member-1",
+        },
+      ],
+      name: "Home Team",
+    });
+
+    vi.mocked(familyRepository.findById).mockResolvedValue(family);
+
+    const useCase = new CreateDelegatedUser(userRepository, familyRepository);
+
+    await expect(
+      useCase.execute({
+        colorPalette: "sky",
+        displayName: "Junior",
+        familyId: "family-1",
+        parentId: "parent-1",
+      }),
+    ).rejects.toThrow();
   });
 
   it("returns INVALID_DISPLAY_NAME when display name is empty", async () => {

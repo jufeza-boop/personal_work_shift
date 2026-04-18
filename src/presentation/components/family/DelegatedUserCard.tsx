@@ -33,6 +33,16 @@ export function DelegatedUserCard({
     EMPTY_FAMILY_FORM_STATE,
   );
 
+  // Sync editName when displayName prop changes (e.g. after successful rename)
+  const [prevDisplayName, setPrevDisplayName] = useState(displayName);
+  if (displayName !== prevDisplayName) {
+    setPrevDisplayName(displayName);
+    setEditName(displayName);
+    if (renameFormState.success) {
+      setIsEditing(false);
+    }
+  }
+
   const formState = isEditing ? renameFormState : removeFormState;
 
   return (

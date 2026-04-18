@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { AddDelegatedUserToFamily } from "@/application/use-cases/family/AddDelegatedUserToFamily";
 import { Family } from "@/domain/entities/Family";
 import { User } from "@/domain/entities/User";
+import { ColorPalette } from "@/domain/value-objects/ColorPalette";
 import type { IFamilyRepository } from "@/domain/repositories/IFamilyRepository";
 import type { IUserRepository } from "@/domain/repositories/IUserRepository";
 
@@ -97,6 +98,46 @@ describe("AddDelegatedUserToFamily", () => {
       .calls[0]?.[0] as Family;
     const member = savedFamily.members.find((m) => m.userId === "delegated-1");
     expect(member?.colorPalette?.name).toBe("rose");
+  });
+
+  it("throws when color palette is already taken in the family", async () => {
+    const familyRepository = createFamilyRepository();
+    const userRepository = createUserRepository();
+    const delegatedUser = new User({
+      delegatedByUserId: "owner-1",
+      displayName: "Junior",
+      email: "delegated-abc@pws.local",
+      id: "delegated-1",
+    });
+    const family = new Family({
+      createdBy: "owner-1",
+      id: "family-1",
+      members: [
+        {
+          colorPalette: ColorPalette.create("rose"),
+          role: "member",
+          userId: "member-1",
+        },
+      ],
+      name: "Home Team",
+    });
+
+    vi.mocked(userRepository.findById).mockResolvedValue(delegatedUser);
+    vi.mocked(familyRepository.findById).mockResolvedValue(family);
+
+    const useCase = new AddDelegatedUserToFamily(
+      userRepository,
+      familyRepository,
+    );
+
+    await expect(
+      useCase.execute({
+        colorPalette: "rose",
+        delegatedUserId: "delegated-1",
+        familyId: "family-1",
+        requesterUserId: "owner-1",
+      }),
+    ).rejects.toThrow();
   });
 
   it("returns USER_NOT_FOUND when the delegated user does not exist", async () => {
