@@ -35,8 +35,7 @@ describe("RenameDelegatedUser", () => {
     expect(result).toEqual({ success: true });
     expect(userRepository.save).toHaveBeenCalledOnce();
 
-    const savedUser = vi.mocked(userRepository.save).mock
-      .calls[0]?.[0] as User;
+    const savedUser = vi.mocked(userRepository.save).mock.calls[0]?.[0] as User;
     expect(savedUser.displayName).toBe("Junior Updated");
   });
 

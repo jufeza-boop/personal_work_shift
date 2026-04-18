@@ -32,9 +32,7 @@ describe("RemoveFamilyMemberButton", () => {
       />,
     );
 
-    await user.click(
-      screen.getByRole("button", { name: /eliminar a alice/i }),
-    );
+    await user.click(screen.getByRole("button", { name: /eliminar a alice/i }));
 
     expect(
       screen.getByRole("button", { name: /cancelar/i }),
@@ -56,9 +54,7 @@ describe("RemoveFamilyMemberButton", () => {
       />,
     );
 
-    await user.click(
-      screen.getByRole("button", { name: /eliminar a alice/i }),
-    );
+    await user.click(screen.getByRole("button", { name: /eliminar a alice/i }));
     await user.click(screen.getByRole("button", { name: /cancelar/i }));
 
     expect(

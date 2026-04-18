@@ -4,6 +4,7 @@ import type { PaletteOption } from "@/presentation/components/family/ColorPalett
 import {
   addDelegatedUserToFamilyAction,
   addFamilyMemberAction,
+  assignDelegatedMemberPaletteAction,
   deleteFamilyAction,
   leaveFamilyAction,
   removeFamilyMemberAction,
@@ -92,6 +93,7 @@ export default async function FamilySettingsPage() {
             action={addDelegatedUserToFamilyAction}
             availableDelegatedUsers={availableDelegatedUsers}
             familyId={activeFamily.id}
+            paletteOptions={paletteOptions}
           />
         </>
       ) : (
@@ -118,6 +120,10 @@ export default async function FamilySettingsPage() {
         memberDirectory={memberDirectory}
         isOwner={isOwner}
         removeMemberAction={isOwner ? removeFamilyMemberAction : undefined}
+        assignPaletteAction={
+          isOwner ? assignDelegatedMemberPaletteAction : undefined
+        }
+        paletteOptions={isOwner ? paletteOptions : undefined}
       />
 
       {isOwner ? (

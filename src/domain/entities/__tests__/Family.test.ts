@@ -158,9 +158,7 @@ describe("Family", () => {
         id: "family-1",
         name: "Home",
         createdBy: "owner-1",
-        members: [
-          { userId: "member-1", role: "member" },
-        ],
+        members: [{ userId: "member-1", role: "member" }],
       });
 
       family.removeMember("member-1");

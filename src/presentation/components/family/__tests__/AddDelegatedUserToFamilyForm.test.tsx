@@ -3,6 +3,11 @@ import { AddDelegatedUserToFamilyForm } from "@/presentation/components/family/A
 
 const mockAction = vi.fn().mockResolvedValue({ success: false });
 
+const defaultPaletteOptions = [
+  { disabled: false, name: "sky" as const },
+  { disabled: false, name: "rose" as const },
+];
+
 describe("AddDelegatedUserToFamilyForm", () => {
   it("renders nothing when no delegated users are available", () => {
     const { container } = render(
@@ -10,6 +15,7 @@ describe("AddDelegatedUserToFamilyForm", () => {
         action={mockAction}
         availableDelegatedUsers={[]}
         familyId="family-1"
+        paletteOptions={defaultPaletteOptions}
       />,
     );
 
@@ -25,6 +31,7 @@ describe("AddDelegatedUserToFamilyForm", () => {
           { displayName: "Sis", id: "delegated-2" },
         ]}
         familyId="family-1"
+        paletteOptions={defaultPaletteOptions}
       />,
     );
 

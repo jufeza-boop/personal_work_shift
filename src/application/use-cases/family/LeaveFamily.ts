@@ -35,8 +35,7 @@ export class LeaveFamily {
       return {
         error: {
           code: "OWNER_CANNOT_LEAVE",
-          message:
-            "The family owner cannot leave. Delete the family instead.",
+          message: "The family owner cannot leave. Delete the family instead.",
         },
         success: false,
       };

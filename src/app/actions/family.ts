@@ -11,6 +11,7 @@ import { DeleteFamily } from "@/application/use-cases/family/DeleteFamily";
 import { LeaveFamily } from "@/application/use-cases/family/LeaveFamily";
 import { RemoveDelegatedUser } from "@/application/use-cases/family/RemoveDelegatedUser";
 import { RemoveFamilyMember } from "@/application/use-cases/family/RemoveFamilyMember";
+import { RenameDelegatedUser } from "@/application/use-cases/family/RenameDelegatedUser";
 import { RenameFamily } from "@/application/use-cases/family/RenameFamily";
 import { SelectPalette } from "@/application/use-cases/family/SelectPalette";
 import { SwitchFamily } from "@/application/use-cases/family/SwitchFamily";
@@ -407,6 +408,7 @@ export async function createDelegatedUserAction(
     await createServerFamilyDependencies();
   const useCase = new CreateDelegatedUser(userRepository, familyRepository);
   const result = await useCase.execute({
+    colorPalette: formData.get("colorPalette")?.toString() || undefined,
     displayName: parsed.data.displayName,
     familyId,
     parentId: user.id,
@@ -612,6 +614,7 @@ export async function addDelegatedUserToFamilyAction(
   );
 
   const result = await useCase.execute({
+    colorPalette: formData.get("colorPalette")?.toString() || undefined,
     delegatedUserId,
     familyId,
     requesterUserId: user.id,
@@ -628,8 +631,147 @@ export async function addDelegatedUserToFamilyAction(
 
     return {
       message:
-        messages[result.error.code] ??
-        "No se pudo añadir al usuario delegado.",
+        messages[result.error.code] ?? "No se pudo añadir al usuario delegado.",
+      success: false,
+    };
+  }
+
+  revalidatePath("/calendar");
+  revalidatePath("/calendar/settings");
+  redirect(redirectTo);
+}
+
+export async function renameDelegatedUserAction(
+  previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  formData: FormData,
+): Promise<FamilyFormState> {
+  void previousState;
+
+  const delegatedUserId = formData.get("delegatedUserId")?.toString();
+  const redirectTo = sanitizeRedirectPath(
+    formData.get("redirectTo")?.toString(),
+  );
+
+  if (!delegatedUserId) {
+    return {
+      message: "No se encontró el usuario delegado.",
+      success: false,
+    };
+  }
+
+  const parsed = createDelegatedUserSchema.safeParse({
+    displayName: formData.get("displayName"),
+  });
+
+  if (!parsed.success) {
+    return {
+      errors: toFieldErrors(parsed.error.flatten().fieldErrors),
+      success: false,
+    };
+  }
+
+  const user = await requireAuthenticatedUser(redirectTo);
+  const { userRepository } = await createServerFamilyDependencies();
+  const useCase = new RenameDelegatedUser(userRepository);
+
+  const result = await useCase.execute({
+    delegatedUserId,
+    displayName: parsed.data.displayName,
+    parentId: user.id,
+  });
+
+  if (!result.success) {
+    const messages: Record<string, string> = {
+      FORBIDDEN: "No tienes permiso para editar este usuario delegado.",
+      INVALID_DISPLAY_NAME: "El nombre no es válido.",
+      NOT_DELEGATED: "El usuario no es un usuario delegado.",
+      USER_NOT_FOUND: "El usuario delegado no se encontró.",
+    };
+
+    return {
+      message: messages[result.error.code] ?? "No se pudo renombrar.",
+      success: false,
+    };
+  }
+
+  revalidatePath("/calendar");
+  revalidatePath("/calendar/settings");
+  revalidatePath("/calendar/delegated-users");
+
+  return {
+    message: "Nombre actualizado correctamente.",
+    success: true,
+  };
+}
+
+export async function assignDelegatedMemberPaletteAction(
+  previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  formData: FormData,
+): Promise<FamilyFormState> {
+  void previousState;
+
+  const familyId = formData.get("familyId")?.toString();
+  const targetUserId = formData.get("targetUserId")?.toString();
+
+  if (!familyId || !targetUserId) {
+    return {
+      message: "Faltan datos para asignar la paleta.",
+      success: false,
+    };
+  }
+
+  const parsed = selectPaletteSchema.safeParse({
+    colorPalette: formData.get("colorPalette"),
+  });
+
+  if (!parsed.success) {
+    return {
+      errors: {
+        colorPalette: parsed.error.flatten().fieldErrors.colorPalette?.[0],
+      },
+      success: false,
+    };
+  }
+
+  const redirectTo = sanitizeRedirectPath(
+    formData.get("redirectTo")?.toString(),
+  );
+  const user = await requireAuthenticatedUser(redirectTo);
+  const { familyRepository, userRepository } =
+    await createServerFamilyDependencies();
+
+  const targetUser = await userRepository.findById(targetUserId);
+
+  if (
+    !targetUser ||
+    !targetUser.isDelegated() ||
+    targetUser.delegatedByUserId !== user.id
+  ) {
+    return {
+      message: "No tienes permiso para asignar paleta a este usuario.",
+      success: false,
+    };
+  }
+
+  const useCase = new SelectPalette(familyRepository);
+  const result = await useCase.execute({
+    colorPalette: parsed.data.colorPalette,
+    familyId,
+    userId: targetUserId,
+  });
+
+  if (!result.success) {
+    if (result.error.code === "COLOR_PALETTE_ALREADY_TAKEN") {
+      return {
+        errors: {
+          colorPalette: "La paleta elegida ya está ocupada en esta familia.",
+        },
+        success: false,
+      };
+    }
+
+    return {
+      message: "No se pudo asignar la paleta de color.",
       success: false,
     };
   }

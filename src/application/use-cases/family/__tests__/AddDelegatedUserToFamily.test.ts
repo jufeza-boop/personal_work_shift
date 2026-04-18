@@ -95,9 +95,7 @@ describe("AddDelegatedUserToFamily", () => {
 
     const savedFamily = vi.mocked(familyRepository.save).mock
       .calls[0]?.[0] as Family;
-    const member = savedFamily.members.find(
-      (m) => m.userId === "delegated-1",
-    );
+    const member = savedFamily.members.find((m) => m.userId === "delegated-1");
     expect(member?.colorPalette?.name).toBe("rose");
   });
 

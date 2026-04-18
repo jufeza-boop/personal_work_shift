@@ -8,9 +8,9 @@
 
 ## Current State
 
-- **Phase**: Delegated User Management Refactoring completed
-- **Last Updated**: 2026-04-17
-- **Tests**: 317 passing
+- **Phase**: Delegated User Management Bug Fixes completed
+- **Last Updated**: 2026-04-18
+- **Tests**: 326 passing
 
 ---
 
@@ -220,6 +220,35 @@
 
 - Implement email invitation system for non-registered users (when email doesn't exist)
 - Non-delegated member removal could require email consent flow (noted for future)
+
+---
+
+### 2026-04-18 - Delegated User Bug Fixes
+
+#### What was done
+
+- Fixed "Abandonar familia" — added RLS policy `family_members_delete_self` allowing non-owners to delete their own membership row
+- Fixed "Eliminar usuario delegado" — added RLS policy `family_members_delete_delegated_parent` allowing parents to delete delegated children's membership rows from any family
+- Fixed "Editar usuario delegado" — created `RenameDelegatedUser` use case, `renameDelegatedUserAction` server action, and inline edit UI in `DelegatedUserCard`
+- Fixed "Añadir delegado a varias familias" — added missing `redirectTo` hidden input to `AddDelegatedUserToFamilyForm`
+- Fixed "Delegados sin paleta" — added optional `colorPalette` to `CreateDelegatedUser` and `AddDelegatedUserToFamily` use cases, palette picker to both forms, and `AssignDelegatedMemberPaletteForm` in the family member list for owner to assign palettes to delegated members
+
+#### Decisions
+
+- RLS policies are additive (new policies alongside existing ones) so existing owner-level operations continue working
+- `RenameDelegatedUser` creates a new `User` instance with updated name since `User` entity has readonly properties
+- Palette assignment for delegated members uses existing `SelectPalette` use case via a new `assignDelegatedMemberPaletteAction` that verifies the target is a delegated user owned by the requester
+
+#### Patterns
+
+- `DelegatedUserCard` now has both `removeAction` and `renameAction` props, with inline edit form toggled via `isEditing` state
+- `FamilyMemberList` accepts optional `assignPaletteAction` and `paletteOptions` to show palette assignment for delegated members
+- `CreateDelegatedUserForm` accepts optional `paletteOptions` prop; `AddDelegatedUserToFamilyForm` requires `paletteOptions`
+
+#### Next steps
+
+- Implement email invitation system for non-registered users
+- Consider adding palette assignment for non-delegated members
 
 ---
 

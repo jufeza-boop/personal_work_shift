@@ -1,6 +1,11 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import type { ColorPaletteName } from "@/domain/value-objects/ColorPalette";
+import {
+  ColorPalettePicker,
+  type PaletteOption,
+} from "@/presentation/components/family/ColorPalettePicker";
 import { SubmitButton } from "@/presentation/components/ui/SubmitButton";
 import {
   EMPTY_FAMILY_FORM_STATE,
@@ -16,14 +21,21 @@ interface AddDelegatedUserToFamilyFormProps {
   action: FamilyFormAction;
   availableDelegatedUsers: DelegatedUserOption[];
   familyId: string;
+  paletteOptions: PaletteOption[];
+  redirectTo?: string;
 }
 
 export function AddDelegatedUserToFamilyForm({
   action,
   availableDelegatedUsers,
   familyId,
+  paletteOptions,
+  redirectTo = "/calendar/settings",
 }: AddDelegatedUserToFamilyFormProps) {
   const [selectedUser, setSelectedUser] = useState("");
+  const [selectedPalette, setSelectedPalette] = useState<
+    ColorPaletteName | undefined
+  >(undefined);
   const [formState, formAction] = useActionState(
     action,
     EMPTY_FAMILY_FORM_STATE,
@@ -45,6 +57,7 @@ export function AddDelegatedUserToFamilyForm({
 
       <form action={formAction} className="mt-4 space-y-4">
         <input name="familyId" type="hidden" value={familyId} />
+        <input name="redirectTo" type="hidden" value={redirectTo} />
 
         <div className="space-y-1">
           <label
@@ -69,6 +82,18 @@ export function AddDelegatedUserToFamilyForm({
           </select>
         </div>
 
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-slate-800">
+            Paleta de color (opcional)
+          </p>
+          <ColorPalettePicker
+            name="colorPalette"
+            paletteOptions={paletteOptions}
+            value={selectedPalette}
+            onChange={setSelectedPalette}
+          />
+        </div>
+
         {formState.message ? (
           <p
             className={`rounded-xl px-4 py-3 text-sm ${
@@ -81,10 +106,7 @@ export function AddDelegatedUserToFamilyForm({
           </p>
         ) : null}
 
-        <SubmitButton
-          label="Añadir a la familia"
-          pendingLabel="Añadiendo..."
-        />
+        <SubmitButton label="Añadir a la familia" pendingLabel="Añadiendo..." />
       </form>
     </section>
   );

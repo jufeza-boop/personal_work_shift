@@ -1,13 +1,28 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { ColorPalette } from "@/domain/value-objects/ColorPalette";
+import type { Family } from "@/domain/entities/Family";
+import type { PaletteOption } from "@/presentation/components/family/ColorPalettePicker";
 import {
   createDelegatedUserAction,
   removeDelegatedUserAction,
+  renameDelegatedUserAction,
 } from "@/app/actions/family";
 import { getAuthenticatedUser } from "@/infrastructure/auth/runtime";
 import { createServerFamilyDependencies } from "@/infrastructure/family/runtime";
 import { CreateDelegatedUserForm } from "@/presentation/components/family/CreateDelegatedUserForm";
 import { DelegatedUserCard } from "@/presentation/components/family/DelegatedUserCard";
+
+function buildPaletteOptions(family: Family | null): PaletteOption[] {
+  return ColorPalette.availablePalettes().map((paletteName) => {
+    const takenByOther =
+      family?.members.some(
+        (m) => m.colorPalette !== null && m.colorPalette.name === paletteName,
+      ) ?? false;
+
+    return { disabled: takenByOther, name: paletteName };
+  });
+}
 
 export default async function DelegatedUsersPage() {
   const user = await getAuthenticatedUser();
@@ -23,7 +38,8 @@ export default async function DelegatedUsersPage() {
   const families = await familyRepository.findByUserId(user.id);
 
   // Find the first family where the user is a member (for creating delegated users)
-  const defaultFamily = families[0];
+  const defaultFamily = families[0] ?? null;
+  const paletteOptions = buildPaletteOptions(defaultFamily);
 
   return (
     <section className="space-y-6">
@@ -34,8 +50,8 @@ export default async function DelegatedUsersPage() {
               Usuarios delegados
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-              Gestiona los usuarios que dependen de ti. Puedes crear y eliminar
-              sus eventos en su nombre.
+              Gestiona los usuarios que dependen de ti. Puedes crear, editar y
+              eliminar sus eventos en su nombre.
             </p>
           </div>
           <Link
@@ -65,6 +81,7 @@ export default async function DelegatedUsersPage() {
                 displayName={delegatedUser.displayName}
                 key={delegatedUser.id}
                 removeAction={removeDelegatedUserAction}
+                renameAction={renameDelegatedUserAction}
               />
             ))}
           </ul>
@@ -81,6 +98,7 @@ export default async function DelegatedUsersPage() {
         <CreateDelegatedUserForm
           action={createDelegatedUserAction}
           familyId={defaultFamily.id}
+          paletteOptions={paletteOptions}
           redirectTo="/calendar/delegated-users"
         />
       ) : (

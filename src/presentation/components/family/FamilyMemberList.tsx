@@ -4,6 +4,8 @@ import {
   getPaletteTones,
   SHIFT_TONE_ORDER,
 } from "@/presentation/utils/paletteUtils";
+import { AssignDelegatedMemberPaletteForm } from "@/presentation/components/family/AssignDelegatedMemberPaletteForm";
+import type { PaletteOption } from "@/presentation/components/family/ColorPalettePicker";
 import { RemoveFamilyMemberButton } from "@/presentation/components/family/RemoveFamilyMemberButton";
 import type { FamilyFormAction } from "@/presentation/components/family/types";
 
@@ -12,6 +14,8 @@ interface FamilyMemberListProps {
   memberDirectory: Map<string, string>;
   isOwner?: boolean;
   removeMemberAction?: FamilyFormAction;
+  assignPaletteAction?: FamilyFormAction;
+  paletteOptions?: PaletteOption[];
 }
 
 const ROLE_LABELS = {
@@ -25,6 +29,8 @@ export function FamilyMemberList({
   memberDirectory,
   isOwner = false,
   removeMemberAction,
+  assignPaletteAction,
+  paletteOptions,
 }: FamilyMemberListProps) {
   return (
     <section className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm">
@@ -47,9 +53,12 @@ export function FamilyMemberList({
             | undefined;
           const tones = paletteName ? getPaletteTones(paletteName) : null;
           const canRemove =
+            isOwner && removeMemberAction && member.role !== "owner";
+          const canAssignPalette =
             isOwner &&
-            removeMemberAction &&
-            member.role !== "owner";
+            assignPaletteAction &&
+            paletteOptions &&
+            member.role === "delegated";
 
           return (
             <li
@@ -99,6 +108,19 @@ export function FamilyMemberList({
                   ) : null}
                 </div>
               </div>
+
+              {canAssignPalette ? (
+                <AssignDelegatedMemberPaletteForm
+                  action={assignPaletteAction}
+                  familyId={family.id}
+                  targetUserId={member.userId}
+                  memberName={
+                    memberDirectory.get(member.userId) ?? member.userId
+                  }
+                  currentPalette={paletteName}
+                  paletteOptions={paletteOptions}
+                />
+              ) : null}
             </li>
           );
         })}

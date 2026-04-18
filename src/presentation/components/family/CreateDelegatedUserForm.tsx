@@ -1,6 +1,11 @@
 "use client";
 
-import { useActionState, useId } from "react";
+import { useActionState, useId, useState } from "react";
+import type { ColorPaletteName } from "@/domain/value-objects/ColorPalette";
+import {
+  ColorPalettePicker,
+  type PaletteOption,
+} from "@/presentation/components/family/ColorPalettePicker";
 import { SubmitButton } from "@/presentation/components/ui/SubmitButton";
 import {
   EMPTY_FAMILY_FORM_STATE,
@@ -10,15 +15,20 @@ import {
 interface CreateDelegatedUserFormProps {
   action: FamilyFormAction;
   familyId: string;
+  paletteOptions?: PaletteOption[];
   redirectTo?: string;
 }
 
 export function CreateDelegatedUserForm({
   action,
   familyId,
+  paletteOptions,
   redirectTo = "/calendar/settings",
 }: CreateDelegatedUserFormProps) {
   const displayNameId = useId();
+  const [selectedPalette, setSelectedPalette] = useState<
+    ColorPaletteName | undefined
+  >(undefined);
   const [formState, formAction] = useActionState(
     action,
     EMPTY_FAMILY_FORM_STATE,
@@ -58,6 +68,20 @@ export function CreateDelegatedUserForm({
             </p>
           ) : null}
         </div>
+
+        {paletteOptions ? (
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-slate-800">
+              Paleta de color (opcional)
+            </p>
+            <ColorPalettePicker
+              name="colorPalette"
+              paletteOptions={paletteOptions}
+              value={selectedPalette}
+              onChange={setSelectedPalette}
+            />
+          </div>
+        ) : null}
 
         {formState.message ? (
           <p className="rounded-xl bg-stone-100 px-4 py-3 text-sm text-slate-700">
