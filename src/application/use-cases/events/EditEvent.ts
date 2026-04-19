@@ -31,6 +31,7 @@ export type EditEventInput =
       occurrenceDate: Date;
       title?: string;
       description?: string | null;
+      newDate?: Date;
       startTime?: string | null;
       endTime?: string | null;
     };
@@ -154,6 +155,8 @@ export class EditEvent {
       if (input.startTime !== undefined)
         overrideData.startTime = input.startTime;
       if (input.endTime !== undefined) overrideData.endTime = input.endTime;
+      if (input.newDate !== undefined)
+        overrideData.newDate = input.newDate.toISOString().slice(0, 10);
 
       const exception = new EventException({
         id: randomUUID(),

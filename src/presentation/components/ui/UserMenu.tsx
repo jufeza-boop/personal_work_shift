@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { LogOut, User } from "lucide-react";
+import Link from "next/link";
+import { LogOut, User, Users } from "lucide-react";
 
 interface UserMenuProps {
   email: string;
@@ -38,6 +39,14 @@ export function UserMenu({ email, logoutAction }: UserMenuProps) {
           <p className="truncate text-sm text-slate-700">{email}</p>
         </div>
         <div className="p-1">
+          <Link
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-slate-700 transition-colors hover:bg-stone-50 hover:text-slate-900"
+            href="/calendar/delegated-users"
+            onClick={() => setOpen(false)}
+          >
+            <Users className="h-4 w-4 text-slate-400" />
+            Usuarios delegados
+          </Link>
           <form action={logoutAction}>
             <button
               className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-slate-700 transition-colors hover:bg-stone-50 hover:text-slate-900"

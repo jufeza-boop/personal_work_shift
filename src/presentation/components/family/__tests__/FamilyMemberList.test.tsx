@@ -50,4 +50,58 @@ describe("FamilyMemberList", () => {
 
     expect(screen.getByText("Sin paleta")).toBeInTheDocument();
   });
+
+  it("does not show remove buttons when isOwner is false", () => {
+    const family = new Family({
+      createdBy: "owner-1",
+      id: "family-1",
+      members: [{ userId: "member-1", role: "member" }],
+      name: "Home Team",
+    });
+
+    const memberDirectory = new Map([
+      ["owner-1", "Alice"],
+      ["member-1", "Bob"],
+    ]);
+
+    render(
+      <FamilyMemberList family={family} memberDirectory={memberDirectory} />,
+    );
+
+    expect(
+      screen.queryByRole("button", { name: /quitar/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows remove buttons for non-owner members when isOwner is true", () => {
+    const mockAction = vi.fn().mockResolvedValue({ success: false });
+    const family = new Family({
+      createdBy: "owner-1",
+      id: "family-1",
+      members: [{ userId: "member-1", role: "member" }],
+      name: "Home Team",
+    });
+
+    const memberDirectory = new Map([
+      ["owner-1", "Alice"],
+      ["member-1", "Bob"],
+    ]);
+
+    render(
+      <FamilyMemberList
+        family={family}
+        memberDirectory={memberDirectory}
+        isOwner
+        removeMemberAction={mockAction}
+      />,
+    );
+
+    // Should have a remove button for Bob but not for Alice (owner)
+    expect(
+      screen.getByRole("button", { name: /eliminar a bob/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /eliminar a alice/i }),
+    ).not.toBeInTheDocument();
+  });
 });

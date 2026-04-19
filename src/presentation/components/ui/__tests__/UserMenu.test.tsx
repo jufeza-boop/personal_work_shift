@@ -13,12 +13,13 @@ describe("UserMenu", () => {
     expect(screen.getByLabelText("Menú de usuario")).toHaveTextContent("T");
   });
 
-  it("renders email and logout button in the dropdown", () => {
+  it("renders email, delegated users link, and logout button in the dropdown", () => {
     render(
       <UserMenu email="alice@example.com" logoutAction={mockLogoutAction} />,
     );
 
     expect(screen.getByText("alice@example.com")).toBeInTheDocument();
+    expect(screen.getByText("Usuarios delegados")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /cerrar sesión/i }),
     ).toBeInTheDocument();
@@ -48,5 +49,17 @@ describe("UserMenu", () => {
     // Pressing Escape should close
     fireEvent.keyDown(details, { key: "Escape" });
     expect(details).not.toHaveAttribute("open");
+  });
+
+  it("has a link to the delegated users page", () => {
+    render(
+      <UserMenu email="alice@example.com" logoutAction={mockLogoutAction} />,
+    );
+
+    const link = screen.getByText("Usuarios delegados");
+    expect(link.closest("a")).toHaveAttribute(
+      "href",
+      "/calendar/delegated-users",
+    );
   });
 });

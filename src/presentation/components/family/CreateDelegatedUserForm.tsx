@@ -9,14 +9,12 @@ import {
 
 interface CreateDelegatedUserFormProps {
   action: FamilyFormAction;
-  familyId: string;
   redirectTo?: string;
 }
 
 export function CreateDelegatedUserForm({
   action,
-  familyId,
-  redirectTo = "/calendar/settings",
+  redirectTo = "/calendar/delegated-users",
 }: CreateDelegatedUserFormProps) {
   const displayNameId = useId();
   const [formState, formAction] = useActionState(
@@ -35,7 +33,6 @@ export function CreateDelegatedUserForm({
       </p>
 
       <form action={formAction} className="mt-6 space-y-4">
-        <input name="familyId" type="hidden" value={familyId} />
         <input name="redirectTo" type="hidden" value={redirectTo} />
 
         <div className="space-y-1">

@@ -23,12 +23,14 @@ begin
 end;
 $$;
 
+drop trigger if exists on_auth_user_deleted on auth.users;
 create trigger on_auth_user_deleted
 after delete on auth.users
 for each row
 execute function public.handle_auth_user_deleted();
 
 -- 3. Allow a parent to read their own delegated users
+drop policy if exists users_select_delegated on public.users;
 create policy users_select_delegated
 on public.users
 for select
@@ -36,6 +38,7 @@ to authenticated
 using (delegated_by_user_id = (select auth.uid()));
 
 -- 4. Allow a parent to insert delegated user rows
+drop policy if exists users_insert_delegated on public.users;
 create policy users_insert_delegated
 on public.users
 for insert
@@ -45,6 +48,7 @@ with check (
 );
 
 -- 5. Allow a parent to update their delegated users
+drop policy if exists users_update_delegated on public.users;
 create policy users_update_delegated
 on public.users
 for update
@@ -53,6 +57,7 @@ using (delegated_by_user_id = (select auth.uid()))
 with check (delegated_by_user_id = (select auth.uid()));
 
 -- 6. Allow a parent to delete their delegated users
+drop policy if exists users_delete_delegated on public.users;
 create policy users_delete_delegated
 on public.users
 for delete

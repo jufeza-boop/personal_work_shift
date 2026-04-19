@@ -151,4 +151,44 @@ describe("Family", () => {
       ).toThrow("Member stranger is not part of this family");
     });
   });
+
+  describe("removeMember", () => {
+    it("removes an existing member from the family", () => {
+      const family = new Family({
+        id: "family-1",
+        name: "Home",
+        createdBy: "owner-1",
+        members: [{ userId: "member-1", role: "member" }],
+      });
+
+      family.removeMember("member-1");
+
+      expect(family.hasMember("member-1")).toBe(false);
+      expect(family.members).toHaveLength(1); // only owner remains
+    });
+
+    it("throws when removing the owner", () => {
+      const family = new Family({
+        id: "family-1",
+        name: "Home",
+        createdBy: "owner-1",
+      });
+
+      expect(() => family.removeMember("owner-1")).toThrow(
+        "Cannot remove the owner from the family",
+      );
+    });
+
+    it("throws when the user is not a member", () => {
+      const family = new Family({
+        id: "family-1",
+        name: "Home",
+        createdBy: "owner-1",
+      });
+
+      expect(() => family.removeMember("stranger")).toThrow(
+        "Member stranger is not part of this family",
+      );
+    });
+  });
 });

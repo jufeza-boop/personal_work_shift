@@ -130,8 +130,8 @@ test("creates a delegated user and creates an event on their behalf", async ({
     "Delegate Team",
   );
 
-  // Go to settings and create a delegated user
-  await page.goto("/calendar/settings");
+  // Go to the dedicated delegated users page and create a delegated user
+  await page.goto("/calendar/delegated-users");
   await page.getByLabel("Nombre").fill("Junior");
   await page.getByRole("button", { name: "Crear usuario delegado" }).click();
 
@@ -154,9 +154,14 @@ test("creates a delegated user and creates an event on their behalf", async ({
   // The event should appear in the calendar
   await expect(page.getByText("Junior event")).toBeVisible();
 
-  // Navigate back to settings to remove the delegated user
-  await page.goto("/calendar/settings");
-  await page.getByRole("button", { name: "Eliminar" }).first().click();
+  // Navigate to the delegated users page to remove the delegated user
+  await page.goto("/calendar/delegated-users");
+  await page
+    .getByRole("button", { name: /eliminar/i })
+    .first()
+    .click();
+  // Confirm deletion
+  await page.getByRole("button", { name: /confirmar/i }).click();
 
   // Junior should no longer be listed
   await expect(page.getByText("Junior")).not.toBeVisible();

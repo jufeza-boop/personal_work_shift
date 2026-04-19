@@ -1,10 +1,29 @@
-create type public.family_member_role as enum ('owner', 'member', 'delegated');
-create type public.event_type as enum ('punctual', 'recurring');
-create type public.recurring_event_category as enum ('work', 'studies', 'other');
-create type public.shift_type as enum ('morning', 'day', 'afternoon', 'night');
-create type public.event_frequency_unit as enum ('daily', 'weekly', 'annual');
+do $$ begin
+  create type public.family_member_role as enum ('owner', 'member', 'delegated');
+exception when duplicate_object then null;
+end $$;
 
-create table public.users (
+do $$ begin
+  create type public.event_type as enum ('punctual', 'recurring');
+exception when duplicate_object then null;
+end $$;
+
+do $$ begin
+  create type public.recurring_event_category as enum ('work', 'studies', 'other');
+exception when duplicate_object then null;
+end $$;
+
+do $$ begin
+  create type public.shift_type as enum ('morning', 'day', 'afternoon', 'night');
+exception when duplicate_object then null;
+end $$;
+
+do $$ begin
+  create type public.event_frequency_unit as enum ('daily', 'weekly', 'annual');
+exception when duplicate_object then null;
+end $$;
+
+create table if not exists public.users (
   id uuid primary key references auth.users (id) on delete cascade,
   email text not null unique,
   display_name text not null,
@@ -17,7 +36,7 @@ create table public.users (
   constraint users_display_name_not_blank check (char_length(trim(display_name)) > 0)
 );
 
-create table public.families (
+create table if not exists public.families (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   created_by uuid not null references public.users (id) on delete cascade,
@@ -26,7 +45,7 @@ create table public.families (
   constraint families_name_length check (char_length(trim(name)) between 1 and 100)
 );
 
-create table public.family_members (
+create table if not exists public.family_members (
   id uuid primary key default gen_random_uuid(),
   family_id uuid not null references public.families (id) on delete cascade,
   user_id uuid not null references public.users (id) on delete cascade,
@@ -50,7 +69,7 @@ create table public.family_members (
   )
 );
 
-create table public.events (
+create table if not exists public.events (
   id uuid primary key default gen_random_uuid(),
   family_id uuid not null references public.families (id) on delete cascade,
   created_by uuid not null references public.users (id) on delete cascade,
@@ -103,7 +122,7 @@ create table public.events (
   )
 );
 
-create table public.event_exceptions (
+create table if not exists public.event_exceptions (
   id uuid primary key default gen_random_uuid(),
   event_id uuid not null references public.events (id) on delete cascade,
   exception_date date not null,
@@ -119,19 +138,19 @@ create table public.event_exceptions (
 comment on column public.event_exceptions.override_data is
   'Per-occurrence field overrides stored as a JSON object when a recurring event instance changes without being deleted.';
 
-create index users_delegated_by_user_id_idx on public.users (delegated_by_user_id);
-create index families_created_by_idx on public.families (created_by);
-create index family_members_family_id_idx on public.family_members (family_id);
-create index family_members_user_id_idx on public.family_members (user_id);
-create index family_members_delegated_by_user_id_idx on public.family_members (delegated_by_user_id);
-create index events_family_id_created_at_idx on public.events (family_id, created_at desc);
-create index events_created_by_idx on public.events (created_by);
-create index events_parent_event_id_idx on public.events (parent_event_id);
-create index events_punctual_lookup_idx on public.events (family_id, event_date)
+create index if not exists users_delegated_by_user_id_idx on public.users (delegated_by_user_id);
+create index if not exists families_created_by_idx on public.families (created_by);
+create index if not exists family_members_family_id_idx on public.family_members (family_id);
+create index if not exists family_members_user_id_idx on public.family_members (user_id);
+create index if not exists family_members_delegated_by_user_id_idx on public.family_members (delegated_by_user_id);
+create index if not exists events_family_id_created_at_idx on public.events (family_id, created_at desc);
+create index if not exists events_created_by_idx on public.events (created_by);
+create index if not exists events_parent_event_id_idx on public.events (parent_event_id);
+create index if not exists events_punctual_lookup_idx on public.events (family_id, event_date)
 where event_type = 'punctual';
-create index events_recurring_lookup_idx on public.events (family_id, start_date, end_date)
+create index if not exists events_recurring_lookup_idx on public.events (family_id, start_date, end_date)
 where event_type = 'recurring';
-create index event_exceptions_event_id_idx on public.event_exceptions (event_id);
+create index if not exists event_exceptions_event_id_idx on public.event_exceptions (event_id);
 
 create or replace function public.set_updated_at()
 returns trigger
@@ -155,9 +174,6 @@ declare
   normalized_avatar_url text;
   delegated_by_value uuid;
 begin
-  -- The trigger normalizes auth.users payloads before syncing into public.users,
-  -- while the lowercase table constraint still protects direct public.users
-  -- writes that do not flow through this trigger.
   normalized_email := lower(trim(new.email));
   normalized_display_name := coalesce(
     nullif(trim(coalesce(new.raw_user_meta_data ->> 'display_name', '')), ''),
@@ -288,21 +304,25 @@ as $$
   );
 $$;
 
+drop trigger if exists users_set_updated_at on public.users;
 create trigger users_set_updated_at
 before update on public.users
 for each row
 execute function public.set_updated_at();
 
+drop trigger if exists families_set_updated_at on public.families;
 create trigger families_set_updated_at
 before update on public.families
 for each row
 execute function public.set_updated_at();
 
+drop trigger if exists events_set_updated_at on public.events;
 create trigger events_set_updated_at
 before update on public.events
 for each row
 execute function public.set_updated_at();
 
+drop trigger if exists on_auth_user_changed on auth.users;
 create trigger on_auth_user_changed
 after insert or update of email, raw_user_meta_data on auth.users
 for each row
@@ -319,18 +339,21 @@ alter table public.events force row level security;
 alter table public.event_exceptions enable row level security;
 alter table public.event_exceptions force row level security;
 
+drop policy if exists users_select_own on public.users;
 create policy users_select_own
 on public.users
 for select
 to authenticated
 using ((select auth.uid()) = id);
 
+drop policy if exists users_insert_own on public.users;
 create policy users_insert_own
 on public.users
 for insert
 to authenticated
 with check ((select auth.uid()) = id);
 
+drop policy if exists users_update_own on public.users;
 create policy users_update_own
 on public.users
 for update
@@ -338,18 +361,21 @@ to authenticated
 using ((select auth.uid()) = id)
 with check ((select auth.uid()) = id);
 
+drop policy if exists families_select_member on public.families;
 create policy families_select_member
 on public.families
 for select
 to authenticated
 using ((select public.is_family_member(id)));
 
+drop policy if exists families_insert_creator on public.families;
 create policy families_insert_creator
 on public.families
 for insert
 to authenticated
 with check ((select auth.uid()) = created_by);
 
+drop policy if exists families_update_owner on public.families;
 create policy families_update_owner
 on public.families
 for update
@@ -357,18 +383,21 @@ to authenticated
 using ((select public.is_family_owner(id)))
 with check ((select public.is_family_owner(id)));
 
+drop policy if exists families_delete_owner on public.families;
 create policy families_delete_owner
 on public.families
 for delete
 to authenticated
 using ((select public.is_family_owner(id)));
 
+drop policy if exists family_members_select_member on public.family_members;
 create policy family_members_select_member
 on public.family_members
 for select
 to authenticated
 using ((select public.is_family_member(family_id)));
 
+drop policy if exists family_members_insert_owner on public.family_members;
 create policy family_members_insert_owner
 on public.family_members
 for insert
@@ -388,6 +417,7 @@ with check (
   )
 );
 
+drop policy if exists family_members_update_owner on public.family_members;
 create policy family_members_update_owner
 on public.family_members
 for update
@@ -395,18 +425,21 @@ to authenticated
 using ((select public.is_family_owner(family_id)))
 with check ((select public.is_family_owner(family_id)));
 
+drop policy if exists family_members_delete_owner on public.family_members;
 create policy family_members_delete_owner
 on public.family_members
 for delete
 to authenticated
 using ((select public.is_family_owner(family_id)));
 
+drop policy if exists events_select_family on public.events;
 create policy events_select_family
 on public.events
 for select
 to authenticated
 using ((select public.is_family_member(family_id)));
 
+drop policy if exists events_insert_authorized on public.events;
 create policy events_insert_authorized
 on public.events
 for insert
@@ -417,6 +450,7 @@ with check (
   and (select public.can_manage_user(created_by))
 );
 
+drop policy if exists events_update_authorized on public.events;
 create policy events_update_authorized
 on public.events
 for update
@@ -428,24 +462,28 @@ with check (
   and (select public.can_manage_user(created_by))
 );
 
+drop policy if exists events_delete_authorized on public.events;
 create policy events_delete_authorized
 on public.events
 for delete
 to authenticated
 using ((select public.can_manage_user(created_by)));
 
+drop policy if exists event_exceptions_select_family on public.event_exceptions;
 create policy event_exceptions_select_family
 on public.event_exceptions
 for select
 to authenticated
 using ((select public.can_view_event(event_id)));
 
+drop policy if exists event_exceptions_insert_authorized on public.event_exceptions;
 create policy event_exceptions_insert_authorized
 on public.event_exceptions
 for insert
 to authenticated
 with check ((select public.can_manage_event(event_id)));
 
+drop policy if exists event_exceptions_update_authorized on public.event_exceptions;
 create policy event_exceptions_update_authorized
 on public.event_exceptions
 for update
@@ -453,6 +491,7 @@ to authenticated
 using ((select public.can_manage_event(event_id)))
 with check ((select public.can_manage_event(event_id)));
 
+drop policy if exists event_exceptions_delete_authorized on public.event_exceptions;
 create policy event_exceptions_delete_authorized
 on public.event_exceptions
 for delete

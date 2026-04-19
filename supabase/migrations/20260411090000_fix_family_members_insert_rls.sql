@@ -22,7 +22,7 @@ as $$
   );
 $$;
 
-drop policy family_members_insert_owner on public.family_members;
+drop policy if exists family_members_insert_owner on public.family_members;
 
 create policy family_members_insert_owner
 on public.family_members
