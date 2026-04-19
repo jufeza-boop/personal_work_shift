@@ -233,4 +233,168 @@ describe("DayDetailPanel", () => {
     expect(screen.getByText("Puntual")).toBeInTheDocument();
     expect(screen.getByText("Recurrente")).toBeInTheDocument();
   });
+
+  it("opens the delete dialog when delete button is clicked", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <DayDetailPanel
+        date="2026-04-10"
+        day={10}
+        month={4}
+        year={2026}
+        occurrences={[PUNCTUAL_OCCURRENCE]}
+        members={MEMBERS}
+        currentUserId="u1"
+        familyId="f1"
+        createAction={vi.fn()}
+        deleteAction={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: /eliminar/i }));
+
+    expect(screen.getByText(/eliminar evento/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /cancelar/i })).toBeInTheDocument();
+  });
+
+  it("closes the delete dialog when cancel is clicked", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <DayDetailPanel
+        date="2026-04-10"
+        day={10}
+        month={4}
+        year={2026}
+        occurrences={[PUNCTUAL_OCCURRENCE]}
+        members={MEMBERS}
+        currentUserId="u1"
+        familyId="f1"
+        createAction={vi.fn()}
+        deleteAction={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: /eliminar/i }));
+    expect(screen.getByText(/eliminar evento/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /cancelar/i }));
+    expect(screen.queryByText(/eliminar evento/i)).not.toBeInTheDocument();
+  });
+
+  it("shows scope radio options for recurring event delete", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <DayDetailPanel
+        date="2026-04-10"
+        day={10}
+        month={4}
+        year={2026}
+        occurrences={[RECURRING_OCCURRENCE]}
+        members={MEMBERS}
+        currentUserId="u1"
+        familyId="f1"
+        createAction={vi.fn()}
+        deleteAction={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: /eliminar/i }));
+
+    expect(screen.getByText(/toda la serie/i)).toBeInTheDocument();
+    expect(screen.getByText(/solo este día/i)).toBeInTheDocument();
+  });
+
+  it("toggles delete scope for recurring events", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <DayDetailPanel
+        date="2026-04-10"
+        day={10}
+        month={4}
+        year={2026}
+        occurrences={[RECURRING_OCCURRENCE]}
+        members={MEMBERS}
+        currentUserId="u1"
+        familyId="f1"
+        createAction={vi.fn()}
+        deleteAction={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: /eliminar/i }));
+
+    const singleRadio = screen.getByRole("radio", { name: /solo este día/i });
+    await user.click(singleRadio);
+    expect(singleRadio).toBeChecked();
+
+    const allRadio = screen.getByRole("radio", { name: /toda la serie/i });
+    await user.click(allRadio);
+    expect(allRadio).toBeChecked();
+  });
+
+  it("shows edit/delete for delegated user events", () => {
+    const delegatedOccurrence: CalendarOccurrence = {
+      eventId: "e3",
+      date: "2026-04-10",
+      title: "Kid's event",
+      type: "punctual",
+      category: null,
+      shiftType: null,
+      createdBy: "delegated-1",
+    };
+
+    render(
+      <DayDetailPanel
+        date="2026-04-10"
+        day={10}
+        month={4}
+        year={2026}
+        occurrences={[delegatedOccurrence]}
+        members={MEMBERS}
+        currentUserId="u1"
+        delegatedUsers={[{ id: "delegated-1", displayName: "Junior" }]}
+        familyId="f1"
+        createAction={vi.fn()}
+        deleteAction={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: /editar/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /eliminar/i })).toBeInTheDocument();
+  });
+
+  it("hides the no-events message when create form is shown", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <DayDetailPanel
+        date="2026-04-10"
+        day={10}
+        month={4}
+        year={2026}
+        occurrences={[]}
+        members={MEMBERS}
+        currentUserId="u1"
+        familyId="f1"
+        createAction={vi.fn()}
+        deleteAction={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText(/no hay eventos/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /crear evento/i }));
+
+    expect(screen.queryByText(/no hay eventos/i)).not.toBeInTheDocument();
+  });
 });
