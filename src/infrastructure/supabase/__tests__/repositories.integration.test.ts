@@ -178,9 +178,24 @@ describe("Supabase repositories", () => {
     });
     const existingMembersBuilder = createBuilder({
       data: [
-        { user_id: "owner-1", color_palette: null, role: "owner", delegated_by_user_id: null },
-        { user_id: "member-1", color_palette: "sky", role: "member", delegated_by_user_id: null },
-        { user_id: "removed-1", color_palette: null, role: "member", delegated_by_user_id: null },
+        {
+          user_id: "owner-1",
+          color_palette: null,
+          role: "owner",
+          delegated_by_user_id: null,
+        },
+        {
+          user_id: "member-1",
+          color_palette: "sky",
+          role: "member",
+          delegated_by_user_id: null,
+        },
+        {
+          user_id: "removed-1",
+          color_palette: null,
+          role: "member",
+          delegated_by_user_id: null,
+        },
       ],
       error: null,
     });
@@ -449,9 +464,13 @@ describe("Phase 2 migration", () => {
   it("creates the required core tables", () => {
     expect(migration).toContain("create table if not exists public.users");
     expect(migration).toContain("create table if not exists public.families");
-    expect(migration).toContain("create table if not exists public.family_members");
+    expect(migration).toContain(
+      "create table if not exists public.family_members",
+    );
     expect(migration).toContain("create table if not exists public.events");
-    expect(migration).toContain("create table if not exists public.event_exceptions");
+    expect(migration).toContain(
+      "create table if not exists public.event_exceptions",
+    );
   });
 
   it("defines row-level security policies for all phase 2 tables", () => {
@@ -469,7 +488,11 @@ describe("Phase 2 migration", () => {
     expect(migration).toContain(
       "create or replace function public.is_family_member",
     );
-    expect(migration).toContain("create index if not exists events_family_id_created_at_idx");
-    expect(migration).toContain("create index if not exists family_members_user_id_idx");
+    expect(migration).toContain(
+      "create index if not exists events_family_id_created_at_idx",
+    );
+    expect(migration).toContain(
+      "create index if not exists family_members_user_id_idx",
+    );
   });
 });
