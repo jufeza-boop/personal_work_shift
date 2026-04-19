@@ -178,14 +178,14 @@ describe("Supabase repositories", () => {
     });
     const existingMembersBuilder = createBuilder({
       data: [
-        { user_id: "owner-1" },
-        { user_id: "member-1" },
-        { user_id: "removed-1" },
+        { user_id: "owner-1", color_palette: null, role: "owner", delegated_by_user_id: null },
+        { user_id: "member-1", color_palette: "sky", role: "member", delegated_by_user_id: null },
+        { user_id: "removed-1", color_palette: null, role: "member", delegated_by_user_id: null },
       ],
       error: null,
     });
     const deleteRemovedMemberBuilder = createBuilder({
-      data: null,
+      data: [{ user_id: "removed-1" }],
       error: null,
     });
     const saveMembersBuilder = createBuilder({
@@ -232,25 +232,7 @@ describe("Supabase repositories", () => {
       "created_by",
       "owner-1",
     );
-    expect(saveMembersBuilder.upsert).toHaveBeenCalledWith(
-      [
-        {
-          color_palette: null,
-          delegated_by_user_id: null,
-          family_id: "family-1",
-          role: "owner",
-          user_id: "owner-1",
-        },
-        {
-          color_palette: "sky",
-          delegated_by_user_id: null,
-          family_id: "family-1",
-          role: "member",
-          user_id: "member-1",
-        },
-      ],
-      { onConflict: "family_id,user_id" },
-    );
+    expect(saveMembersBuilder.upsert).not.toHaveBeenCalled();
     expect(deleteRemovedMemberBuilder.delete).toHaveBeenCalled();
     expect(deleteRemovedMemberBuilder.eq).toHaveBeenCalledWith(
       "family_id",
@@ -465,11 +447,11 @@ describe("Phase 2 migration", () => {
   const migration = readFileSync(MIGRATION_PATH, "utf8");
 
   it("creates the required core tables", () => {
-    expect(migration).toContain("create table public.users");
-    expect(migration).toContain("create table public.families");
-    expect(migration).toContain("create table public.family_members");
-    expect(migration).toContain("create table public.events");
-    expect(migration).toContain("create table public.event_exceptions");
+    expect(migration).toContain("create table if not exists public.users");
+    expect(migration).toContain("create table if not exists public.families");
+    expect(migration).toContain("create table if not exists public.family_members");
+    expect(migration).toContain("create table if not exists public.events");
+    expect(migration).toContain("create table if not exists public.event_exceptions");
   });
 
   it("defines row-level security policies for all phase 2 tables", () => {
@@ -487,7 +469,7 @@ describe("Phase 2 migration", () => {
     expect(migration).toContain(
       "create or replace function public.is_family_member",
     );
-    expect(migration).toContain("create index events_family_id_created_at_idx");
-    expect(migration).toContain("create index family_members_user_id_idx");
+    expect(migration).toContain("create index if not exists events_family_id_created_at_idx");
+    expect(migration).toContain("create index if not exists family_members_user_id_idx");
   });
 });
