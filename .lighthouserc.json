@@ -2,7 +2,7 @@
   "ci": {
     "collect": {
       "url": ["http://127.0.0.1:3000/", "http://127.0.0.1:3000/login"],
-      "startServerCommand": "AUTH_DRIVER=mock npm run dev -- --hostname 127.0.0.1 --port 3000",
+      "startServerCommand": "npm run dev -- --hostname 127.0.0.1 --port 3000",
       "startServerReadyPattern": "Ready",
       "startServerReadyTimeout": 30000,
       "numberOfRuns": 3,
