@@ -125,7 +125,7 @@ export class SupabaseFamilyRepository implements IFamilyRepository {
   async save(family: Family): Promise<void> {
     const existingMembersResponse = await this.client
       .from("family_members")
-      .select("user_id")
+      .select("user_id, color_palette, role, delegated_by_user_id")
       .eq("family_id", family.id);
 
     if (existingMembersResponse.error) {
@@ -210,21 +210,61 @@ export class SupabaseFamilyRepository implements IFamilyRepository {
         .from("family_members")
         .delete()
         .eq("family_id", family.id)
-        .in("user_id", removedMemberIds);
+        .in("user_id", removedMemberIds)
+        .select("user_id");
 
       if (deleteResponse.error) {
         throw deleteResponse.error;
       }
+
+      const deletedCount = deleteResponse.data?.length ?? 0;
+      if (deletedCount !== removedMemberIds.length) {
+        throw new Error(
+          `RLS blocked member deletion: expected to delete ${removedMemberIds.length} row(s) but deleted ${deletedCount}. ` +
+            "Ensure the family_members delete policies are applied.",
+        );
+      }
     }
 
-    const membersUpsert = await this.client
-      .from("family_members")
-      .upsert(members, {
-        onConflict: "family_id,user_id",
-      });
+    const existingByUserId = new Map(
+      existingMembers.map((m) => [m.user_id, m]),
+    );
 
-    if (membersUpsert.error) {
-      throw membersUpsert.error;
+    const newMembers = members.filter((m) => !existingByUserId.has(m.user_id));
+    const changedMembers = members.filter((m) => {
+      const existing = existingByUserId.get(m.user_id);
+      if (!existing) return false;
+      return (
+        existing.color_palette !== m.color_palette ||
+        existing.role !== m.role ||
+        existing.delegated_by_user_id !== m.delegated_by_user_id
+      );
+    });
+
+    if (newMembers.length > 0) {
+      const insertResponse = await this.client
+        .from("family_members")
+        .insert(newMembers);
+
+      if (insertResponse.error) {
+        throw insertResponse.error;
+      }
+    }
+
+    for (const member of changedMembers) {
+      const updateResponse = await this.client
+        .from("family_members")
+        .update({
+          color_palette: member.color_palette,
+          delegated_by_user_id: member.delegated_by_user_id,
+          role: member.role,
+        })
+        .eq("family_id", family.id)
+        .eq("user_id", member.user_id);
+
+      if (updateResponse.error) {
+        throw updateResponse.error;
+      }
     }
   }
 

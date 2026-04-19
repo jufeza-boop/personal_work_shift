@@ -8,6 +8,7 @@
 alter table public.family_members
   drop constraint if exists family_members_unique_palette;
 
+drop index if exists family_members_unique_palette;
 create unique index family_members_unique_palette
   on public.family_members (family_id, color_palette)
   where color_palette is not null;
