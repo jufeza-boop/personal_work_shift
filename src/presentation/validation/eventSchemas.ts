@@ -79,6 +79,11 @@ export const editEventBaseSchema = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}$/)
     .optional()
     .or(z.literal("")),
+  newDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional()
+    .or(z.literal("")),
 });
 
 export const editPunctualEventSchema = editEventBaseSchema.extend({

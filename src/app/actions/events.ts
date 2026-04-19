@@ -488,19 +488,26 @@ export async function editEventAction(
     const parsed = schema.safeParse({
       eventId,
       scope,
-      occurrenceDate: occurrenceDateRaw,
+      occurrenceDate: occurrenceDateRaw ?? undefined,
+      newDate: formData.get("newDate")?.toString() ?? undefined,
       title: formData.get("title"),
       description: formData.get("description"),
-      startDate: formData.get("startDate"),
-      endDate: formData.get("endDate"),
-      frequencyUnit: formData.get("frequencyUnit"),
-      frequencyInterval: formData.get("frequencyInterval"),
+      startDate: formData.get("startDate") ?? undefined,
+      endDate: formData.get("endDate") ?? undefined,
+      frequencyUnit: formData.get("frequencyUnit") ?? undefined,
+      frequencyInterval: formData.get("frequencyInterval") ?? undefined,
       shiftType:
-        eventType === "recurring-work" ? formData.get("shiftType") : undefined,
+        eventType === "recurring-work"
+          ? (formData.get("shiftType") ?? undefined)
+          : undefined,
       startTime:
-        eventType === "recurring-other" ? formData.get("startTime") : undefined,
+        eventType === "recurring-other"
+          ? (formData.get("startTime") ?? undefined)
+          : undefined,
       endTime:
-        eventType === "recurring-other" ? formData.get("endTime") : undefined,
+        eventType === "recurring-other"
+          ? (formData.get("endTime") ?? undefined)
+          : undefined,
     });
 
     if (!parsed.success) {
@@ -526,6 +533,7 @@ export async function editEventAction(
         };
       }
       const occurrenceDate = toDate(occurrenceDateRaw);
+      const newDateRaw = formData.get("newDate")?.toString();
       const result = await useCase.execute({
         scope: "single",
         eventId,
@@ -533,6 +541,7 @@ export async function editEventAction(
         occurrenceDate,
         title: parsed.data.title,
         description: parsed.data.description ?? null,
+        newDate: newDateRaw ? toDate(newDateRaw) : undefined,
         startTime:
           "startTime" in parsed.data
             ? (toOptionalString(parsed.data.startTime) ?? null)

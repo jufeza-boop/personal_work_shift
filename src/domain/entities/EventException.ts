@@ -5,6 +5,8 @@ export interface EventExceptionOverrideData {
   description?: string | null;
   startTime?: string | null;
   endTime?: string | null;
+  /** YYYY-MM-DD – when set, the occurrence is moved to this date instead */
+  newDate?: string;
 }
 
 export interface EventExceptionProps {

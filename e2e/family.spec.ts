@@ -156,7 +156,10 @@ test("creates a delegated user and creates an event on their behalf", async ({
 
   // Navigate to the delegated users page to remove the delegated user
   await page.goto("/calendar/delegated-users");
-  await page.getByRole("button", { name: /eliminar/i }).first().click();
+  await page
+    .getByRole("button", { name: /eliminar/i })
+    .first()
+    .click();
   // Confirm deletion
   await page.getByRole("button", { name: /confirmar/i }).click();
 

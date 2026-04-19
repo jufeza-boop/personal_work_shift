@@ -56,6 +56,7 @@ export interface SerializedEventException {
   /** YYYY-MM-DD */
   exceptionDate: string;
   isDeleted: boolean;
+  overrideData?: { newDate?: string } | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -206,6 +207,7 @@ export function serializeException(
     eventId: exception.eventId,
     exceptionDate: toDateString(exception.exceptionDate),
     isDeleted: exception.isDeleted,
+    overrideData: exception.overrideData ?? null,
   };
 }
 
@@ -230,12 +232,36 @@ export function getOccurrencesForMonth(
   const monthEndStr = toDateString(rangeEnd);
   const occurrences: CalendarOccurrence[] = [];
 
-  // Build a set of deleted occurrences for fast lookup: "eventId:date"
-  const deletedOccurrences = new Set(
+  // Suppress original dates for deleted or moved occurrences: "eventId:date"
+  const suppressedOccurrences = new Set(
     exceptions
-      .filter((ex) => ex.isDeleted)
+      .filter((ex) => ex.isDeleted || ex.overrideData?.newDate)
       .map((ex) => `${ex.eventId}:${ex.exceptionDate}`),
   );
+
+  // Build event map for quick lookup when resolving moved occurrences
+  const eventMap = new Map(events.map((e) => [e.id, e]));
+
+  // Collect moved occurrences whose new date falls within this month
+  for (const ex of exceptions) {
+    if (!ex.isDeleted && ex.overrideData?.newDate) {
+      const newDate = ex.overrideData.newDate;
+      if (newDate >= monthStartStr && newDate <= monthEndStr) {
+        const event = eventMap.get(ex.eventId);
+        if (event && event.type === "recurring") {
+          occurrences.push({
+            eventId: event.id,
+            date: newDate,
+            title: event.title,
+            type: "recurring",
+            category: event.category,
+            shiftType: event.shiftType,
+            createdBy: event.createdBy,
+          });
+        }
+      }
+    }
+  }
 
   for (const event of events) {
     if (event.type === "punctual") {
@@ -254,8 +280,8 @@ export function getOccurrencesForMonth(
       const dates = getRecurringDatesInRange(event, rangeStart, rangeEnd);
 
       for (const date of dates) {
-        // Skip deleted occurrences
-        if (deletedOccurrences.has(`${event.id}:${date}`)) {
+        // Skip deleted or moved occurrences
+        if (suppressedOccurrences.has(`${event.id}:${date}`)) {
           continue;
         }
 

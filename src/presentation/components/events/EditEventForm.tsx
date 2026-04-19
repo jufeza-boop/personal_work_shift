@@ -372,6 +372,20 @@ export function EditEventForm({
           <>
             <div className="space-y-1">
               <label
+                htmlFor="newDate"
+                className="text-sm font-medium text-slate-700"
+              >
+                Nueva fecha (opcional)
+              </label>
+              <input
+                id="newDate"
+                name="newDate"
+                type="date"
+                className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
+              />
+            </div>
+            <div className="space-y-1">
+              <label
                 htmlFor="startTime"
                 className="text-sm font-medium text-slate-700"
               >
