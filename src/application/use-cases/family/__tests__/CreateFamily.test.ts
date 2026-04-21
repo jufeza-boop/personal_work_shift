@@ -105,4 +105,29 @@ describe("CreateFamily", () => {
       success: false,
     });
   });
+
+  it("returns INVALID_NAME when the name is empty", async () => {
+    const familyRepository = createFamilyRepository();
+    const userRepository = createUserRepository();
+
+    vi.mocked(userRepository.findById).mockResolvedValue(
+      new User({
+        displayName: "Alice Example",
+        email: "alice@example.com",
+        id: "owner-1",
+      }),
+    );
+
+    const useCase = new CreateFamily(familyRepository, userRepository);
+    const result = await useCase.execute({
+      createdBy: "owner-1",
+      name: "   ",
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.code).toBe("INVALID_NAME");
+    }
+    expect(familyRepository.save).not.toHaveBeenCalled();
+  });
 });

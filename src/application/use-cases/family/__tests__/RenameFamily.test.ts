@@ -74,4 +74,49 @@ describe("RenameFamily", () => {
       success: false,
     });
   });
+
+  it("returns FAMILY_NOT_FOUND when the family does not exist", async () => {
+    const familyRepository = createFamilyRepository();
+
+    vi.mocked(familyRepository.findById).mockResolvedValue(null);
+
+    const useCase = new RenameFamily(familyRepository);
+    const result = await useCase.execute({
+      familyId: "nonexistent",
+      name: "New Name",
+      requesterUserId: "owner-1",
+    });
+
+    expect(result).toEqual({
+      error: {
+        code: "FAMILY_NOT_FOUND",
+        message: "The requested family does not exist",
+      },
+      success: false,
+    });
+  });
+
+  it("returns INVALID_NAME when the name is empty", async () => {
+    const familyRepository = createFamilyRepository();
+    const family = new Family({
+      createdBy: "owner-1",
+      id: "family-1",
+      name: "Home Team",
+    });
+
+    vi.mocked(familyRepository.findById).mockResolvedValue(family);
+
+    const useCase = new RenameFamily(familyRepository);
+    const result = await useCase.execute({
+      familyId: "family-1",
+      name: "   ",
+      requesterUserId: "owner-1",
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.code).toBe("INVALID_NAME");
+    }
+    expect(familyRepository.save).not.toHaveBeenCalled();
+  });
 });

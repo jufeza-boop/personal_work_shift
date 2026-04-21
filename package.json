@@ -13,8 +13,12 @@
     "format:check": "prettier . --check",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "test:e2e:mobile": "playwright test --project=mobile-chrome --project=mobile-safari",
+    "test:e2e:a11y": "playwright test e2e/accessibility.spec.ts",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:ws-load": "node e2e/websocket-load-test.mjs",
+    "lighthouse": "npx @lhci/cli autorun",
     "supabase:init": "npx supabase init --yes",
     "supabase:start": "npx supabase start",
     "supabase:stop": "npx supabase stop",
@@ -35,6 +39,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.2",
     "@playwright/test": "^1.55.1",
     "@serwist/turbopack": "^9.5.7",
     "@tailwindcss/postcss": "^4.2.2",

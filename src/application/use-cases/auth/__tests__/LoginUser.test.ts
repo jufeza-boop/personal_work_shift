@@ -66,4 +66,23 @@ describe("LoginUser", () => {
       success: false,
     });
   });
+
+  it("returns INVALID_CREDENTIALS when email is invalid format", async () => {
+    const authService = createAuthService();
+
+    const useCase = new LoginUser(authService);
+    const result = await useCase.execute({
+      email: "not-an-email",
+      password: "Password1",
+    });
+
+    expect(authService.login).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      error: {
+        code: "INVALID_CREDENTIALS",
+        message: "Invalid email or password",
+      },
+      success: false,
+    });
+  });
 });

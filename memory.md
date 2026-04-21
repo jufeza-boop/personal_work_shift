@@ -8,9 +8,9 @@
 
 ## Current State
 
-- **Phase**: Delegated User Management Bug Fixes completed
-- **Last Updated**: 2026-04-18
-- **Tests**: 326 passing
+- **Phase**: Phase 14 Quality Assurance completed
+- **Last Updated**: 2026-04-19
+- **Tests**: 348 Vitest unit tests passing + E2E suites for mobile, accessibility, PWA
 
 ---
 
@@ -252,6 +252,35 @@
 
 ---
 
+### 2026-04-19 - Phase 14: Quality Assurance
+
+#### What was done
+
+- Improved Vitest code coverage from 82.96% → 85.26% statements (70.45% → 73.15% branch) by adding 24 unit tests
+- Added tests for `AssignDelegatedMemberPaletteForm` (10% → full), `InviteFamilyMemberForm`, `DayDetailPanel` (delete dialog, delegated users), and edge cases for `AddMember`, `CreateFamily`, `RenameFamily`, `LoginUser`
+- Updated `playwright.config.ts` with 6 browser projects: Chromium, Firefox, WebKit (Safari), Edge, Mobile Chrome (Pixel 7), Mobile Safari (iPhone 14)
+- Created `e2e/mobile-responsiveness.spec.ts` — tests landing, login, register, and calendar pages on mobile viewports
+- Created `e2e/pwa.spec.ts` — validates manifest fields, service worker registration, manifest link tag, and icon accessibility
+- Created `e2e/accessibility.spec.ts` — axe-core WCAG 2.1 AA audit on landing, login, register, and calendar pages
+- Created `.lighthouserc.json` — Lighthouse CI config targeting >90 for performance, accessibility, best-practices, and SEO
+- Created `e2e/websocket-load-test.mjs` — concurrent WebSocket connection load test for Supabase Realtime (configurable via env vars)
+- Added npm scripts: `test:e2e:mobile`, `test:e2e:a11y`, `test:ws-load`, `lighthouse`
+
+#### Decisions
+
+- `@axe-core/playwright@4.11.2` used for accessibility auditing within E2E tests (no vulnerabilities)
+- Lighthouse CI config uses `temporary-public-storage` upload target for easy review without infrastructure
+- WebSocket load test is a standalone Node.js script (not Playwright) for simplicity and direct socket control
+- Cross-browser Playwright projects use device presets from `@playwright/test` (`Desktop Chrome`, `Desktop Firefox`, `Desktop Safari`, `Desktop Edge`, `Pixel 7`, `iPhone 14`)
+
+#### Patterns
+
+- Mobile responsiveness tests verify no horizontal overflow and that key UI elements are visible/reachable
+- PWA tests validate manifest JSON structure, icon accessibility, and service worker registration
+- Accessibility tests use `withTags(["wcag2a", "wcag2aa", "wcag21aa"])` for comprehensive WCAG 2.1 AA coverage
+
+---
+
 ## Active Patterns
 
 - Next.js App Router stays in `src/app`, while reusable UI lives in `src/presentation`
@@ -302,6 +331,7 @@
 - `lucide-react@^1.8.0`
 - `zod@^4.3.6`
 - `@playwright/test@^1.55.1`
+- `@axe-core/playwright@^4.11.2`
 
 ---
 

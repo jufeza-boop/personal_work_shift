@@ -143,4 +143,88 @@ describe("AddMember", () => {
       success: false,
     });
   });
+
+  it("returns FAMILY_NOT_FOUND when the family does not exist", async () => {
+    const familyRepository = createFamilyRepository();
+    const userRepository = createUserRepository();
+
+    vi.mocked(familyRepository.findById).mockResolvedValue(null);
+
+    const useCase = new AddMember(familyRepository, userRepository);
+    const result = await useCase.execute({
+      colorPalette: "sky",
+      email: "bob@example.com",
+      familyId: "nonexistent",
+      requesterUserId: "owner-1",
+    });
+
+    expect(result).toEqual({
+      error: {
+        code: "FAMILY_NOT_FOUND",
+        message: "The requested family does not exist",
+      },
+      success: false,
+    });
+  });
+
+  it("returns USER_NOT_FOUND when the invited user does not exist", async () => {
+    const familyRepository = createFamilyRepository();
+    const userRepository = createUserRepository();
+    const family = new Family({
+      createdBy: "owner-1",
+      id: "family-1",
+      name: "Home Team",
+    });
+
+    vi.mocked(familyRepository.findById).mockResolvedValue(family);
+    vi.mocked(userRepository.findByEmail).mockResolvedValue(null);
+
+    const useCase = new AddMember(familyRepository, userRepository);
+    const result = await useCase.execute({
+      colorPalette: "sky",
+      email: "unknown@example.com",
+      familyId: "family-1",
+      requesterUserId: "owner-1",
+    });
+
+    expect(result).toEqual({
+      error: {
+        code: "USER_NOT_FOUND",
+        message: "The invited user must already have an account",
+      },
+      success: false,
+    });
+  });
+
+  it("returns MEMBER_ALREADY_EXISTS when adding a duplicate member", async () => {
+    const familyRepository = createFamilyRepository();
+    const userRepository = createUserRepository();
+    const family = new Family({
+      createdBy: "owner-1",
+      id: "family-1",
+      name: "Home Team",
+    });
+
+    vi.mocked(familyRepository.findById).mockResolvedValue(family);
+    vi.mocked(userRepository.findByEmail).mockResolvedValue(
+      new User({
+        displayName: "Owner",
+        email: "owner@example.com",
+        id: "owner-1",
+      }),
+    );
+
+    const useCase = new AddMember(familyRepository, userRepository);
+    const result = await useCase.execute({
+      colorPalette: "rose",
+      email: "owner@example.com",
+      familyId: "family-1",
+      requesterUserId: "owner-1",
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.code).toBe("MEMBER_ALREADY_EXISTS");
+    }
+  });
 });
