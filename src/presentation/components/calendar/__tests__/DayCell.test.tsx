@@ -120,7 +120,7 @@ describe("DayCell", () => {
       />,
     );
 
-    // Alice has "sky" palette; afternoon tone (#7DD3FC) is used as base color
+    // Alice has "sky" palette; getBaseColor uses the afternoon tone as base (#7DD3FC)
     const label = screen.getByText("Doctor visit");
     expect(label).toHaveStyle({ backgroundColor: "#7DD3FC" });
   });

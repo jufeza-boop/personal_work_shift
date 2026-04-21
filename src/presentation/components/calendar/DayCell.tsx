@@ -80,12 +80,12 @@ export function DayCell({
   const hasShiftBg = shiftColors.length > 0;
   const gradientBg = buildShiftBackground(shiftColors);
 
-  // Inline style: gradient for 2+ shifts, flat color for 1 shift, empty otherwise
+  const firstShiftColor = shiftColors[0];
   const buttonBgStyle: CSSProperties =
     gradientBg !== null
       ? { background: gradientBg }
-      : shiftColors.length === 1
-        ? { backgroundColor: shiftColors[0]! }
+      : firstShiftColor !== undefined
+        ? { backgroundColor: firstShiftColor }
         : {};
 
   return (
