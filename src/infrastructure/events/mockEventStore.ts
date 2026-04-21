@@ -221,6 +221,16 @@ export function deleteMockEvent(eventId: string): void {
   saveStore(store);
 }
 
+export function deleteMockExceptionsByEventId(eventId: string): void {
+  const store = getStore();
+  for (const id of Object.keys(store.exceptionsById)) {
+    if (store.exceptionsById[id]?.eventId === eventId) {
+      delete store.exceptionsById[id];
+    }
+  }
+  saveStore(store);
+}
+
 export function saveMockException(exception: EventException): void {
   const store = getStore();
   store.exceptionsById[exception.id] = {

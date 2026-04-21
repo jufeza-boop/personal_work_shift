@@ -150,7 +150,7 @@ export function DayDetailPanel({
                   {isOwner && (
                     <>
                       <Link
-                        href={`/calendar/events/${occ.eventId}/edit`}
+                        href={`/calendar/events/${occ.eventId}/edit?date=${date}`}
                         className="text-xs text-blue-600 hover:underline"
                       >
                         Editar

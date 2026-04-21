@@ -401,4 +401,28 @@ describe("DayDetailPanel", () => {
 
     expect(screen.queryByText(/no hay eventos/i)).not.toBeInTheDocument();
   });
+
+  it("includes the date in the edit link URL for recurring events", () => {
+    render(
+      <DayDetailPanel
+        date="2026-04-15"
+        day={15}
+        month={4}
+        year={2026}
+        occurrences={[RECURRING_OCCURRENCE]}
+        members={MEMBERS}
+        currentUserId="u1"
+        familyId="f1"
+        createAction={vi.fn()}
+        deleteAction={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    const editLink = screen.getByRole("link", { name: /editar/i });
+    expect(editLink).toHaveAttribute(
+      "href",
+      "/calendar/events/e2/edit?date=2026-04-15",
+    );
+  });
 });

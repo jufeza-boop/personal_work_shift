@@ -8,4 +8,5 @@ export interface IEventRepository {
   save(event: Event): Promise<void>;
   delete(eventId: string): Promise<void>;
   saveException(exception: EventException): Promise<void>;
+  deleteExceptionsByEventId(eventId: string): Promise<void>;
 }

@@ -8,10 +8,15 @@ import { EditEventForm } from "@/presentation/components/events/EditEventForm";
 
 interface EditEventPageProps {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<{ date?: string }>;
 }
 
-export default async function EditEventPage({ params }: EditEventPageProps) {
+export default async function EditEventPage({
+  params,
+  searchParams,
+}: EditEventPageProps) {
   const { id } = await params;
+  const occurrenceDate = searchParams ? (await searchParams).date : undefined;
   const { user } = await getFamilyPageData("/calendar");
   const { eventRepository } = await createServerEventDependencies();
   const event = await eventRepository.findById(id);
@@ -23,6 +28,9 @@ export default async function EditEventPage({ params }: EditEventPageProps) {
   if (event.createdBy !== user.id) {
     redirect("/calendar");
   }
+
+  const exceptions = await eventRepository.findExceptionsByEventIds([id]);
+  const hasExceptions = exceptions.length > 0;
 
   if (event instanceof PunctualEvent) {
     return (
@@ -67,6 +75,8 @@ export default async function EditEventPage({ params }: EditEventPageProps) {
             shiftType: recurring.shiftType?.value ?? undefined,
           }}
           redirectTo="/calendar"
+          occurrenceDate={occurrenceDate}
+          hasExceptions={hasExceptions}
         />
       </div>
     );
@@ -89,6 +99,8 @@ export default async function EditEventPage({ params }: EditEventPageProps) {
           endTime: recurring.endTime ?? undefined,
         }}
         redirectTo="/calendar"
+        occurrenceDate={occurrenceDate}
+        hasExceptions={hasExceptions}
       />
     </div>
   );

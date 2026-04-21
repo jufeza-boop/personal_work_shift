@@ -3,6 +3,7 @@ import { EventException } from "@/domain/entities/EventException";
 import type { IEventRepository } from "@/domain/repositories/IEventRepository";
 import {
   deleteMockEvent,
+  deleteMockExceptionsByEventId,
   findMockEventById,
   findMockEventsByFamilyId,
   findMockExceptionsByEventIds,
@@ -35,5 +36,9 @@ export class MockEventRepository implements IEventRepository {
 
   async saveException(exception: EventException): Promise<void> {
     saveMockException(exception);
+  }
+
+  async deleteExceptionsByEventId(eventId: string): Promise<void> {
+    deleteMockExceptionsByEventId(eventId);
   }
 }
