@@ -22,7 +22,9 @@ describe("AssignDelegatedMemberPaletteForm", () => {
         paletteOptions={paletteOptions}
       />,
     );
-    expect(screen.getByRole("button", { name: /asignar paleta/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /asignar paleta/i }),
+    ).toBeInTheDocument();
   });
 
   it("renders 'Cambiar paleta' button when current palette is set", () => {
@@ -36,7 +38,9 @@ describe("AssignDelegatedMemberPaletteForm", () => {
         paletteOptions={paletteOptions}
       />,
     );
-    expect(screen.getByRole("button", { name: /cambiar paleta/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /cambiar paleta/i }),
+    ).toBeInTheDocument();
   });
 
   it("shows the palette picker form when the button is clicked", async () => {
@@ -54,8 +58,12 @@ describe("AssignDelegatedMemberPaletteForm", () => {
     await user.click(screen.getByRole("button", { name: /asignar paleta/i }));
 
     expect(screen.getByText(/paleta de junior/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /guardar paleta/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /cancelar/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /guardar paleta/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /cancelar/i }),
+    ).toBeInTheDocument();
   });
 
   it("hides the picker and resets selection when Cancel is clicked", async () => {
@@ -76,7 +84,9 @@ describe("AssignDelegatedMemberPaletteForm", () => {
 
     await user.click(screen.getByRole("button", { name: /cancelar/i }));
     expect(screen.queryByText(/paleta de junior/i)).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /cambiar paleta/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /cambiar paleta/i }),
+    ).toBeInTheDocument();
   });
 
   it("renders hidden inputs for familyId, targetUserId, and redirectTo", async () => {

@@ -256,7 +256,9 @@ describe("DayDetailPanel", () => {
     await user.click(screen.getByRole("button", { name: /eliminar/i }));
 
     expect(screen.getByText(/eliminar evento/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /cancelar/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /cancelar/i }),
+    ).toBeInTheDocument();
   });
 
   it("closes the delete dialog when cancel is clicked", async () => {
@@ -369,7 +371,9 @@ describe("DayDetailPanel", () => {
     );
 
     expect(screen.getByRole("link", { name: /editar/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /eliminar/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /eliminar/i }),
+    ).toBeInTheDocument();
   });
 
   it("hides the no-events message when create form is shown", async () => {

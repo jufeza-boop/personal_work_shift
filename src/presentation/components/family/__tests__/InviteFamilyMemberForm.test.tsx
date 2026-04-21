@@ -31,7 +31,9 @@ describe("InviteFamilyMemberForm", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: /añadir miembro/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /añadir miembro/i }),
+    ).toBeInTheDocument();
   });
 
   it("renders a heading and description text", () => {
@@ -74,7 +76,10 @@ describe("InviteFamilyMemberForm", () => {
       value: el.getAttribute("value"),
     }));
     expect(values).toContainEqual({ name: "familyId", value: "f1" });
-    expect(values).toContainEqual({ name: "redirectTo", value: "/calendar/settings" });
+    expect(values).toContainEqual({
+      name: "redirectTo",
+      value: "/calendar/settings",
+    });
   });
 
   it("uses custom redirectTo when provided", () => {
