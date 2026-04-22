@@ -47,7 +47,7 @@ export async function proxy(request: NextRequest) {
 }
 
 // Protect authenticated calendar pages and redirect authenticated users away
-// from auth-only entry points.
+// from auth-only entry points and the public landing page.
 export const config = {
-  matcher: ["/calendar/:path*", "/login", "/register"],
+  matcher: ["/", "/calendar/:path*", "/login", "/register"],
 };
