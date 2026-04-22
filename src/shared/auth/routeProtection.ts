@@ -1,4 +1,5 @@
 const AUTH_ROUTES = ["/login", "/register"];
+const PUBLIC_ONLY_ROUTES = ["/", ...AUTH_ROUTES];
 const PROTECTED_PREFIXES = ["/calendar"];
 
 export function resolveAuthRedirect(
@@ -9,7 +10,7 @@ export function resolveAuthRedirect(
     return `/login?redirectTo=${encodeURIComponent(pathname)}`;
   }
 
-  if (isAuthenticated && AUTH_ROUTES.includes(pathname)) {
+  if (isAuthenticated && PUBLIC_ONLY_ROUTES.includes(pathname)) {
     return "/calendar";
   }
 

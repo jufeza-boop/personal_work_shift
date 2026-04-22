@@ -212,4 +212,15 @@ export class SupabaseEventRepository implements IEventRepository {
       throw error;
     }
   }
+
+  async deleteExceptionsByEventId(eventId: string): Promise<void> {
+    const { error } = await (this.client as unknown as SupabaseClient)
+      .from("event_exceptions")
+      .delete()
+      .eq("event_id", eventId);
+
+    if (error) {
+      throw error;
+    }
+  }
 }

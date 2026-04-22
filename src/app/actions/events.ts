@@ -574,6 +574,9 @@ export async function editEventAction(
     }
 
     // scope "all" for recurring
+    const deleteExceptions =
+      formData.get("deleteExceptions")?.toString() === "true";
+
     const result = await useCase.execute({
       scope: "all",
       eventId,
@@ -599,6 +602,10 @@ export async function editEventAction(
 
     if (!result.success) {
       return { success: false, message: buildErrorMessage(result.error.code) };
+    }
+
+    if (deleteExceptions) {
+      await eventRepository.deleteExceptionsByEventId(eventId);
     }
 
     if (event?.familyId) {

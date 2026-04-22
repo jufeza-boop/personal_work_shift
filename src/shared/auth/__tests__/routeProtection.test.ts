@@ -16,6 +16,10 @@ describe("resolveAuthRedirect", () => {
     expect(resolveAuthRedirect("/register", true)).toBe("/calendar");
   });
 
+  it("redirects authenticated users away from the public landing page", () => {
+    expect(resolveAuthRedirect("/", true)).toBe("/calendar");
+  });
+
   it("allows public routes for guests", () => {
     expect(resolveAuthRedirect("/", false)).toBeNull();
   });

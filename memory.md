@@ -8,9 +8,9 @@
 
 ## Current State
 
-- **Phase**: Phase 14 Quality Assurance completed
-- **Last Updated**: 2026-04-19
-- **Tests**: 348 Vitest unit tests passing + E2E suites for mobile, accessibility, PWA
+- **Phase**: Phase 14 Quality Assurance completed + Calendar visual improvements
+- **Last Updated**: 2026-04-21
+- **Tests**: 373 Vitest unit tests passing + E2E suites for mobile, accessibility, PWA
 
 ---
 
@@ -87,6 +87,30 @@
 - `MemberToggle` disables the last visible member's checkbox to enforce at least one always-visible rule
 - Updated `calendar/page.tsx` to serialize events + members and render `CalendarGrid` replacing the placeholder section
 - All 133 Vitest tests pass; lint clean; build succeeds
+
+---
+
+### 2026-04-21 - Calendar Visual Improvements
+
+#### What was done
+
+- Punctual events now display with the creator's palette base color instead of neutral gray `bg-stone-100`
+- Work/study recurring events now fill the entire `DayCell` background with the member's shift palette color (e.g. sky/morning = `#E0F2FE`) instead of a horizontal bar inside the cell
+- When two work/study events coincide on the same day, a `linear-gradient(135deg, color1 50%, color2 50%)` diagonal split is applied to the cell background
+- Shift event labels now show the **event title** instead of member initials, since the color already identifies the owner
+- Added `buildShiftBackground()` helper in `DayCell.tsx` for N-color diagonal gradients
+- Removed `ShiftBlock` import from `DayCell` (no longer needed for the bar layout)
+- 4 new TDD tests added in `DayCell.test.tsx`; total: 373 Vitest tests
+
+#### Patterns
+
+- Use `CSSProperties` inline `style` for dynamic colors on the `<button>` element; Tailwind classes handle structural layout only
+- `buildShiftBackground(colors)` returns `null` for 0–1 colors (use `backgroundColor`) and a gradient string for 2+ colors
+- For today ring + shift background: keep `ring-1 ring-blue-300` in className, background via inline style
+
+#### Next steps
+
+- Build or run E2E to visually verify the diagonal gradient in a real browser if desired
 
 ---
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useActionState } from "react";
+import { useState, useActionState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   EMPTY_EVENT_FORM_STATE,
@@ -48,6 +48,8 @@ interface EditEventFormProps {
   eventType: "punctual" | "recurring-work" | "recurring-other";
   defaults: EditEventDefaults;
   redirectTo: string;
+  occurrenceDate?: string;
+  hasExceptions?: boolean;
 }
 
 export function EditEventForm({
@@ -56,13 +58,53 @@ export function EditEventForm({
   eventType,
   defaults,
   redirectTo,
+  occurrenceDate,
+  hasExceptions,
 }: EditEventFormProps) {
   const router = useRouter();
   const [state, formAction] = useActionState(action, EMPTY_EVENT_FORM_STATE);
   const [scope, setScope] = useState<"all" | "single">("all");
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const confirmedRef = useRef(false);
 
   const isRecurring =
     eventType === "recurring-work" || eventType === "recurring-other";
+
+  const recurringDefaults = isRecurring
+    ? (defaults as EditRecurringWorkEventDefaults)
+    : null;
+
+  const [startDate, setStartDate] = useState(
+    recurringDefaults?.startDate ?? "",
+  );
+  const [frequencyUnit, setFrequencyUnit] = useState(
+    recurringDefaults?.frequencyUnit ?? "daily",
+  );
+  const [frequencyInterval, setFrequencyInterval] = useState(
+    recurringDefaults?.frequencyInterval ?? 1,
+  );
+
+  const willLoseExceptions =
+    hasExceptions === true &&
+    scope === "all" &&
+    (startDate !== (recurringDefaults?.startDate ?? "") ||
+      frequencyUnit !== (recurringDefaults?.frequencyUnit ?? "daily") ||
+      Number(frequencyInterval) !==
+        (recurringDefaults?.frequencyInterval ?? 1));
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    if (willLoseExceptions && !confirmedRef.current) {
+      e.preventDefault();
+      setShowConfirmDialog(true);
+    }
+  }
+
+  function handleConfirm() {
+    confirmedRef.current = true;
+    setShowConfirmDialog(false);
+    formRef.current?.requestSubmit();
+  }
 
   return (
     <section className="rounded-3xl border border-stone-200 bg-white/80 p-8 shadow-sm">
@@ -71,7 +113,9 @@ export function EditEventForm({
       </h2>
 
       <form
+        ref={formRef}
         action={formAction}
+        onSubmit={handleSubmit}
         className="space-y-4"
         aria-label="Editar evento"
       >
@@ -79,6 +123,9 @@ export function EditEventForm({
         <input type="hidden" name="eventType" value={eventType} />
         <input type="hidden" name="redirectTo" value={redirectTo} />
         <input type="hidden" name="scope" value={scope} />
+        {willLoseExceptions && (
+          <input type="hidden" name="deleteExceptions" value="true" />
+        )}
 
         {isRecurring && (
           <fieldset className="space-y-2">
@@ -123,8 +170,21 @@ export function EditEventForm({
               name="occurrenceDate"
               type="date"
               required
-              className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
+              defaultValue={occurrenceDate}
+              disabled
+              className="block w-full cursor-not-allowed rounded-md border border-stone-300 bg-stone-100 px-3 py-2 text-sm text-slate-500"
             />
+            {occurrenceDate && (
+              <input
+                type="hidden"
+                name="occurrenceDate"
+                value={occurrenceDate}
+              />
+            )}
+            <p className="text-xs text-slate-500">
+              Esta fecha no se puede cambiar para evitar modificar otra
+              ocurrencia.
+            </p>
           </div>
         )}
 
@@ -231,9 +291,8 @@ export function EditEventForm({
                   id="startDate"
                   name="startDate"
                   type="date"
-                  defaultValue={
-                    (defaults as EditRecurringWorkEventDefaults).startDate
-                  }
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
                   className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
                 />
                 {state.errors?.startDate && (
@@ -269,9 +328,8 @@ export function EditEventForm({
                 <select
                   id="frequencyUnit"
                   name="frequencyUnit"
-                  defaultValue={
-                    (defaults as EditRecurringWorkEventDefaults).frequencyUnit
-                  }
+                  value={frequencyUnit}
+                  onChange={(e) => setFrequencyUnit(e.target.value)}
                   className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
                 >
                   <option value="daily">Diario</option>
@@ -292,10 +350,8 @@ export function EditEventForm({
                   type="number"
                   min={1}
                   max={365}
-                  defaultValue={
-                    (defaults as EditRecurringWorkEventDefaults)
-                      .frequencyInterval
-                  }
+                  value={frequencyInterval}
+                  onChange={(e) => setFrequencyInterval(Number(e.target.value))}
                   className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
                 />
               </div>
@@ -415,6 +471,22 @@ export function EditEventForm({
           </>
         )}
 
+        {willLoseExceptions && (
+          <div
+            role="alert"
+            className="flex gap-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800"
+          >
+            <span aria-hidden="true" className="mt-0.5 shrink-0 text-amber-500">
+              ⚠️
+            </span>
+            <span>
+              Al cambiar la fecha de inicio o la frecuencia se eliminarán todos
+              los cambios puntuales realizados en ocurrencias individuales de
+              esta serie.
+            </span>
+          </div>
+        )}
+
         {state.message && (
           <p className="text-sm text-red-500">{state.message}</p>
         )}
@@ -430,6 +502,46 @@ export function EditEventForm({
           <SubmitButton label="Guardar cambios" pendingLabel="Guardando..." />
         </div>
       </form>
+
+      {showConfirmDialog && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="confirm-dialog-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+        >
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+            <h3
+              id="confirm-dialog-title"
+              className="mb-3 text-base font-semibold text-slate-900"
+            >
+              ¿Eliminar cambios puntuales?
+            </h3>
+            <p className="mb-5 text-sm text-slate-600">
+              Al cambiar la fecha de inicio o la frecuencia se eliminarán de
+              forma permanente todos los cambios puntuales realizados en
+              ocurrencias individuales de esta serie. Esta acción no se puede
+              deshacer.
+            </p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowConfirmDialog(false)}
+                className="flex-1 rounded-xl border border-stone-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-stone-50"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirm}
+                className="flex-1 rounded-xl bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700"
+              >
+                Sí, eliminar y guardar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
