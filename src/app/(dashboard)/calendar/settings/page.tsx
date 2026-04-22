@@ -47,15 +47,17 @@ export default async function FamilySettingsPage() {
 
   if (!activeFamily) {
     return (
-      <section className="rounded-3xl border border-stone-200 bg-white/80 p-8 shadow-sm">
-        <h2 className="text-3xl font-semibold tracking-tight text-slate-900">
-          Ajustes de familia
-        </h2>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-          Crea una familia para habilitar invitaciones, cambio de contexto y
-          personalización del grupo.
-        </p>
-      </section>
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+        <section className="rounded-3xl border border-stone-200 bg-white/80 p-8 shadow-sm">
+          <h2 className="text-3xl font-semibold tracking-tight text-slate-900">
+            Ajustes de familia
+          </h2>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
+            Crea una familia para habilitar invitaciones, cambio de contexto y
+            personalización del grupo.
+          </p>
+        </section>
+      </div>
     );
   }
 
@@ -76,69 +78,71 @@ export default async function FamilySettingsPage() {
     .map((du) => ({ displayName: du.displayName, id: du.id }));
 
   return (
-    <section className="space-y-6">
-      {isOwner ? (
-        <>
-          <RenameFamilyForm
-            action={renameFamilyAction}
-            familyId={activeFamily.id}
-            initialName={activeFamily.name}
-          />
-          <InviteFamilyMemberForm
-            action={addFamilyMemberAction}
-            familyId={activeFamily.id}
-            paletteOptions={paletteOptions}
-          />
-          <AddDelegatedUserToFamilyForm
-            action={addDelegatedUserToFamilyAction}
-            availableDelegatedUsers={availableDelegatedUsers}
-            familyId={activeFamily.id}
-            paletteOptions={paletteOptions}
-          />
-        </>
-      ) : (
-        <section className="rounded-3xl border border-stone-200 bg-white/80 p-8 shadow-sm">
-          <h2 className="text-3xl font-semibold tracking-tight text-slate-900">
-            Ajustes de familia
-          </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-            Solo el propietario puede renombrar la familia o añadir miembros.
-            Aun así, puedes revisar la composición actual del grupo.
-          </p>
-        </section>
-      )}
+    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+      <section className="space-y-6">
+        {isOwner ? (
+          <>
+            <RenameFamilyForm
+              action={renameFamilyAction}
+              familyId={activeFamily.id}
+              initialName={activeFamily.name}
+            />
+            <InviteFamilyMemberForm
+              action={addFamilyMemberAction}
+              familyId={activeFamily.id}
+              paletteOptions={paletteOptions}
+            />
+            <AddDelegatedUserToFamilyForm
+              action={addDelegatedUserToFamilyAction}
+              availableDelegatedUsers={availableDelegatedUsers}
+              familyId={activeFamily.id}
+              paletteOptions={paletteOptions}
+            />
+          </>
+        ) : (
+          <section className="rounded-3xl border border-stone-200 bg-white/80 p-8 shadow-sm">
+            <h2 className="text-3xl font-semibold tracking-tight text-slate-900">
+              Ajustes de familia
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
+              Solo el propietario puede renombrar la familia o añadir miembros.
+              Aun así, puedes revisar la composición actual del grupo.
+            </p>
+          </section>
+        )}
 
-      <SelectPaletteForm
-        action={selectPaletteAction}
-        familyId={activeFamily.id}
-        paletteOptions={paletteOptionsForMe}
-        currentPalette={myPaletteName}
-      />
-
-      <FamilyMemberList
-        family={activeFamily}
-        memberDirectory={memberDirectory}
-        isOwner={isOwner}
-        removeMemberAction={isOwner ? removeFamilyMemberAction : undefined}
-        assignPaletteAction={
-          isOwner ? assignDelegatedMemberPaletteAction : undefined
-        }
-        paletteOptions={isOwner ? paletteOptions : undefined}
-      />
-
-      {isOwner ? (
-        <DeleteFamilyForm
-          action={deleteFamilyAction}
+        <SelectPaletteForm
+          action={selectPaletteAction}
           familyId={activeFamily.id}
-          familyName={activeFamily.name}
+          paletteOptions={paletteOptionsForMe}
+          currentPalette={myPaletteName}
         />
-      ) : (
-        <LeaveFamilyForm
-          action={leaveFamilyAction}
-          familyId={activeFamily.id}
-          familyName={activeFamily.name}
+
+        <FamilyMemberList
+          family={activeFamily}
+          memberDirectory={memberDirectory}
+          isOwner={isOwner}
+          removeMemberAction={isOwner ? removeFamilyMemberAction : undefined}
+          assignPaletteAction={
+            isOwner ? assignDelegatedMemberPaletteAction : undefined
+          }
+          paletteOptions={isOwner ? paletteOptions : undefined}
         />
-      )}
-    </section>
+
+        {isOwner ? (
+          <DeleteFamilyForm
+            action={deleteFamilyAction}
+            familyId={activeFamily.id}
+            familyName={activeFamily.name}
+          />
+        ) : (
+          <LeaveFamilyForm
+            action={leaveFamilyAction}
+            familyId={activeFamily.id}
+            familyName={activeFamily.name}
+          />
+        )}
+      </section>
+    </div>
   );
 }

@@ -34,21 +34,23 @@ export default async function CalendarPage() {
 
   if (!activeFamily) {
     return (
-      <section className="rounded-3xl border border-stone-200 bg-white/80 p-8 shadow-sm">
-        <h2 className="text-3xl font-semibold tracking-tight text-slate-900">
-          Calendario familiar
-        </h2>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-          Crea tu primera familia desde{" "}
-          <Link
-            href="/settings"
-            className="font-medium text-slate-900 underline"
-          >
-            Ajustes
-          </Link>{" "}
-          para empezar a compartir calendarios.
-        </p>
-      </section>
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+        <section className="rounded-3xl border border-stone-200 bg-white/80 p-8 shadow-sm">
+          <h2 className="text-3xl font-semibold tracking-tight text-slate-900">
+            Calendario familiar
+          </h2>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
+            Crea tu primera familia desde{" "}
+            <Link
+              href="/settings"
+              className="font-medium text-slate-900 underline"
+            >
+              Ajustes
+            </Link>{" "}
+            para empezar a compartir calendarios.
+          </p>
+        </section>
+      </div>
     );
   }
 
@@ -66,8 +68,8 @@ export default async function CalendarPage() {
   }));
 
   return (
-    <section className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm">
-      <div className="mb-4">
+    <div className="flex flex-1 flex-col">
+      <div className="px-2 pt-2 pb-0 sm:px-3">
         <NotificationOptIn />
       </div>
       <CalendarGrid
@@ -82,6 +84,6 @@ export default async function CalendarPage() {
         createAction={createEventAction}
         deleteAction={deleteEventAction}
       />
-    </section>
+    </div>
   );
 }

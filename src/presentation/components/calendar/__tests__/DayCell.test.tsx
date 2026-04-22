@@ -93,6 +93,43 @@ describe("DayCell", () => {
     expect(button.className).toContain("bg-blue-50");
   });
 
+  it("applies selected ring styling when isSelected is true", () => {
+    render(
+      <DayCell
+        day={10}
+        dateStr="2026-04-10"
+        isToday={false}
+        isSelected={true}
+        occurrences={[]}
+        members={MEMBERS}
+        onSelect={vi.fn()}
+      />,
+    );
+
+    const button = screen.getByRole("button", { name: /10/ });
+    expect(button.className).toContain("ring-2");
+    expect(button.className).toContain("ring-blue-500");
+    expect(button).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("does not apply selected ring styling when isSelected is false", () => {
+    render(
+      <DayCell
+        day={10}
+        dateStr="2026-04-10"
+        isToday={false}
+        isSelected={false}
+        occurrences={[]}
+        members={MEMBERS}
+        onSelect={vi.fn()}
+      />,
+    );
+
+    const button = screen.getByRole("button", { name: /10/ });
+    expect(button.className).not.toContain("ring-blue-500");
+    expect(button).toHaveAttribute("aria-pressed", "false");
+  });
+
   it("renders punctual event labels", () => {
     render(
       <DayCell

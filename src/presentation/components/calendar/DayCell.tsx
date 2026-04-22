@@ -12,6 +12,7 @@ interface DayCellProps {
   day: number;
   dateStr: string;
   isToday: boolean;
+  isSelected?: boolean;
   occurrences: CalendarOccurrence[];
   /** Visible members, used to resolve colors */
   members: SerializedMember[];
@@ -46,6 +47,7 @@ export function DayCell({
   day,
   dateStr,
   isToday,
+  isSelected = false,
   occurrences,
   members,
   onSelect,
@@ -93,14 +95,19 @@ export function DayCell({
       type="button"
       onClick={() => onSelect(dateStr)}
       aria-label={`${day}`}
+      aria-pressed={isSelected}
       className={[
-        "flex min-h-[5rem] cursor-pointer flex-col gap-0.5 overflow-hidden rounded-lg p-1 text-left text-xs transition-colors",
+        "flex min-h-[5.5rem] cursor-pointer flex-col gap-0.5 overflow-hidden rounded-lg p-1 text-left text-xs transition-colors sm:min-h-[6.5rem]",
         !hasShiftBg
           ? isToday
             ? "bg-blue-50"
             : "bg-white hover:bg-stone-50"
           : "",
-        isToday ? "ring-1 ring-blue-300" : "",
+        isSelected
+          ? "ring-2 ring-blue-500 ring-inset"
+          : isToday
+            ? "ring-1 ring-blue-300"
+            : "",
       ]
         .filter(Boolean)
         .join(" ")}
