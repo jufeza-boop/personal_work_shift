@@ -186,14 +186,16 @@ export function CalendarGrid({
     : [];
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-1 flex-col gap-2 p-2 sm:p-3">
       {/* Offline status banner */}
       <OfflineBanner
         isOnline={isOnline}
         isSyncing={isSyncing}
         pendingCount={pendingCount}
       />
-      <div className="flex items-center justify-between gap-4">
+
+      {/* Month navigation */}
+      <div className="flex items-center justify-between gap-4 px-1">
         <button
           type="button"
           onClick={() => {
@@ -201,12 +203,12 @@ export function CalendarGrid({
             setSelectedDate(null);
           }}
           aria-label="Mes anterior"
-          className="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-stone-100 hover:text-slate-900"
+          className="flex h-9 w-9 items-center justify-center rounded-full text-2xl text-slate-500 transition-colors hover:bg-stone-100 hover:text-slate-900"
         >
           ‹
         </button>
 
-        <h3 className="text-lg font-semibold text-slate-900">
+        <h3 className="text-base font-bold tracking-wide text-slate-900 uppercase sm:text-lg">
           {MONTH_NAMES[month - 1]} {year}
         </h3>
 
@@ -217,7 +219,7 @@ export function CalendarGrid({
             setSelectedDate(null);
           }}
           aria-label="Mes siguiente"
-          className="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-stone-100 hover:text-slate-900"
+          className="flex h-9 w-9 items-center justify-center rounded-full text-2xl text-slate-500 transition-colors hover:bg-stone-100 hover:text-slate-900"
         >
           ›
         </button>
@@ -233,13 +235,13 @@ export function CalendarGrid({
       )}
 
       {/* Calendar grid */}
-      <div className="overflow-hidden rounded-2xl border border-stone-200 bg-stone-100">
+      <div className="flex-1 overflow-hidden rounded-2xl border border-stone-200 bg-stone-100">
         {/* Day-of-week headers */}
         <div className="grid grid-cols-7 border-b border-stone-200 bg-stone-50">
           {DAY_HEADERS.map((label) => (
             <div
               key={label}
-              className="py-2 text-center text-xs font-medium text-slate-400"
+              className="py-2 text-center text-xs font-semibold tracking-wide text-slate-400 uppercase"
             >
               {label}
             </div>
@@ -256,7 +258,7 @@ export function CalendarGrid({
               return (
                 <div
                   key={i}
-                  className="min-h-[5rem] rounded-lg bg-stone-50/60"
+                  className="min-h-[5.5rem] rounded-lg bg-stone-50/60 sm:min-h-[6.5rem]"
                 />
               );
             }
@@ -274,6 +276,7 @@ export function CalendarGrid({
                 day={dayNumber}
                 dateStr={dateStr}
                 isToday={isToday}
+                isSelected={selectedDate === dateStr}
                 occurrences={occs}
                 members={visibleMembers}
                 onSelect={setSelectedDate}

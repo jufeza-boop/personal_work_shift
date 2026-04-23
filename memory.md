@@ -8,9 +8,9 @@
 
 ## Current State
 
-- **Phase**: Phase 14 Quality Assurance completed + Calendar visual improvements
-- **Last Updated**: 2026-04-21
-- **Tests**: 373 Vitest unit tests passing + E2E suites for mobile, accessibility, PWA
+- **Phase**: Phase 14 Quality Assurance completed + Calendar full-screen UI overhaul
+- **Last Updated**: 2026-04-22
+- **Tests**: 376 Vitest unit tests passing + E2E suites for mobile, accessibility, PWA
 
 ---
 
@@ -598,3 +598,28 @@
 
 - Security headers centralized in `src/infrastructure/security/securityHeaders.ts` and imported by `next.config.ts` via relative path (config files can't use `@/` alias)
 - Rate limiter is a generic reusable class; auth-specific instance is a separate singleton module
+
+### 2026-04-22 - Calendar Full-Screen UI Overhaul
+
+#### What was done
+
+- Removed AppNavBar from `(dashboard)/layout.tsx`; layout now only performs auth redirect
+- Created `(dashboard)/calendar/layout.tsx` — loads family data, renders `CalendarAppHeader`, wraps all calendar routes in a full-screen flex container
+- Created `CalendarAppHeader.tsx` server component — compact sticky header with brand icon, family selector (or name if single family), settings link, new-family link, and user menu
+- Updated `(dashboard)/calendar/page.tsx` — removed `<section>` wrapper; `CalendarGrid` is now the full page content with minimal padding
+- Updated `CalendarGrid.tsx` — full-screen flex layout (`flex flex-1 flex-col`), larger month navigation buttons, bigger day cells (`min-h-[5.5rem] sm:min-h-[6.5rem]`), uppercase bold month heading, passes `isSelected` to `DayCell`
+- Updated `DayCell.tsx` — new `isSelected?: boolean` prop; selected day shows `ring-2 ring-inset ring-blue-500` and `aria-pressed`
+- Updated `calendar/settings/page.tsx` and `calendar/delegated-users/page.tsx` to add their own `mx-auto max-w-5xl px-4 py-8 sm:px-6` wrapper (since the shared layout no longer provides it)
+- Created `README.md` with full project documentation
+- Updated 376 unit tests (2 new DayCell tests for `isSelected` styling)
+
+#### Decisions
+
+- Nested `(dashboard)/calendar/layout.tsx` is preferred over modifying every page — all calendar sub-routes automatically get the integrated header
+- `(dashboard)/layout.tsx` is now a thin auth-only wrapper; sub-layouts handle their own styling
+- `AppNavBar.tsx` is kept in the codebase but is no longer used — it can be reused for non-calendar dashboard sections if added in the future
+
+#### Patterns
+
+- Sub-pages (settings, delegated-users) own their max-width/padding wrappers directly; the calendar layout provides full-screen flex but no inner constraints
+- `isSelected` on `DayCell` uses `aria-pressed` for accessibility; ring styling is `ring-2 ring-inset ring-blue-500` (stronger than today's `ring-1 ring-blue-300`)
