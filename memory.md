@@ -8,9 +8,9 @@
 
 ## Current State
 
-- **Phase**: Phase 14 Quality Assurance completed + Calendar full-screen UI overhaul
-- **Last Updated**: 2026-04-22
-- **Tests**: 376 Vitest unit tests passing + E2E suites for mobile, accessibility, PWA
+- **Phase**: Phase 14 Quality Assurance completed + Calendar full-screen UI overhaul + Account deletion + Email redirect fix
+- **Last Updated**: 2026-04-24
+- **Tests**: 385 Vitest unit tests passing + E2E suites for mobile, accessibility, PWA
 
 ---
 
@@ -305,7 +305,42 @@
 
 ---
 
-## Active Patterns
+### 2026-04-24 - Account Deletion + Email Redirect Fix
+
+#### What was done
+
+- Added `deleteAccount(userId: string)` to `IAuthService` interface with `DeleteAccountAuthErrorCode` type
+- Implemented `deleteAccount` in `SupabaseAuthAdapter` using a Supabase Admin client (service_role key via `SUPABASE_SERVICE_ROLE_KEY` env var)
+- Implemented `deleteAccount` in `MockAuthAdapter` (removes user from mock store and clears session cookie)
+- Added `createServerSupabaseAdminClient()` factory in `src/infrastructure/supabase/server.ts`
+- Updated `createServerAuthDependencies()` in `runtime.ts` to create and pass the admin client (gracefully absent when env var is missing)
+- Created `DeleteAccount` use case: validates user exists, deletes auth account, then deletes user profile row
+- Created tests for `DeleteAccount` use case (5 cases, TDD)
+- Added `deleteAccountAction` server action in `src/app/actions/auth.ts`
+- Updated `UserMenu` to include a "Eliminar mi cuenta" button that opens a confirmation dialog; errors are shown inline inside the dialog
+- Updated `UserMenu` tests to cover new prop and all confirmation dialog states (4 new tests)
+- Fixed email confirmation redirect: `SupabaseAuthAdapter.register()` now passes `emailRedirectTo: siteUrl` using `NEXT_PUBLIC_SITE_URL` env var injected via `createServerAuthDependencies()`
+- Added `https://personal-work-shift.vercel.app` to `additional_redirect_urls` in `supabase/config.toml`
+
+#### Decisions
+
+- Admin client is created with `autoRefreshToken: false, persistSession: false` (server-side only, stateless)
+- `createServerSupabaseAdminClient()` throws when `SUPABASE_SERVICE_ROLE_KEY` is absent; `createServerAuthDependencies()` catches this and passes `undefined`, so `deleteAccount` returns `ADMIN_NOT_CONFIGURED` gracefully
+- `DeleteAccount` use case deletes the auth account first so session is immediately invalidated, then cleans up the user profile row
+- `UserMenu` stays open (does not close the confirmation dialog) when `deleteAccountAction` fails, allowing the user to see the error message
+
+#### Patterns
+
+- `SUPABASE_SERVICE_ROLE_KEY` — server-only env var (no `NEXT_PUBLIC_` prefix) for admin Supabase operations
+- `NEXT_PUBLIC_SITE_URL` — public env var set to the production app URL (e.g., `https://personal-work-shift.vercel.app`) for `emailRedirectTo`
+- Both must be set in Vercel's environment variable settings for production to work correctly
+
+#### Next steps
+
+- Set `SUPABASE_SERVICE_ROLE_KEY` and `NEXT_PUBLIC_SITE_URL` in Vercel and Supabase Dashboard
+- In Supabase Dashboard → Auth → URL Configuration: update Site URL to `https://personal-work-shift.vercel.app`
+
+---
 
 - Next.js App Router stays in `src/app`, while reusable UI lives in `src/presentation`
 - Public environment variables are validated through `src/shared/config/env.ts`

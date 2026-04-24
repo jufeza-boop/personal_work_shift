@@ -8,7 +8,10 @@ import {
   MOCK_SESSION_COOKIE,
 } from "@/infrastructure/auth/mockAuthStore";
 import { SupabaseAuthAdapter } from "@/infrastructure/auth/SupabaseAuthAdapter";
-import { createServerSupabaseClient } from "@/infrastructure/supabase/server";
+import {
+  createServerSupabaseAdminClient,
+  createServerSupabaseClient,
+} from "@/infrastructure/supabase/server";
 import { SupabaseUserRepository } from "@/infrastructure/supabase/SupabaseUserRepository";
 
 export interface AuthenticatedUser {
@@ -35,8 +38,20 @@ export async function createServerAuthDependencies(): Promise<{
 
   const supabase = await createServerSupabaseClient();
 
+  let adminClient:
+    | ReturnType<typeof createServerSupabaseAdminClient>
+    | undefined;
+
+  try {
+    adminClient = createServerSupabaseAdminClient();
+  } catch {
+    // Admin client is optional; deleteAccount will return ADMIN_NOT_CONFIGURED if absent.
+  }
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? undefined;
+
   return {
-    authService: new SupabaseAuthAdapter(supabase),
+    authService: new SupabaseAuthAdapter(supabase, adminClient, siteUrl),
     userRepository: new SupabaseUserRepository(supabase),
   };
 }

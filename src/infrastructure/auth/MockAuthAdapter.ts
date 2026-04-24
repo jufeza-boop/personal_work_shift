@@ -2,7 +2,9 @@ import type { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
 import type { IAuthService } from "@/application/services/IAuthService";
 import {
   createMockUser,
+  deleteMockUser,
   findMockUserByEmail,
+  findMockUserById,
   MOCK_SESSION_COOKIE,
 } from "@/infrastructure/auth/mockAuthStore";
 
@@ -75,6 +77,28 @@ export class MockAuthAdapter implements IAuthService {
   }
 
   async logout() {
+    this.cookieStore.delete(MOCK_SESSION_COOKIE);
+
+    return {
+      data: undefined,
+      success: true as const,
+    };
+  }
+
+  async deleteAccount(userId: string) {
+    const user = findMockUserById(userId);
+
+    if (!user) {
+      return {
+        error: {
+          code: "AUTH_PROVIDER_ERROR" as const,
+          message: "User not found",
+        },
+        success: false as const,
+      };
+    }
+
+    deleteMockUser(userId);
     this.cookieStore.delete(MOCK_SESSION_COOKIE);
 
     return {
