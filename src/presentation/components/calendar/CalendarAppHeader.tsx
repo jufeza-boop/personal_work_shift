@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CalendarDays, Plus, Settings2 } from "lucide-react";
-import { logoutAction } from "@/app/actions/auth";
+import { deleteAccountAction, logoutAction } from "@/app/actions/auth";
 import { switchFamilyAction } from "@/app/actions/family";
 import type { Family } from "@/domain/entities/Family";
 import { FamilySelectorDropdown } from "@/presentation/components/family/FamilySelectorDropdown";
@@ -70,7 +70,11 @@ export function CalendarAppHeader({
           <Plus className="h-4 w-4" />
         </Link>
 
-        <UserMenu email={userEmail} logoutAction={logoutAction} />
+        <UserMenu
+          email={userEmail}
+          logoutAction={logoutAction}
+          deleteAccountAction={deleteAccountAction}
+        />
       </nav>
     </header>
   );

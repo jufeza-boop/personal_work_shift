@@ -212,3 +212,14 @@
 - [x] Performance audit (Lighthouse >90 all categories)
 - [x] Accessibility audit (WCAG 2.1 AA compliance)
 - [x] Load testing for Realtime WebSocket connections
+
+---
+
+## Post-Launch Fixes & Improvements
+
+- [x] Implement "Eliminar mi cuenta" — `DeleteAccount` use case + `deleteAccountAction` + confirmation dialog in `UserMenu`
+  - Uses Supabase Admin API (requires `SUPABASE_SERVICE_ROLE_KEY` env var in Vercel)
+  - Deletes auth account first, then user profile row
+- [x] Fix email confirmation redirect URL — pass `emailRedirectTo: NEXT_PUBLIC_SITE_URL` in `signUp` call
+  - Also add production URL to `supabase/config.toml` `additional_redirect_urls`
+  - **Action required**: set `NEXT_PUBLIC_SITE_URL=https://personal-work-shift.vercel.app` in Vercel and update Site URL in Supabase Dashboard → Auth → URL Configuration

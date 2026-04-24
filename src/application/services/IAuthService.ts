@@ -49,8 +49,17 @@ export type LoginAuthResult = AuthResult<LoginAuthOutput, LoginAuthErrorCode>;
 export type LogoutAuthErrorCode = "AUTH_PROVIDER_ERROR";
 export type LogoutAuthResult = AuthResult<void, LogoutAuthErrorCode>;
 
+export type DeleteAccountAuthErrorCode =
+  | "AUTH_PROVIDER_ERROR"
+  | "ADMIN_NOT_CONFIGURED";
+export type DeleteAccountAuthResult = AuthResult<
+  void,
+  DeleteAccountAuthErrorCode
+>;
+
 export interface IAuthService {
   register(input: RegisterAuthInput): Promise<RegisterAuthResult>;
   login(input: LoginAuthInput): Promise<LoginAuthResult>;
   logout(): Promise<LogoutAuthResult>;
+  deleteAccount(userId: string): Promise<DeleteAccountAuthResult>;
 }

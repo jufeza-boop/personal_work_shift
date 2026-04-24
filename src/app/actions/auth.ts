@@ -1,10 +1,12 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { DeleteAccount } from "@/application/use-cases/auth/DeleteAccount";
 import { LoginUser } from "@/application/use-cases/auth/LoginUser";
 import { LogoutUser } from "@/application/use-cases/auth/LogoutUser";
 import { RegisterUser } from "@/application/use-cases/auth/RegisterUser";
 import { createServerAuthDependencies } from "@/infrastructure/auth/runtime";
+import { getAuthenticatedUser } from "@/infrastructure/auth/runtime";
 import { authRateLimiter } from "@/infrastructure/security/authRateLimiter";
 import { getClientIp } from "@/infrastructure/security/getClientIp";
 import {
@@ -147,4 +149,36 @@ export async function logoutAction(): Promise<void> {
   await useCase.execute();
 
   redirect("/login?message=logged-out");
+}
+
+export async function deleteAccountAction(): Promise<AuthFormState> {
+  const currentUser = await getAuthenticatedUser();
+
+  if (!currentUser) {
+    return {
+      message: "No hay sesión activa.",
+      success: false,
+    };
+  }
+
+  const { authService, userRepository } = await createServerAuthDependencies();
+  const useCase = new DeleteAccount(authService, userRepository);
+  const result = await useCase.execute({ userId: currentUser.id });
+
+  if (!result.success) {
+    if (result.error.code === "ADMIN_NOT_CONFIGURED") {
+      return {
+        message:
+          "La eliminación de cuenta no está disponible en este momento. Contacta al administrador.",
+        success: false,
+      };
+    }
+
+    return {
+      message: "No se pudo eliminar la cuenta. Inténtalo de nuevo.",
+      success: false,
+    };
+  }
+
+  redirect("/login?message=account-deleted");
 }

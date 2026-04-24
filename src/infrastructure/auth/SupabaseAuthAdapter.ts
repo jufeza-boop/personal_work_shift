@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
+  DeleteAccountAuthResult,
   IAuthService,
   LoginAuthInput,
   LoginAuthResult,
@@ -30,7 +31,11 @@ function toLoginFailure(message: string): LoginAuthResult {
 }
 
 export class SupabaseAuthAdapter implements IAuthService {
-  constructor(private readonly client: SupabaseClient<Database>) {}
+  constructor(
+    private readonly client: SupabaseClient<Database>,
+    private readonly adminClient?: SupabaseClient<Database>,
+    private readonly siteUrl?: string,
+  ) {}
 
   async register(input: RegisterAuthInput): Promise<RegisterAuthResult> {
     const { data, error } = await this.client.auth.signUp({
@@ -39,6 +44,7 @@ export class SupabaseAuthAdapter implements IAuthService {
         data: {
           display_name: input.displayName,
         },
+        emailRedirectTo: this.siteUrl ?? undefined,
       },
       password: input.password,
     });
@@ -118,6 +124,35 @@ export class SupabaseAuthAdapter implements IAuthService {
         error: {
           code: "AUTH_PROVIDER_ERROR",
           message: "Logout failed",
+        },
+        success: false,
+      };
+    }
+
+    return {
+      data: undefined,
+      success: true,
+    };
+  }
+
+  async deleteAccount(userId: string): Promise<DeleteAccountAuthResult> {
+    if (!this.adminClient) {
+      return {
+        error: {
+          code: "ADMIN_NOT_CONFIGURED",
+          message: "Admin client is not configured",
+        },
+        success: false,
+      };
+    }
+
+    const { error } = await this.adminClient.auth.admin.deleteUser(userId);
+
+    if (error) {
+      return {
+        error: {
+          code: "AUTH_PROVIDER_ERROR",
+          message: "Account deletion failed",
         },
         success: false,
       };

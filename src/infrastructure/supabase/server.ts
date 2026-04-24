@@ -1,3 +1,4 @@
+import { createClient } from "@supabase/supabase-js";
 import { createServerClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
@@ -26,4 +27,22 @@ export async function createServerSupabaseClient(): Promise<ServerSupabaseClient
       },
     },
   );
+}
+
+export function createServerSupabaseAdminClient(): ServerSupabaseClient {
+  const env = getAppEnv();
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!serviceRoleKey) {
+    throw new Error(
+      "SUPABASE_SERVICE_ROLE_KEY is not set. Admin operations are unavailable.",
+    );
+  }
+
+  return createClient<Database>(env.NEXT_PUBLIC_SUPABASE_URL, serviceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
 }
