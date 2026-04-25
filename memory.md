@@ -833,3 +833,40 @@
 - Used inline status div with `role="status"` and `aria-live="polite"` for accessible auto-dismissing feedback, no external toast library needed
 - `NotificationOptIn.tsx` and its tests are kept intact (not deleted) but are **deprecated** — `NotificationBell` is now the canonical notification UI; `NotificationOptIn` should be removed in a future cleanup PR
 - Fake timers + `act()` pattern used for testing the 3-second dismiss behavior
+
+---
+
+### 2026-04-25 - Phase 16: User Profile Page
+
+#### What was done
+
+- Created `UpdateProfile` use case (`src/application/use-cases/auth/UpdateProfile.ts`) to update a user's display name via the repository
+- Created `src/app/actions/profile.ts` with `updateDisplayNameAction` and `updateProfilePasswordAction` server actions (neither redirects; both return `ProfileFormState` so the page can show success/error inline)
+- Created `src/presentation/validation/profileSchemas.ts` with `updateDisplayNameSchema` and `updateProfilePasswordSchema` (includes password match refinement)
+- Created `src/presentation/hooks/useToast.ts` — `useToast` hook managing auto-dismissing toast queue with `addToast`/`removeToast`; `useSuccessToast` helper for triggering toast on action success
+- Created `src/presentation/components/ui/ToastList.tsx` — renders the toast list anchored bottom-right with success (emerald) and error (red) variants
+- Created profile form components: `EditDisplayNameForm`, `ChangePasswordForm` (resets on success), `DangerZone` (custom AlertDialog + `useTransition` for loading state)
+- Created `ProfilePageClient` to orchestrate the three sections with `useToast`
+- Created `/profile` route: `(dashboard)/profile/layout.tsx` (loads families + renders `CalendarAppHeader`) and `page.tsx` (loads user display name, renders `ProfilePageClient`)
+- Replaced "Eliminar mi cuenta" button in `UserMenu` with a "Mi Perfil" link to `/profile`; removed `deleteAccountAction` prop from `UserMenu`
+- Updated `CalendarAppHeader` and `AppNavBar` to remove `deleteAccountAction` prop from `UserMenu`
+- Updated all `UserMenu` tests to reflect the new link structure
+- Added TDD tests for `UpdateProfile` use case and all three profile form components
+- All 481 Vitest tests pass; lint clean; format applied
+
+#### Decisions
+
+- `updateProfilePasswordAction` does not redirect on success (unlike `updatePasswordAction` in auth.ts) so the user stays on the profile page and sees the success toast
+- Delete account on profile uses the existing `deleteAccountAction` from `auth.ts` (which redirects to login after deletion)
+- No new toast library added; `useToast` hook + `ToastList` component are enough for this use case
+- `DangerZone` uses `useTransition` instead of form state because delete does not use a `<form>` element
+
+#### Patterns
+
+- Profile forms follow the same `useActionState` pattern as auth forms
+- Toast success trigger: `useEffect` watching `state.success` with a `prevSuccess` ref to avoid double-firing
+- `ChangePasswordForm` uses `formRef.reset()` on success to clear password fields
+
+#### Next steps
+
+- Optionally add E2E coverage for the full profile update flow in Playwright
