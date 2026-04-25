@@ -11,6 +11,30 @@ export interface Toast {
 export function useToast(durationMs = 3500) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const nextId = useRef(0);
+  const timeoutIds = useRef<Map<number, ReturnType<typeof setTimeout>>>(
+    new Map(),
+  );
+
+  // Clean up all pending timeouts on unmount
+  useEffect(() => {
+    const ids = timeoutIds.current;
+
+    return () => {
+      ids.forEach((timeoutId) => clearTimeout(timeoutId));
+      ids.clear();
+    };
+  }, []);
+
+  const removeToast = useCallback((id: number) => {
+    const existingTimeout = timeoutIds.current.get(id);
+
+    if (existingTimeout !== undefined) {
+      clearTimeout(existingTimeout);
+      timeoutIds.current.delete(id);
+    }
+
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
 
   const addToast = useCallback(
     (message: string, type: Toast["type"] = "success") => {
@@ -18,16 +42,15 @@ export function useToast(durationMs = 3500) {
 
       setToasts((prev) => [...prev, { id, message, type }]);
 
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
+        timeoutIds.current.delete(id);
         setToasts((prev) => prev.filter((t) => t.id !== id));
       }, durationMs);
+
+      timeoutIds.current.set(id, timeoutId);
     },
     [durationMs],
   );
-
-  const removeToast = useCallback((id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  }, []);
 
   return { addToast, removeToast, toasts };
 }

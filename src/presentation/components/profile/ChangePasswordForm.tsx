@@ -17,10 +17,7 @@ export function ChangePasswordForm({
   action,
   onSuccess,
 }: ChangePasswordFormProps) {
-  const [state, formAction, isPending] = useActionState(
-    action,
-    EMPTY_PROFILE_FORM_STATE,
-  );
+  const [state, formAction] = useActionState(action, EMPTY_PROFILE_FORM_STATE);
   const formRef = useRef<HTMLFormElement>(null);
   const prevSuccess = useRef(false);
 
@@ -94,7 +91,6 @@ export function ChangePasswordForm({
           label="Cambiar contraseña"
           pendingLabel="Actualizando..."
           className="w-full sm:w-auto"
-          disabled={isPending}
         />
       </form>
     </section>
