@@ -16,6 +16,60 @@ export interface Database {
       shift_type: "morning" | "day" | "afternoon" | "night";
     };
     Tables: {
+      family_invitations: {
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          expires_at: string;
+          family_id: string;
+          family_name: string;
+          id?: string;
+          status?: string;
+          token: string;
+          used_at?: string | null;
+          used_by?: string | null;
+        };
+        Row: {
+          created_at: string;
+          created_by: string;
+          expires_at: string;
+          family_id: string;
+          family_name: string;
+          id: string;
+          status: string;
+          token: string;
+          used_at: string | null;
+          used_by: string | null;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          expires_at?: string;
+          family_id?: string;
+          family_name?: string;
+          id?: string;
+          status?: string;
+          token?: string;
+          used_at?: string | null;
+          used_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "family_invitations_family_id_fkey";
+            columns: ["family_id"];
+            isOneToOne: false;
+            referencedRelation: "families";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "family_invitations_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       event_exceptions: {
         Insert: {
           created_at?: string;
@@ -338,6 +392,8 @@ export interface Database {
 }
 
 export type EventRow = Database["public"]["Tables"]["events"]["Row"];
+export type InvitationRow =
+  Database["public"]["Tables"]["family_invitations"]["Row"];
 export type FamilyMemberRow =
   Database["public"]["Tables"]["family_members"]["Row"];
 export type FamilyRow = Database["public"]["Tables"]["families"]["Row"];

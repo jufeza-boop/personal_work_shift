@@ -8,9 +8,9 @@
 
 ## Current State
 
-- **Phase**: Phase 14 Quality Assurance completed + Calendar full-screen UI overhaul + Account deletion + Email redirect fix + Notification bell UX refactor
+- **Phase**: Phase 15 Shareable Invitation Links completed
 - **Last Updated**: 2026-04-25
-- **Tests**: 393 Vitest unit tests passing + E2E suites for mobile, accessibility, PWA
+- **Tests**: 450 Vitest unit tests passing + E2E suites for mobile, accessibility, PWA
 
 ---
 
@@ -342,6 +342,50 @@
 
 ---
 
+### 2026-04-25 - Phase 15: Shareable Invitation Links
+
+#### What was done
+
+- Added `Invitation` domain entity with states: `active`, `used`, `expired`, `cancelled` and business methods: `isUsable()`, `cancel()`, `markAsUsed()`, `computeCurrentStatus()`
+- Added `IInvitationRepository` domain interface: `findById`, `findByToken`, `findByFamilyId`, `save`, `delete`
+- Added 4 application use cases: `CreateInvitation`, `AcceptInvitation`, `CancelInvitation`, `ListFamilyInvitations`
+- Added `MockInvitationRepository` + `mockInvitationStore` (file-backed JSON at `/tmp/personal-work-shift/mock-invitation-store.json`)
+- Added `SupabaseInvitationRepository` mapping to the new `family_invitations` table
+- Added `createServerInvitationDependencies()` runtime factory in `src/infrastructure/invitation/runtime.ts`
+- Added Supabase migration `20260425160000_phase_15_invitations.sql` with `family_invitations` table, indexes, and RLS policies
+- Updated `database.types.ts` with `family_invitations` table types and `InvitationRow` export
+- Added `invitationSchemas.ts` Zod validation for `acceptInvitationSchema`
+- Added `invitationTypes.ts` in presentation (non-"use server") with `InvitationFormState`, `EMPTY_INVITATION_FORM_STATE`, `InvitationFormAction`
+- Added server actions in `src/app/actions/invitation.ts`: `createInvitationAction`, `cancelInvitationAction`, `acceptInvitationAction`
+- Added `CreateInvitationForm` client component — generates invitation, shows shareable URL
+- Added `ShareInvitationButton` client component — WhatsApp, Telegram, and copy-to-clipboard share buttons
+- Added `InvitationList` client component — shows all invitations with status badge, expiry, cancel button with confirm flow
+- Added `/invite/[token]` public page — validates token, redirects to login if unauthenticated, renders `AcceptInvitationForm` with palette picker
+- Updated family settings page to show invitation management section for owners
+- 57 new Vitest tests (total: 450 passing)
+
+#### Decisions
+
+- Invitation types/constants exported from `invitationTypes.ts` (not from "use server" action file) — Next.js rejects non-function exports from "use server" files
+- Invitation link format: `${NEXT_PUBLIC_SITE_URL}/invite/${token}` (token is a UUID)
+- Expiry: 7 days (`INVITATION_EXPIRY_DAYS = 7` constant in domain entity)
+- `computeCurrentStatus()` computes real-time status for display (maps "active" + expired → "expired") without mutating the stored status
+- The `/invite/[token]` page redirects to login with `redirectTo=/invite/${token}` if the user is not authenticated
+- Users who are already a family member are redirected to `/calendar` immediately
+
+#### Patterns
+
+- `InvitationFormState` (with `invitationUrl?: string`) decoupled from action file in `invitationTypes.ts`
+- `ShareInvitationButton`: WhatsApp `https://wa.me/?text=...` and Telegram `https://t.me/share/url?url=...` with `rel="noopener noreferrer" target="_blank"`
+- `InvitationList` uses `computeDisplayStatus()` (pure function, mirrors entity method) to show real-time status in UI without needing server round-trip
+
+#### Next steps
+
+- Apply `NEXT_PUBLIC_SITE_URL` in Vercel environment variables for production link generation
+- Consider adding invitation expiry background job to mark expired invitations in DB
+
+---
+
 - Next.js App Router stays in `src/app`, while reusable UI lives in `src/presentation`
 - Public environment variables are validated through `src/shared/config/env.ts`
 - Phase 0 smoke coverage includes a landing-page render test and environment validation test
@@ -398,6 +442,7 @@
 
 - Added `users`, `families`, `family_members`, `events`, and `event_exceptions` tables in `supabase/migrations/20260410090623_phase_2_infrastructure.sql`
 - Added `push_subscriptions` table in `supabase/migrations/20260416200000_phase_12_push_subscriptions.sql`
+- Added `family_invitations` table in `supabase/migrations/20260425160000_phase_15_invitations.sql` — stores shareable invitation tokens with status (`active`, `used`, `expired`, `cancelled`), expiry, and usage tracking
 - Added enum types for family roles, event types, recurring categories, shift types, and recurrence frequency units
 - Added RLS policies, ownership helper functions, auth-to-profile sync trigger, and supporting indexes for family/event lookups
 
