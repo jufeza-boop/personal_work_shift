@@ -193,7 +193,7 @@
 - Updated unauthenticated invite state to use shared UI primitives and auth visual language in [src/app/invite/[token]/page.tsx](src/app/invite/[token]/page.tsx)
 - Replaced custom CTA styles with shared Button variants (`default` and `secondary`) and Card structure for consistent spacing and contrast
 - Aligned background with auth pages gradient for unauthenticated flow
-- Extended test in [src/app/invite/[token]/__tests__/page.test.tsx](src/app/invite/[token]/__tests__/page.test.tsx) to validate design-system button classes
+- Extended test in [src/app/invite/[token]/**tests**/page.test.tsx](src/app/invite/[token]/__tests__/page.test.tsx) to validate design-system button classes
 
 #### Decisions
 
