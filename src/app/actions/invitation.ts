@@ -10,6 +10,7 @@ import { createServerInvitationDependencies } from "@/infrastructure/invitation/
 import type { InvitationFormState } from "@/presentation/components/family/invitationTypes";
 import { acceptInvitationSchema } from "@/presentation/validation/invitationSchemas";
 import { sanitizeRedirectPath } from "@/shared/auth/routeProtection";
+import { getSiteUrl } from "@/shared/config/siteUrl";
 
 const EMPTY: InvitationFormState = { success: false };
 
@@ -34,8 +35,7 @@ export async function createInvitationAction(
     formData.get("redirectTo")?.toString(),
   );
   const user = await requireUser(redirectTo);
-  const siteUrl =
-    process.env["NEXT_PUBLIC_SITE_URL"] ?? "http://localhost:3000";
+  const siteUrl = getSiteUrl();
 
   const { familyRepository, invitationRepository } =
     await createServerInvitationDependencies();

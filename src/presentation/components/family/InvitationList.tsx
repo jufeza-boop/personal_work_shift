@@ -93,7 +93,7 @@ function InvitationRow({
         </div>
 
         {displayStatus === "active" ? (
-          <p className="mt-1 font-mono text-xs break-all text-slate-600">
+          <p className="mt-1 font-mono text-xs break-words text-slate-600">
             {invitationUrl}
           </p>
         ) : null}

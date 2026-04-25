@@ -18,6 +18,7 @@ import {
 } from "@/app/actions/invitation";
 import { getFamilyPageData } from "@/app/(dashboard)/familyPageData";
 import { createServerInvitationDependencies } from "@/infrastructure/invitation/runtime";
+import { getSiteUrl } from "@/shared/config/siteUrl";
 import { AddDelegatedUserToFamilyForm } from "@/presentation/components/family/AddDelegatedUserToFamilyForm";
 import { CreateInvitationForm } from "@/presentation/components/family/CreateInvitationForm";
 import { DeleteFamilyForm } from "@/presentation/components/family/DeleteFamilyForm";
@@ -86,8 +87,7 @@ export default async function FamilySettingsPage() {
     .map((du) => ({ displayName: du.displayName, id: du.id }));
 
   // Invitations (owner only)
-  const siteUrl =
-    process.env["NEXT_PUBLIC_SITE_URL"] ?? "http://localhost:3000";
+  const siteUrl = getSiteUrl();
 
   type SerializedInvitation = {
     createdAt: string;
