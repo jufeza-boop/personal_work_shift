@@ -2,8 +2,8 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import { SubmitButton } from "@/presentation/components/ui/SubmitButton";
-import type { ProfileFormState } from "@/app/actions/profile";
-import { EMPTY_PROFILE_FORM_STATE } from "@/app/actions/profile";
+import type { ProfileFormState } from "@/presentation/components/profile/profileTypes";
+import { EMPTY_PROFILE_FORM_STATE } from "@/presentation/components/profile/profileTypes";
 
 interface ChangePasswordFormProps {
   action: (

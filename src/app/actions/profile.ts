@@ -7,14 +7,9 @@ import {
   updateDisplayNameSchema,
   updateProfilePasswordSchema,
 } from "@/presentation/validation/profileSchemas";
+import type { ProfileFormState } from "@/presentation/components/profile/profileTypes";
 
-export interface ProfileFormState {
-  errors?: Record<string, string | undefined>;
-  message?: string;
-  success: boolean;
-}
-
-export const EMPTY_PROFILE_FORM_STATE: ProfileFormState = { success: false };
+const EMPTY_PROFILE_FORM_STATE: ProfileFormState = { success: false };
 
 export async function updateDisplayNameAction(
   _previousState: ProfileFormState = EMPTY_PROFILE_FORM_STATE,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import type { ProfileFormState } from "@/app/actions/profile";
+import type { ProfileFormState } from "@/presentation/components/profile/profileTypes";
 import { ChangePasswordForm } from "@/presentation/components/profile/ChangePasswordForm";
 import { DangerZone } from "@/presentation/components/profile/DangerZone";
 import { EditDisplayNameForm } from "@/presentation/components/profile/EditDisplayNameForm";
