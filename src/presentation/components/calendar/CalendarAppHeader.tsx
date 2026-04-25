@@ -4,6 +4,7 @@ import { deleteAccountAction, logoutAction } from "@/app/actions/auth";
 import { switchFamilyAction } from "@/app/actions/family";
 import type { Family } from "@/domain/entities/Family";
 import { FamilySelectorDropdown } from "@/presentation/components/family/FamilySelectorDropdown";
+import { NotificationBell } from "@/presentation/components/ui/NotificationBell";
 import { UserMenu } from "@/presentation/components/ui/UserMenu";
 
 interface CalendarAppHeaderProps {
@@ -60,6 +61,8 @@ export function CalendarAppHeader({
         >
           <Settings2 className="h-4 w-4" />
         </Link>
+
+        <NotificationBell />
 
         <Link
           className="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-stone-100 hover:text-slate-900"
