@@ -167,6 +167,25 @@
 
 - Validate invitation acceptance end-to-end in UI against remote Supabase after deploying this backend change
 
+### 2026-04-25 - Invite Link UX for Unauthenticated Users
+
+#### What was done
+
+- Updated invite page flow in [src/app/invite/[token]/page.tsx](src/app/invite/[token]/page.tsx) to check authentication before invitation lookup
+- Added explicit UI state for unauthenticated users with clear instructions and actions:
+  - Iniciar sesión
+  - Registrarte
+- Preserved return path using `redirectTo=/invite/{token}` in both links
+- Added test coverage in [src/app/invite/[token]/__tests__/page.test.tsx](src/app/invite/[token]/__tests__/page.test.tsx)
+
+#### Decisions
+
+- Do not show “Invitación no encontrada” for unauthenticated users because RLS blocks token lookup without session and can produce misleading UX
+
+#### Next steps
+
+- Optionally add E2E coverage for guest invite-link access and post-login return to the same invite token
+
 - `IOfflineQueue.enqueue` accepts optional `retryCount` to allow re-enqueuing with incremented count on failure
 - `OfflineQueueStore` uses injectable `DbBackend` factory to enable pure in-memory testing without mocking IndexedDB
 - `CalendarGrid` uses `useState(() => new OfflineQueueStore())` instead of `useMemo` to guarantee a single stable instance

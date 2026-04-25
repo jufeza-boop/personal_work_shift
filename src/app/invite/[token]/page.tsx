@@ -14,6 +14,40 @@ interface InvitePageProps {
 export default async function InvitePage({ params }: InvitePageProps) {
   const { token } = await params;
 
+  const user = await getAuthenticatedUser();
+
+  if (!user) {
+    const redirectTo = encodeURIComponent(`/invite/${token}`);
+
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4">
+        <div className="w-full max-w-md rounded-3xl border border-stone-200 bg-white/80 p-8 shadow-sm">
+          <h1 className="text-2xl font-semibold text-slate-900">
+            Inicia sesión o regístrate
+          </h1>
+          <p className="mt-3 text-sm text-slate-600">
+            Para unirte a esta familia primero necesitas iniciar sesión o crear
+            una cuenta. Después, vuelve a usar este mismo enlace de invitación.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              className="inline-flex rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white"
+              href={`/login?redirectTo=${redirectTo}`}
+            >
+              Iniciar sesión
+            </Link>
+            <Link
+              className="inline-flex rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700"
+              href={`/register?redirectTo=${redirectTo}`}
+            >
+              Registrarte
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   const { invitationRepository, familyRepository } =
     await createServerInvitationDependencies();
 
@@ -70,15 +104,6 @@ export default async function InvitePage({ params }: InvitePageProps) {
           </Link>
         </div>
       </main>
-    );
-  }
-
-  // Check if user is authenticated; if not, redirect to login with return URL
-  const user = await getAuthenticatedUser();
-
-  if (!user) {
-    redirect(
-      `/login?redirectTo=${encodeURIComponent(`/invite/${token}`)}&message=login-required`,
     );
   }
 
