@@ -676,5 +676,5 @@
 #### Decisions
 
 - Used inline status div with `role="status"` and `aria-live="polite"` for accessible auto-dismissing feedback, no external toast library needed
-- `NotificationOptIn.tsx` and its tests are kept intact (not deleted) since the component still exists; only its usage in calendar page was removed
+- `NotificationOptIn.tsx` and its tests are kept intact (not deleted) but are **deprecated** — `NotificationBell` is now the canonical notification UI; `NotificationOptIn` should be removed in a future cleanup PR
 - Fake timers + `act()` pattern used for testing the 3-second dismiss behavior
