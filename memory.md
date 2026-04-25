@@ -176,7 +176,7 @@
   - Iniciar sesión
   - Registrarte
 - Preserved return path using `redirectTo=/invite/{token}` in both links
-- Added test coverage in [src/app/invite/[token]/__tests__/page.test.tsx](src/app/invite/[token]/__tests__/page.test.tsx)
+- Added test coverage in [src/app/invite/[token]/**tests**/page.test.tsx](src/app/invite/[token]/__tests__/page.test.tsx)
 
 #### Decisions
 
@@ -185,6 +185,23 @@
 #### Next steps
 
 - Optionally add E2E coverage for guest invite-link access and post-login return to the same invite token
+
+### 2026-04-25 - Invite Page Visual Consistency
+
+#### What was done
+
+- Updated unauthenticated invite state to use shared UI primitives and auth visual language in [src/app/invite/[token]/page.tsx](src/app/invite/[token]/page.tsx)
+- Replaced custom CTA styles with shared Button variants (`default` and `secondary`) and Card structure for consistent spacing and contrast
+- Aligned background with auth pages gradient for unauthenticated flow
+- Extended test in [src/app/invite/[token]/__tests__/page.test.tsx](src/app/invite/[token]/__tests__/page.test.tsx) to validate design-system button classes
+
+#### Decisions
+
+- Public invite access without session should visually match authentication journey pages rather than dashboard surfaces
+
+#### Next steps
+
+- Consider extracting a reusable unauthenticated invite prompt component if similar CTA appears in other public entry points
 
 - `IOfflineQueue.enqueue` accepts optional `retryCount` to allow re-enqueuing with incremented count on failure
 - `OfflineQueueStore` uses injectable `DbBackend` factory to enable pure in-memory testing without mocking IndexedDB

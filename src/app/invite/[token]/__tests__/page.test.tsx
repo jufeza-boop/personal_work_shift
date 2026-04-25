@@ -56,6 +56,8 @@ describe("InvitePage", () => {
       "/login?redirectTo=%2Finvite%2Ftok-123",
     );
 
+    expect(loginLink.className).toContain("bg-primary");
+
     const registerLink = screen.getByRole("link", {
       name: /registrarte/i,
     });
@@ -63,6 +65,7 @@ describe("InvitePage", () => {
       "href",
       "/register?redirectTo=%2Finvite%2Ftok-123",
     );
+    expect(registerLink.className).toContain("bg-secondary");
 
     expect(mockRedirect).not.toHaveBeenCalled();
   });
