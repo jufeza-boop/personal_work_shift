@@ -182,3 +182,133 @@ export async function deleteAccountAction(): Promise<AuthFormState> {
 
   redirect("/login?message=account-deleted");
 }
+
+export async function requestPasswordResetAction(
+  _previousState: AuthFormState = EMPTY_AUTH_FORM_STATE,
+  formData: FormData,
+): Promise<AuthFormState> {
+  void _previousState;
+
+  const email = formData.get("email")?.toString().trim().toLowerCase() ?? "";
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return {
+      errors: { email: "Introduce un correo electrónico válido." },
+      success: false,
+    };
+  }
+
+  const { authService } = await createServerAuthDependencies();
+  const result = await authService.resetPasswordForEmail(email);
+
+  if (!result.success) {
+    if (result.error.code === "RATE_LIMIT_EXCEEDED") {
+      return {
+        message: "Demasiados intentos. Por favor, espera unos minutos.",
+        success: false,
+      };
+    }
+
+    return {
+      message: "No se pudo enviar el código. Inténtalo de nuevo.",
+      success: false,
+    };
+  }
+
+  return { success: true };
+}
+
+export async function verifyOtpAction(
+  _previousState: AuthFormState = EMPTY_AUTH_FORM_STATE,
+  formData: FormData,
+): Promise<AuthFormState> {
+  void _previousState;
+
+  const email = formData.get("email")?.toString().trim().toLowerCase() ?? "";
+  const token = formData.get("token")?.toString().trim() ?? "";
+
+  if (!token || !/^\d{6}$/.test(token)) {
+    return {
+      errors: { token: "El código debe tener 6 dígitos numéricos." },
+      success: false,
+    };
+  }
+
+  const { authService } = await createServerAuthDependencies();
+  const result = await authService.verifyOtp(email, token);
+
+  if (!result.success) {
+    if (result.error.code === "OTP_EXPIRED") {
+      return {
+        message: "El código ha expirado. Solicita uno nuevo.",
+        success: false,
+      };
+    }
+
+    return {
+      message: "El código no es válido. Compruébalo e inténtalo de nuevo.",
+      success: false,
+    };
+  }
+
+  return { success: true };
+}
+
+export async function updatePasswordAction(
+  _previousState: AuthFormState = EMPTY_AUTH_FORM_STATE,
+  formData: FormData,
+): Promise<AuthFormState> {
+  void _previousState;
+
+  const password = formData.get("password")?.toString() ?? "";
+  const confirmPassword = formData.get("confirmPassword")?.toString() ?? "";
+
+  const passwordPolicy = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+  if (!passwordPolicy.test(password)) {
+    return {
+      errors: {
+        password:
+          "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.",
+      },
+      success: false,
+    };
+  }
+
+  if (password !== confirmPassword) {
+    return {
+      errors: { confirmPassword: "Las contraseñas no coinciden." },
+      success: false,
+    };
+  }
+
+  const { authService } = await createServerAuthDependencies();
+  const result = await authService.updatePassword(password);
+
+  if (!result.success) {
+    if (result.error.code === "NO_SESSION") {
+      return {
+        message:
+          "La sesión ha expirado. Vuelve a solicitar el código de recuperación.",
+        success: false,
+      };
+    }
+
+    if (result.error.code === "WEAK_PASSWORD") {
+      return {
+        errors: {
+          password:
+            "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.",
+        },
+        success: false,
+      };
+    }
+
+    return {
+      message: "No se pudo actualizar la contraseña. Inténtalo de nuevo.",
+      success: false,
+    };
+  }
+
+  redirect("/calendar");
+}

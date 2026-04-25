@@ -63,6 +63,7 @@
 - [x] Implement auth middleware (protected routes)
 - [x] Configure httpOnly cookie session management
 - [x] Write E2E tests for auth flows
+- [x] Implement forgot-password OTP flow (3-step: email → OTP → new password)
 
 ---
 

@@ -203,6 +203,39 @@
 
 - Consider extracting a reusable unauthenticated invite prompt component if similar CTA appears in other public entry points
 
+---
+
+### 2026-04-25 - Forgot Password OTP Flow (US-1.4)
+
+#### What was done
+
+- Extended `IAuthService` with three new methods: `resetPasswordForEmail`, `verifyOtp`, `updatePassword`
+- Implemented those methods in `SupabaseAuthAdapter` (calls `auth.resetPasswordForEmail`, `auth.verifyOtp({type:'recovery'})`, `auth.updateUser`)
+- Added stub implementations in `MockAuthAdapter` (always succeeds; verifyOtp accepts token `000000` in mock mode)
+- Added three server actions in `src/app/actions/auth.ts`: `requestPasswordResetAction`, `verifyOtpAction`, `updatePasswordAction`
+- Created `src/presentation/components/ui/input-otp.tsx` (shadcn InputOTP using `input-otp` npm package)
+- Created `src/presentation/components/auth/ForgotPasswordForm.tsx` — 3-step client component (email → OTP → new password)
+- Created `src/app/(auth)/forgot-password/page.tsx` — renders `ForgotPasswordForm` inside the auth layout
+- Added "¿Olvidaste tu contraseña?" link to `LoginForm`
+- Added `ResizeObserver` polyfill in `src/test/setup.ts` (required by `input-otp` in jsdom)
+- 10 TDD tests in `ForgotPasswordForm.test.tsx`; total: 464 Vitest tests
+
+#### Decisions
+
+- Used `useTransition` + direct async action calls (not `useActionState`) in `ForgotPasswordForm` to avoid ESLint `react-hooks/set-state-in-effect` violations
+- OTP errors mapped: expired → friendly "código expirado" message; invalid → "código no válido" message
+- `updatePassword` step uses `passwordState.errors.displayName` field to carry the confirm-password mismatch error (reuses existing `AuthFormErrors` type without breaking its interface)
+- `redirectTo` on successful password update goes directly to `/calendar` since user has an active session after `verifyOtp`
+
+#### Patterns
+
+- Form step transitions driven by `startTransition` async handlers; state held in local `useState`; no useEffect for state transitions
+- Use `findByRole` (async) in RTL tests when querying elements that appear after async state transitions
+
+#### Next steps
+
+- Add E2E Playwright test covering the full OTP reset flow in mock mode
+
 - `IOfflineQueue.enqueue` accepts optional `retryCount` to allow re-enqueuing with incremented count on failure
 - `OfflineQueueStore` uses injectable `DbBackend` factory to enable pure in-memory testing without mocking IndexedDB
 - `CalendarGrid` uses `useState(() => new OfflineQueueStore())` instead of `useMemo` to guarantee a single stable instance
