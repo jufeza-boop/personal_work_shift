@@ -57,9 +57,29 @@ export type DeleteAccountAuthResult = AuthResult<
   DeleteAccountAuthErrorCode
 >;
 
+export type ResetPasswordErrorCode =
+  | "AUTH_PROVIDER_ERROR"
+  | "RATE_LIMIT_EXCEEDED";
+export type ResetPasswordResult = AuthResult<void, ResetPasswordErrorCode>;
+
+export type VerifyOtpErrorCode =
+  | "AUTH_PROVIDER_ERROR"
+  | "INVALID_OTP"
+  | "OTP_EXPIRED";
+export type VerifyOtpResult = AuthResult<void, VerifyOtpErrorCode>;
+
+export type UpdatePasswordErrorCode =
+  | "AUTH_PROVIDER_ERROR"
+  | "WEAK_PASSWORD"
+  | "NO_SESSION";
+export type UpdatePasswordResult = AuthResult<void, UpdatePasswordErrorCode>;
+
 export interface IAuthService {
   register(input: RegisterAuthInput): Promise<RegisterAuthResult>;
   login(input: LoginAuthInput): Promise<LoginAuthResult>;
   logout(): Promise<LogoutAuthResult>;
   deleteAccount(userId: string): Promise<DeleteAccountAuthResult>;
+  resetPasswordForEmail(email: string): Promise<ResetPasswordResult>;
+  verifyOtp(email: string, token: string): Promise<VerifyOtpResult>;
+  updatePassword(newPassword: string): Promise<UpdatePasswordResult>;
 }

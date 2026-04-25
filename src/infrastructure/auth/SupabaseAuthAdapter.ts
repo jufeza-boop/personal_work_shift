@@ -7,6 +7,9 @@ import type {
   LogoutAuthResult,
   RegisterAuthInput,
   RegisterAuthResult,
+  ResetPasswordResult,
+  UpdatePasswordResult,
+  VerifyOtpResult,
 } from "@/application/services/IAuthService";
 import type { Database } from "@/infrastructure/supabase/database.types";
 
@@ -162,5 +165,107 @@ export class SupabaseAuthAdapter implements IAuthService {
       data: undefined,
       success: true,
     };
+  }
+
+  async resetPasswordForEmail(email: string): Promise<ResetPasswordResult> {
+    const redirectTo = this.siteUrl
+      ? `${this.siteUrl}/forgot-password`
+      : undefined;
+
+    const { error } = await this.client.auth.resetPasswordForEmail(email, {
+      redirectTo,
+    });
+
+    if (error) {
+      if (error.status === 429) {
+        return {
+          error: {
+            code: "RATE_LIMIT_EXCEEDED",
+            message: "Rate limit exceeded",
+          },
+          success: false,
+        };
+      }
+
+      return {
+        error: {
+          code: "AUTH_PROVIDER_ERROR",
+          message: error.message,
+        },
+        success: false,
+      };
+    }
+
+    return { data: undefined, success: true };
+  }
+
+  async verifyOtp(email: string, token: string): Promise<VerifyOtpResult> {
+    const { error } = await this.client.auth.verifyOtp({
+      email,
+      token,
+      type: "recovery",
+    });
+
+    if (error) {
+      const msg = error.message.toLowerCase();
+
+      if (msg.includes("expired")) {
+        return {
+          error: { code: "OTP_EXPIRED", message: "OTP has expired" },
+          success: false,
+        };
+      }
+
+      if (
+        msg.includes("invalid") ||
+        msg.includes("not found") ||
+        msg.includes("otp")
+      ) {
+        return {
+          error: { code: "INVALID_OTP", message: "OTP is invalid" },
+          success: false,
+        };
+      }
+
+      return {
+        error: { code: "AUTH_PROVIDER_ERROR", message: error.message },
+        success: false,
+      };
+    }
+
+    return { data: undefined, success: true };
+  }
+
+  async updatePassword(newPassword: string): Promise<UpdatePasswordResult> {
+    const {
+      data: { user },
+    } = await this.client.auth.getUser();
+
+    if (!user) {
+      return {
+        error: { code: "NO_SESSION", message: "No active session" },
+        success: false,
+      };
+    }
+
+    const { error } = await this.client.auth.updateUser({
+      password: newPassword,
+    });
+
+    if (error) {
+      if (error.message.toLowerCase().includes("password")) {
+        return {
+          error: { code: "WEAK_PASSWORD", message: error.message },
+          success: false,
+        };
+      }
+
+      return {
+        error: { code: "AUTH_PROVIDER_ERROR", message: error.message },
+        success: false,
+      };
+    }
+
+    return { data: undefined, success: true };
   }
 }

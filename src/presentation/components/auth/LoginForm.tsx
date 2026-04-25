@@ -96,6 +96,11 @@ export function LoginForm({
             Regístrate
           </Link>
         </p>
+        <p className="mt-2 text-sm text-slate-600">
+          <Link className="font-medium text-amber-700" href="/forgot-password">
+            ¿Olvidaste tu contraseña?
+          </Link>
+        </p>
       </CardContent>
     </Card>
   );
