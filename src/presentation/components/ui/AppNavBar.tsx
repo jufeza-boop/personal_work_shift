@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CalendarDays, Plus, Settings2 } from "lucide-react";
-import { deleteAccountAction, logoutAction } from "@/app/actions/auth";
+import { logoutAction } from "@/app/actions/auth";
 import { switchFamilyAction } from "@/app/actions/family";
 import type { Family } from "@/domain/entities/Family";
 import { FamilySelectorDropdown } from "@/presentation/components/family/FamilySelectorDropdown";
@@ -68,11 +68,7 @@ export function AppNavBar({
         </nav>
 
         {/* User menu */}
-        <UserMenu
-          email={userEmail}
-          logoutAction={logoutAction}
-          deleteAccountAction={deleteAccountAction}
-        />
+        <UserMenu email={userEmail} logoutAction={logoutAction} />
       </div>
     </header>
   );

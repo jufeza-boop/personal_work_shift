@@ -248,3 +248,20 @@
 - [x] `InvitationList` component with status badges + cancel flow + tests
 - [x] `/invite/[token]` public join page + `AcceptInvitationForm`
 - [x] Updated family settings page with invitation management section (owners only)
+
+---
+
+## Phase 16: User Profile Page
+
+- [x] `UpdateProfile` use case + tests
+- [x] `updateDisplayNameAction` server action
+- [x] `updateProfilePasswordAction` server action (stays on profile page, no redirect)
+- [x] `profileSchemas.ts` Zod validation for display name and password
+- [x] `/profile` route with `CalendarAppHeader` layout
+- [x] `EditDisplayNameForm` component + tests
+- [x] `ChangePasswordForm` component + tests (clears on success)
+- [x] `DangerZone` component with AlertDialog + loading state + tests
+- [x] `ProfilePageClient` orchestration component with `useToast` hook
+- [x] `ToastList` UI component for success/error notifications
+- [x] Replaced "Eliminar mi cuenta" button in `UserMenu` with "Mi Perfil" link to `/profile`
+- [x] Updated `UserMenu` tests
