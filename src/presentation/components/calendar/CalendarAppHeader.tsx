@@ -4,6 +4,7 @@ import { deleteAccountAction, logoutAction } from "@/app/actions/auth";
 import { switchFamilyAction } from "@/app/actions/family";
 import type { Family } from "@/domain/entities/Family";
 import { FamilySelectorDropdown } from "@/presentation/components/family/FamilySelectorDropdown";
+import { NotificationBell } from "@/presentation/components/ui/NotificationBell";
 import { UserMenu } from "@/presentation/components/ui/UserMenu";
 
 interface CalendarAppHeaderProps {
@@ -24,7 +25,7 @@ export function CalendarAppHeader({
 
   return (
     <header className="sticky top-0 z-40 flex h-13 items-center justify-between gap-2 border-b border-stone-200/80 bg-white/90 px-3 backdrop-blur sm:h-14 sm:px-4">
-      {/* Brand + family name */}
+      {/* Brand + family name + new family */}
       <div className="flex min-w-0 items-center gap-2">
         <Link
           className="flex shrink-0 items-center gap-1.5 text-amber-900 hover:opacity-80"
@@ -45,6 +46,15 @@ export function CalendarAppHeader({
             {activeFamilyName ?? "Personal Work Shift"}
           </span>
         )}
+
+        <Link
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-amber-900 transition-colors hover:bg-amber-50"
+          href="/calendar/family/new"
+          aria-label="Nueva familia"
+          title="Nueva familia"
+        >
+          <Plus className="h-3.5 w-3.5" />
+        </Link>
       </div>
 
       {/* Actions */}
@@ -61,14 +71,7 @@ export function CalendarAppHeader({
           <Settings2 className="h-4 w-4" />
         </Link>
 
-        <Link
-          className="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-stone-100 hover:text-slate-900"
-          href="/calendar/family/new"
-          aria-label="Nueva familia"
-          title="Nueva familia"
-        >
-          <Plus className="h-4 w-4" />
-        </Link>
+        <NotificationBell />
 
         <UserMenu
           email={userEmail}

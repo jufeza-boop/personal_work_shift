@@ -8,9 +8,9 @@
 
 ## Current State
 
-- **Phase**: Phase 14 Quality Assurance completed + Calendar full-screen UI overhaul + Account deletion + Email redirect fix
-- **Last Updated**: 2026-04-24
-- **Tests**: 385 Vitest unit tests passing + E2E suites for mobile, accessibility, PWA
+- **Phase**: Phase 14 Quality Assurance completed + Calendar full-screen UI overhaul + Account deletion + Email redirect fix + Notification bell UX refactor
+- **Last Updated**: 2026-04-25
+- **Tests**: 393 Vitest unit tests passing + E2E suites for mobile, accessibility, PWA
 
 ---
 
@@ -658,3 +658,23 @@
 
 - Sub-pages (settings, delegated-users) own their max-width/padding wrappers directly; the calendar layout provides full-screen flex but no inner constraints
 - `isSelected` on `DayCell` uses `aria-pressed` for accessibility; ring styling is `ring-2 ring-inset ring-blue-500` (stronger than today's `ring-1 ring-blue-300`)
+
+---
+
+### 2026-04-25 - Notification Bell UX Refactor
+
+#### What was done
+
+- Created `NotificationBell.tsx` client component: icon-only button (Bell when subscribed, BellOff when not) placed in the navbar next to "Ajustes de familia"
+- On click: toggles subscription (subscribe/unsubscribe) and shows a brief auto-dismissing status message ("Notificaciones activas" / "Notificaciones inactivas") for 3 seconds
+- Returns `null` if push is not supported or permission is denied
+- Removed `NotificationOptIn` banner from `calendar/page.tsx` (the wide banner below the navbar is gone)
+- Updated `AppNavBar.tsx` to import and render `NotificationBell` between the nav links and the family selector
+- Added 8 unit tests for `NotificationBell` covering all states and interactions
+- Ran `npm run format`
+
+#### Decisions
+
+- Used inline status div with `role="status"` and `aria-live="polite"` for accessible auto-dismissing feedback, no external toast library needed
+- `NotificationOptIn.tsx` and its tests are kept intact (not deleted) but are **deprecated** — `NotificationBell` is now the canonical notification UI; `NotificationOptIn` should be removed in a future cleanup PR
+- Fake timers + `act()` pattern used for testing the 3-second dismiss behavior

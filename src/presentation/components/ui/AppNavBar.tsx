@@ -4,6 +4,7 @@ import { deleteAccountAction, logoutAction } from "@/app/actions/auth";
 import { switchFamilyAction } from "@/app/actions/family";
 import type { Family } from "@/domain/entities/Family";
 import { FamilySelectorDropdown } from "@/presentation/components/family/FamilySelectorDropdown";
+import { NotificationBell } from "@/presentation/components/ui/NotificationBell";
 import { UserMenu } from "@/presentation/components/ui/UserMenu";
 
 const NAV_LINKS = [
@@ -51,6 +52,7 @@ export function AppNavBar({
               <span>{label}</span>
             </Link>
           ))}
+          <NotificationBell />
           <FamilySelectorDropdown
             action={switchFamilyAction}
             activeFamilyId={activeFamilyId}

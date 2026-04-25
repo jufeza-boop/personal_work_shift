@@ -8,7 +8,6 @@ import {
 import type { SerializedMember } from "@/application/services/calendarUtils";
 import { createServerEventDependencies } from "@/infrastructure/events/runtime";
 import { CalendarGrid } from "@/presentation/components/calendar/CalendarGrid";
-import { NotificationOptIn } from "@/presentation/components/ui/NotificationOptIn";
 
 export default async function CalendarPage() {
   const { activeFamily, delegatedUsers, memberDirectory, user } =
@@ -69,9 +68,6 @@ export default async function CalendarPage() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <div className="px-2 pt-2 pb-0 sm:px-3">
-        <NotificationOptIn />
-      </div>
       <CalendarGrid
         initialEvents={serializedEvents}
         initialExceptions={serializedExceptions}
