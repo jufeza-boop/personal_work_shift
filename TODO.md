@@ -223,3 +223,27 @@
 - [x] Fix email confirmation redirect URL — pass `emailRedirectTo: NEXT_PUBLIC_SITE_URL` in `signUp` call
   - Also add production URL to `supabase/config.toml` `additional_redirect_urls`
   - **Action required**: set `NEXT_PUBLIC_SITE_URL=https://personal-work-shift.vercel.app` in Vercel and update Site URL in Supabase Dashboard → Auth → URL Configuration
+
+---
+
+## Phase 15: Shareable Invitation Links
+
+- [x] `Invitation` domain entity with states (`active`, `used`, `expired`, `cancelled`) + TDD tests
+- [x] `IInvitationRepository` domain interface
+- [x] `CreateInvitation` use case + tests
+- [x] `AcceptInvitation` use case + tests
+- [x] `CancelInvitation` use case + tests
+- [x] `ListFamilyInvitations` use case + tests
+- [x] Supabase migration `20260425160000_phase_15_invitations.sql`
+- [x] `SupabaseInvitationRepository`
+- [x] `MockInvitationRepository` + `mockInvitationStore`
+- [x] `createServerInvitationDependencies()` runtime factory
+- [x] Update `database.types.ts` with `family_invitations` table
+- [x] `invitationSchemas.ts` Zod validation
+- [x] `invitationTypes.ts` presentation types (decoupled from "use server" action file)
+- [x] Server actions: `createInvitationAction`, `cancelInvitationAction`, `acceptInvitationAction`
+- [x] `CreateInvitationForm` component + tests
+- [x] `ShareInvitationButton` component (WhatsApp, Telegram, copy) + tests
+- [x] `InvitationList` component with status badges + cancel flow + tests
+- [x] `/invite/[token]` public join page + `AcceptInvitationForm`
+- [x] Updated family settings page with invitation management section (owners only)
