@@ -17,7 +17,7 @@ export default async function EditEventPage({
 }: EditEventPageProps) {
   const { id } = await params;
   const occurrenceDate = searchParams ? (await searchParams).date : undefined;
-  const { user } = await getFamilyPageData("/calendar");
+  const { user, delegatedUsers } = await getFamilyPageData("/calendar");
   const { eventRepository } = await createServerEventDependencies();
   const event = await eventRepository.findById(id);
 
@@ -25,7 +25,9 @@ export default async function EditEventPage({
     redirect("/calendar");
   }
 
-  if (event.createdBy !== user.id) {
+  const isOwnEvent = event.createdBy === user.id;
+  const isDelegatedEvent = delegatedUsers.some((u) => u.id === event.createdBy);
+  if (!isOwnEvent && !isDelegatedEvent) {
     redirect("/calendar");
   }
 

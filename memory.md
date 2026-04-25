@@ -10,11 +10,24 @@
 
 - **Phase**: Phase 15 Shareable Invitation Links completed
 - **Last Updated**: 2026-04-25
-- **Tests**: 450 Vitest unit tests passing + E2E suites for mobile, accessibility, PWA
+- **Tests**: 487 Vitest unit tests passing + E2E suites for mobile, accessibility, PWA
 
 ---
 
 ## Decisions Log
+
+### 2026-04-25 - Bug Fix: Edit page delegation check
+
+- **Bug**: `src/app/(dashboard)/calendar/events/[id]/edit/page.tsx` used a strict
+  `event.createdBy !== user.id` check that blocked editing of delegated-user events,
+  even though the server actions already supported delegation via `resolveRequestedBy`.
+- **Fix**: Changed the guard to `!isOwnEvent && !isDelegatedEvent`, where `isDelegatedEvent`
+  checks `delegatedUsers` (already returned by `getFamilyPageData`).
+- **Tests added**: `src/app/(dashboard)/calendar/events/[id]/edit/__tests__/page.test.tsx`
+  with 6 unit tests covering own-user, delegated-user (both punctual and recurring),
+  unrelated-user, not-found, and foreign-delegated-user cases.
+- **Pattern**: Used `vi.hoisted()` to avoid Temporal Dead Zone issues when mock
+  variables need to be referenced inside `vi.mock` factories.
 
 ### 2026-04-09 - Project Kickoff
 
