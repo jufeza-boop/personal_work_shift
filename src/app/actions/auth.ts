@@ -229,7 +229,7 @@ export async function verifyOtpAction(
 
   if (!token || !/^\d{6}$/.test(token)) {
     return {
-      errors: { password: "El código debe tener 6 dígitos numéricos." },
+      errors: { token: "El código debe tener 6 dígitos numéricos." },
       success: false,
     };
   }
@@ -277,7 +277,7 @@ export async function updatePasswordAction(
 
   if (password !== confirmPassword) {
     return {
-      errors: { displayName: "Las contraseñas no coinciden." },
+      errors: { confirmPassword: "Las contraseñas no coinciden." },
       success: false,
     };
   }

@@ -180,9 +180,9 @@ export function ForgotPasswordForm() {
                   </InputOTPGroup>
                 </InputOTP>
 
-                {otpState.errors?.password ? (
+                {otpState.errors?.token ? (
                   <p className="text-sm text-red-600">
-                    {otpState.errors.password}
+                    {otpState.errors.token}
                   </p>
                 ) : null}
               </div>
@@ -261,9 +261,9 @@ export function ForgotPasswordForm() {
                   name="confirmPassword"
                   type="password"
                 />
-                {passwordState.errors?.displayName ? (
+                {passwordState.errors?.confirmPassword ? (
                   <p className="text-sm text-red-600">
-                    {passwordState.errors.displayName}
+                    {passwordState.errors.confirmPassword}
                   </p>
                 ) : null}
               </div>

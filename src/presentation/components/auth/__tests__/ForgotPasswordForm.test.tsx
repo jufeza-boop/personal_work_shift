@@ -28,11 +28,11 @@ async function goToOtpStep() {
   render(<ForgotPasswordForm />);
 
   const emailForm = (
-    await screen.findByRole("button", { name: "Enviar c\u00f3digo" })
+    await screen.findByRole("button", { name: "Enviar código" })
   ).closest("form")!;
   fireEvent.submit(emailForm);
 
-  return screen.findByRole("button", { name: "Verificar c\u00f3digo" });
+  return screen.findByRole("button", { name: "Verificar código" });
 }
 
 async function goToPasswordStep() {
@@ -40,7 +40,7 @@ async function goToPasswordStep() {
   const verifyBtn = await goToOtpStep();
   fireEvent.submit(verifyBtn.closest("form")!);
 
-  return screen.findByRole("button", { name: "Guardar contrase\u00f1a" });
+  return screen.findByRole("button", { name: "Guardar contraseña" });
 }
 
 describe("ForgotPasswordForm", () => {
@@ -55,35 +55,33 @@ describe("ForgotPasswordForm", () => {
     render(<ForgotPasswordForm />);
 
     expect(
-      screen.getByRole("heading", { name: "Recuperar contrase\u00f1a" }),
+      screen.getByRole("heading", { name: "Recuperar contraseña" }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Correo electrónico")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Enviar código" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByLabelText("Correo electr\u00f3nico"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Enviar c\u00f3digo" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: "Volver al inicio de sesi\u00f3n" }),
+      screen.getByRole("link", { name: "Volver al inicio de sesión" }),
     ).toBeInTheDocument();
   });
 
   it("shows email validation error when server returns field error", async () => {
     mockRequestReset.mockResolvedValue({
       success: false,
-      errors: { email: "Introduce un correo electr\u00f3nico v\u00e1lido." },
+      errors: { email: "Introduce un correo electrónico válido." },
     });
 
     render(<ForgotPasswordForm />);
 
     const emailBtn = await screen.findByRole("button", {
-      name: "Enviar c\u00f3digo",
+      name: "Enviar código",
     });
     fireEvent.submit(emailBtn.closest("form")!);
 
     await waitFor(() => {
       expect(
-        screen.getByText("Introduce un correo electr\u00f3nico v\u00e1lido."),
+        screen.getByText("Introduce un correo electrónico válido."),
       ).toBeInTheDocument();
     });
   });
@@ -91,21 +89,19 @@ describe("ForgotPasswordForm", () => {
   it("shows general error message from server on email step", async () => {
     mockRequestReset.mockResolvedValue({
       success: false,
-      message: "No se pudo enviar el c\u00f3digo. Int\u00e9ntalo de nuevo.",
+      message: "No se pudo enviar el código. Inténtalo de nuevo.",
     });
 
     render(<ForgotPasswordForm />);
 
     const emailBtn = await screen.findByRole("button", {
-      name: "Enviar c\u00f3digo",
+      name: "Enviar código",
     });
     fireEvent.submit(emailBtn.closest("form")!);
 
     await waitFor(() => {
       expect(
-        screen.getByText(
-          "No se pudo enviar el c\u00f3digo. Int\u00e9ntalo de nuevo.",
-        ),
+        screen.getByText("No se pudo enviar el código. Inténtalo de nuevo."),
       ).toBeInTheDocument();
     });
   });
@@ -116,12 +112,12 @@ describe("ForgotPasswordForm", () => {
     render(<ForgotPasswordForm />);
 
     const emailBtn = await screen.findByRole("button", {
-      name: "Enviar c\u00f3digo",
+      name: "Enviar código",
     });
     fireEvent.submit(emailBtn.closest("form")!);
 
     expect(
-      await screen.findByRole("heading", { name: "Introduce el c\u00f3digo" }),
+      await screen.findByRole("heading", { name: "Introduce el código" }),
     ).toBeInTheDocument();
   });
 
@@ -136,8 +132,7 @@ describe("ForgotPasswordForm", () => {
   it("shows OTP error when code is invalid", async () => {
     mockVerifyOtp.mockResolvedValue({
       success: false,
-      message:
-        "El c\u00f3digo no es v\u00e1lido. Compu\u00e9balo e int\u00e9ntalo de nuevo.",
+      message: "El código no es válido. Compuébalo e inténtalo de nuevo.",
     });
 
     const verifyBtn = await goToOtpStep();
@@ -146,7 +141,7 @@ describe("ForgotPasswordForm", () => {
     await waitFor(() => {
       expect(
         screen.getByText(
-          "El c\u00f3digo no es v\u00e1lido. Compu\u00e9balo e int\u00e9ntalo de nuevo.",
+          "El código no es válido. Compuébalo e inténtalo de nuevo.",
         ),
       ).toBeInTheDocument();
     });
@@ -156,27 +151,26 @@ describe("ForgotPasswordForm", () => {
     const saveBtn = await goToPasswordStep();
 
     expect(
-      screen.getByRole("heading", { name: "Nueva contrase\u00f1a" }),
+      screen.getByRole("heading", { name: "Nueva contraseña" }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText("Nueva contrase\u00f1a")).toBeInTheDocument();
-    expect(
-      screen.getByLabelText("Confirmar contrase\u00f1a"),
-    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Nueva contraseña")).toBeInTheDocument();
+    expect(screen.getByLabelText("Confirmar contraseña")).toBeInTheDocument();
     expect(saveBtn).toBeInTheDocument();
   });
 
-  it("shows password mismatch error from server", async () => {
+  it("shows password confirmation mismatch error from server", async () => {
+    const saveBtn = await goToPasswordStep();
+
     mockUpdatePassword.mockResolvedValue({
       success: false,
-      errors: { displayName: "Las contrase\u00f1as no coinciden." },
+      errors: { confirmPassword: "Las contraseñas no coinciden." },
     });
 
-    const saveBtn = await goToPasswordStep();
     fireEvent.submit(saveBtn.closest("form")!);
 
     await waitFor(() => {
       expect(
-        screen.getByText("Las contrase\u00f1as no coinciden."),
+        screen.getByText("Las contraseñas no coinciden."),
       ).toBeInTheDocument();
     });
   });
@@ -186,7 +180,7 @@ describe("ForgotPasswordForm", () => {
       success: false,
       errors: {
         password:
-          "La contrase\u00f1a debe tener al menos 8 caracteres, una may\u00fascula, una min\u00fascula y un n\u00famero.",
+          "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.",
       },
     });
 
@@ -196,7 +190,7 @@ describe("ForgotPasswordForm", () => {
     await waitFor(() => {
       expect(
         screen.getByText(
-          "La contrase\u00f1a debe tener al menos 8 caracteres, una may\u00fascula, una min\u00fascula y un n\u00famero.",
+          "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.",
         ),
       ).toBeInTheDocument();
     });
@@ -208,7 +202,7 @@ describe("ForgotPasswordForm", () => {
     fireEvent.click(screen.getByRole("button", { name: "Reenviar" }));
 
     expect(
-      screen.getByRole("heading", { name: "Recuperar contrase\u00f1a" }),
+      screen.getByRole("heading", { name: "Recuperar contraseña" }),
     ).toBeInTheDocument();
   });
 });

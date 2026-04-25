@@ -2,6 +2,8 @@ export interface AuthFormErrors {
   displayName?: string;
   email?: string;
   password?: string;
+  token?: string;
+  confirmPassword?: string;
 }
 
 export interface AuthFormState {
