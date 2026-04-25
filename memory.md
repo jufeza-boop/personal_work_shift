@@ -126,6 +126,47 @@
 
 #### Decisions
 
+### 2026-04-25 - Invitation Acceptance RLS Recursion Fix
+
+#### What was done
+
+- Added migration `supabase/migrations/20260425203000_fix_family_invitations_rls_recursion.sql`
+- Recreated `family_invitations_*_owner` policies to avoid querying `public.families` from `public.family_invitations` policies
+- Added migration test `src/infrastructure/supabase/__tests__/invitationRlsRecursionFix.migration.test.ts`
+- Applied migration with `npx supabase db push`
+
+#### Decisions
+
+- Use `public.is_family_owner(family_id)` (SECURITY DEFINER) in owner invitation policies to preserve ownership checks without policy self-recursion
+- Keep invitation-accept flow policies (`*_via_invitation`) and break cycle on `family_invitations` side only
+
+#### Patterns
+
+- For RLS rules that intersect multiple tables with mutual policy dependencies, prefer SECURITY DEFINER helper functions over cross-table policy subqueries
+
+#### Next steps
+
+- If needed, add an end-to-end acceptance test path that asserts invitation acceptance does not return Postgres `42P17`
+
+### 2026-04-25 - Invitation Acceptance 42501 Fix
+
+#### What was done
+
+- Added `src/infrastructure/invitation/__tests__/SupabaseInvitationRepository.test.ts` with TDD coverage for `save()` behavior
+- Refactored `SupabaseInvitationRepository.save()` to `SELECT by id` and then `UPDATE` if exists, `INSERT` if missing
+
+#### Decisions
+
+- Avoid `upsert` for invitation acceptance because it triggers INSERT RLS checks for non-owner users even when logically updating an existing invitation
+
+#### Patterns
+
+- When a row is updated by a different role than row creator, prefer explicit `update` flows instead of `upsert` under RLS
+
+#### Next steps
+
+- Validate invitation acceptance end-to-end in UI against remote Supabase after deploying this backend change
+
 - `IOfflineQueue.enqueue` accepts optional `retryCount` to allow re-enqueuing with incremented count on failure
 - `OfflineQueueStore` uses injectable `DbBackend` factory to enable pure in-memory testing without mocking IndexedDB
 - `CalendarGrid` uses `useState(() => new OfflineQueueStore())` instead of `useMemo` to guarantee a single stable instance

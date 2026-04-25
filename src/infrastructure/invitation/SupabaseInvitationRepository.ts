@@ -60,23 +60,42 @@ export class SupabaseInvitationRepository implements IInvitationRepository {
   }
 
   async save(invitation: Invitation): Promise<void> {
-    const { error } = await this.client.from("family_invitations").upsert(
-      {
-        created_at: invitation.createdAt.toISOString(),
-        created_by: invitation.createdBy,
-        expires_at: invitation.expiresAt.toISOString(),
-        family_id: invitation.familyId,
-        family_name: invitation.familyName,
-        id: invitation.id,
-        status: invitation.status,
-        token: invitation.token,
-        used_at: invitation.usedAt ? invitation.usedAt.toISOString() : null,
-        used_by: invitation.usedBy,
-      },
-      { onConflict: "id" },
-    );
+    const payload = {
+      created_at: invitation.createdAt.toISOString(),
+      created_by: invitation.createdBy,
+      expires_at: invitation.expiresAt.toISOString(),
+      family_id: invitation.familyId,
+      family_name: invitation.familyName,
+      id: invitation.id,
+      status: invitation.status,
+      token: invitation.token,
+      used_at: invitation.usedAt ? invitation.usedAt.toISOString() : null,
+      used_by: invitation.usedBy,
+    };
 
-    if (error) throw error;
+    const { data: existing, error: lookupError } = await this.client
+      .from("family_invitations")
+      .select("id")
+      .eq("id", invitation.id)
+      .maybeSingle();
+
+    if (lookupError) throw lookupError;
+
+    if (existing) {
+      const { error: updateError } = await this.client
+        .from("family_invitations")
+        .update(payload)
+        .eq("id", invitation.id);
+
+      if (updateError) throw updateError;
+      return;
+    }
+
+    const { error: insertError } = await this.client
+      .from("family_invitations")
+      .insert(payload);
+
+    if (insertError) throw insertError;
   }
 
   async delete(id: string): Promise<void> {
