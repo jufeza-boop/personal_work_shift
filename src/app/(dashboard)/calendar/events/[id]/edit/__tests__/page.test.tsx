@@ -109,9 +109,9 @@ describe("EditEventPage", () => {
     });
     mocks.findById.mockResolvedValue(null);
 
-    await expect(
-      EditEventPage({ params: defaultParams }),
-    ).rejects.toThrow("NEXT_REDIRECT:/calendar");
+    await expect(EditEventPage({ params: defaultParams })).rejects.toThrow(
+      "NEXT_REDIRECT:/calendar",
+    );
     expect(mocks.redirect).toHaveBeenCalledWith("/calendar");
   });
 
@@ -122,9 +122,9 @@ describe("EditEventPage", () => {
     });
     mocks.findById.mockResolvedValue(makePunctualEvent("other-user"));
 
-    await expect(
-      EditEventPage({ params: defaultParams }),
-    ).rejects.toThrow("NEXT_REDIRECT:/calendar");
+    await expect(EditEventPage({ params: defaultParams })).rejects.toThrow(
+      "NEXT_REDIRECT:/calendar",
+    );
     expect(mocks.redirect).toHaveBeenCalledWith("/calendar");
   });
 
@@ -151,11 +151,13 @@ describe("EditEventPage", () => {
       delegatedUsers: [{ id: "delegated-user-1" }],
     });
     // Event created by someone who is NOT a delegated user of user-1
-    mocks.findById.mockResolvedValue(makePunctualEvent("foreign-delegated-user"));
+    mocks.findById.mockResolvedValue(
+      makePunctualEvent("foreign-delegated-user"),
+    );
 
-    await expect(
-      EditEventPage({ params: defaultParams }),
-    ).rejects.toThrow("NEXT_REDIRECT:/calendar");
+    await expect(EditEventPage({ params: defaultParams })).rejects.toThrow(
+      "NEXT_REDIRECT:/calendar",
+    );
     expect(mocks.redirect).toHaveBeenCalledWith("/calendar");
   });
 
