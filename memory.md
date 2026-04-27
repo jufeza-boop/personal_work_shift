@@ -8,13 +8,31 @@
 
 ## Current State
 
-- **Phase**: Phase 15 Shareable Invitation Links completed
-- **Last Updated**: 2026-04-25
-- **Tests**: 487 Vitest unit tests passing + E2E suites for mobile, accessibility, PWA
+- **Phase**: Google OAuth Login integration completed
+- **Last Updated**: 2026-04-27
+- **Tests**: 495 Vitest unit tests passing + E2E suites for mobile, accessibility, PWA
 
 ---
 
 ## Decisions Log
+
+### 2026-04-27 - Google OAuth Login Integration
+
+- **What was done**:
+  - Created `GoogleLoginButton` client component (`src/presentation/components/auth/GoogleLoginButton.tsx`) with Google SVG icon, loading state, and `signInWithOAuth` call.
+  - Added Google button + "o" divider to `LoginForm` component.
+  - Created `app/auth/callback/route.ts` GET handler that exchanges the OAuth `code` for a Supabase session and redirects to `/calendar` or `/login?error=auth`.
+  - Updated `/login` page to show a user-friendly message when `?error=auth` is present.
+  - Profile sync is handled automatically by the existing DB trigger `handle_auth_user` — no manual profile creation needed.
+- **Decisions**:
+  - Used `createBrowserSupabaseClient` (from `@/infrastructure/supabase/browser`) in the client button component to call `signInWithOAuth`.
+  - Used `window.location.origin` at click time to construct the dynamic `redirectTo` URL.
+  - Auth callback route placed at `app/auth/callback/route.ts` (not inside `(auth)` group) so it is a plain API route outside route-group layouts.
+  - Button keeps loading state active during redirect (browser navigating away). Resets to idle only if OAuth fails and control returns.
+- **Patterns**:
+  - Used `vi.hoisted()` in route tests to avoid Temporal Dead Zone issues with mock variables inside `vi.mock` factories (consistent with existing memory entry).
+  - Route test assertions use `new URL(location).pathname` + `searchParams` because `NextResponse.redirect` returns absolute URLs in test environment.
+- **Tests added**: 8 new tests (5 for `GoogleLoginButton`, 3 for `/auth/callback` route).
 
 ### 2026-04-25 - Bug Fix: Edit page delegation check
 
