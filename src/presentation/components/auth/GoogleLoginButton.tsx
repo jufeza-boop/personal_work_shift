@@ -41,7 +41,8 @@ export function GoogleLoginButton() {
     setLoading(true);
 
     const supabase = createBrowserSupabaseClient();
-    const redirectTo = `${window.location.origin}/auth/callback`;
+    const origin = process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin;
+    const redirectTo = `${origin}/auth/callback`;
 
     await supabase.auth.signInWithOAuth({
       provider: "google",
