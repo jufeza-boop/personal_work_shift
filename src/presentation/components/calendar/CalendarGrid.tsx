@@ -137,13 +137,56 @@ export function CalendarGrid({
     [],
   );
 
+  const notifyRealtimeChange = useCallback(
+    (changeType: "insert" | "update" | "delete", eventTitle: string) => {
+      if (typeof window === "undefined") return;
+      if (!("Notification" in window)) return;
+      if (document.visibilityState !== "visible") return;
+      if (window.Notification.permission !== "granted") return;
+
+      const titleByChangeType: Record<typeof changeType, string> = {
+        delete: "Turno eliminado",
+        insert: "Nuevo turno",
+        update: "Turno actualizado",
+      };
+
+      const bodyByChangeType: Record<typeof changeType, string> = {
+        delete: `Se eliminó el turno: ${eventTitle}`,
+        insert: `Se agregó el turno: ${eventTitle}`,
+        update: `Se actualizó el turno: ${eventTitle}`,
+      };
+
+      try {
+        void new window.Notification(titleByChangeType[changeType], {
+          body: bodyByChangeType[changeType],
+          tag: "calendar-realtime-shift-change",
+        });
+      } catch {
+        // Ignore notification errors to avoid breaking calendar updates.
+      }
+    },
+    [],
+  );
+
   useRealtimeSync({
     familyId,
     onDelete: (eventId) =>
-      setEvents((prev) => prev.filter((e) => e.id !== eventId)),
-    onInsert: (event) => setEvents((prev) => [...prev, event]),
-    onUpdate: (event) =>
-      setEvents((prev) => prev.map((e) => (e.id === event.id ? event : e))),
+      setEvents((prev) => {
+        const deletedEvent = prev.find((e) => e.id === eventId);
+        notifyRealtimeChange(
+          "delete",
+          deletedEvent?.title ?? "Turno sin título",
+        );
+        return prev.filter((e) => e.id !== eventId);
+      }),
+    onInsert: (event) => {
+      notifyRealtimeChange("insert", event.title);
+      setEvents((prev) => [...prev, event]);
+    },
+    onUpdate: (event) => {
+      notifyRealtimeChange("update", event.title);
+      setEvents((prev) => prev.map((e) => (e.id === event.id ? event : e)));
+    },
     service: realtimeService,
   });
 
