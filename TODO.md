@@ -147,7 +147,6 @@
 - [x] Handle INSERT events (new event appears)
 - [x] Handle UPDATE events (event updates in place)
 - [x] Handle DELETE events (event disappears)
-- [x] Trigger foreground browser notifications on realtime shift changes (app open)
 - [x] Subscribe/unsubscribe on family switch
 - [x] Write integration tests for realtime sync
 
@@ -156,7 +155,6 @@
 ## Phase 10: PWA & Offline Support (US-6.2)
 
 - [x] Configure Serwist service worker
-- [x] Verify SW registration URL points to generated `/sw.js`
 - [x] Implement cache-first strategy for static assets
 - [x] Implement network-first strategy for API calls
 - [x] Implement offline event viewing (cached data)

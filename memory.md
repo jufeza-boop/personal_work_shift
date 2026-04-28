@@ -16,19 +16,6 @@
 
 ## Decisions Log
 
-### 2026-04-28 - Realtime + Browser Notification + SW Registration Fix
-
-- **What was done**:
-  - Fixed PWA service worker registration URL in `src/app/layout.tsx` from `/serwist/sw.js` to `/sw.js`.
-  - Added foreground browser notifications in `src/presentation/components/calendar/CalendarGrid.tsx` for realtime `INSERT`, `UPDATE`, and `DELETE` shift changes when app is open and notification permission is granted.
-  - Updated `src/app/sw.ts` push notification assets to PNG icons (`/icons/pwa-192.png`) for better mobile compatibility.
-  - Added TDD coverage in `src/presentation/components/calendar/__tests__/CalendarGrid.test.tsx` and `src/app/__tests__/layout.test.tsx`.
-- **Decisions**:
-  - Foreground (app-open) notifications are handled directly in the realtime UI layer with the Notification API.
-  - Browser notifications only fire when `document.visibilityState === "visible"` and permission is granted.
-- **Patterns**:
-  - Keep realtime state updates and browser notification side effects in the same callback so UI and notification context stay aligned.
-
 ### 2026-04-27 - Google OAuth Login Integration
 
 - **What was done**:
@@ -626,6 +613,18 @@
 - Updated FamilySettingsPage with `buildPaletteOptions()` helper
 
 ### Decisions
+
+- `updateMemberPalette` excludes self from exclusivity check so a member can re-select their own palette
+- `buildPaletteOptions(family, null)` disables all taken palettes (invite form); `buildPaletteOptions(family, userId)` allows the user's own palette to remain enabled
+- Palette hex colors derived from domain `ColorPalette.getToneFor()` via shared utility — no duplicated constants
+
+### Next steps
+
+- Phase 9: Real-Time Synchronization (US-6.1)
+
+---
+
+### 2026-04-14 - UX Change: Day-Level Event Management
 
 ### What was done
 
