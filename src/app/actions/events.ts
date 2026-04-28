@@ -216,7 +216,7 @@ export async function createEventAction(
     }
 
     const eventDate = parsed.data.date;
-    void dispatchFamilyNotification(
+    await dispatchFamilyNotification(
       user.id,
       familyId,
       parsed.data.title,
@@ -295,7 +295,7 @@ export async function createEventAction(
       };
     }
 
-    void dispatchFamilyNotification(
+    await dispatchFamilyNotification(
       user.id,
       familyId,
       parsed.data.title,
@@ -374,7 +374,7 @@ export async function createEventAction(
       };
     }
 
-    void dispatchFamilyNotification(
+    await dispatchFamilyNotification(
       user.id,
       familyId,
       parsed.data.title,
@@ -467,7 +467,7 @@ export async function editEventAction(
     }
 
     if (event?.familyId) {
-      void dispatchFamilyNotification(
+      await dispatchFamilyNotification(
         user.id,
         event.familyId,
         parsed.data.title,
@@ -560,7 +560,7 @@ export async function editEventAction(
       }
 
       if (event?.familyId) {
-        void dispatchFamilyNotification(
+        await dispatchFamilyNotification(
           user.id,
           event.familyId,
           parsed.data.title,
@@ -609,7 +609,7 @@ export async function editEventAction(
     }
 
     if (event?.familyId) {
-      void dispatchFamilyNotification(
+      await dispatchFamilyNotification(
         user.id,
         event.familyId,
         parsed.data.title,
@@ -687,7 +687,7 @@ export async function deleteEventAction(
   }
 
   if (event?.familyId) {
-    void dispatchFamilyNotification(
+    await dispatchFamilyNotification(
       user.id,
       event.familyId,
       event.title,
