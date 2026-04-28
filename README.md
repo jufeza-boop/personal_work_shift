@@ -134,6 +134,18 @@ El flujo de CI ejecuta: `format → lint → test → build → deploy`.
 
 ---
 
+### 🛠️ Troubleshooting: Mi Realtime no funciona
+
+Si los cambios en la base de datos no se reflejan automáticamente en la App, sigue este checklist:
+
+1. **Check de Publicación**: Ve a `Database > Replication > supabase_realtime` y asegúrate de que la tabla (ej: `events`) esté marcada como **Enabled**.
+2. **Check de Identidad**: Si los `UPDATE` funcionan pero los `DELETE` no, es que falta la identidad completa. Ejecuta:
+   ```sql
+   ALTER TABLE nombre_de_tabla REPLICA IDENTITY FULL;
+   ```
+
+---
+
 ## Licencia
 
 Proyecto privado — todos los derechos reservados.
