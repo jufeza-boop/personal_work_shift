@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import type {
@@ -7,12 +7,27 @@ import type {
 } from "@/application/services/calendarUtils";
 import { CalendarGrid } from "@/presentation/components/calendar/CalendarGrid";
 import { useOfflineSync } from "@/presentation/hooks/useOfflineSync";
+import { useRealtimeSync } from "@/presentation/hooks/useRealtimeSync";
+
+const realtimeHookState = vi.hoisted(() => ({
+  lastOptions: null as {
+    onDelete: (eventId: string) => void;
+    onInsert: (event: SerializedEvent) => void;
+    onUpdate: (event: SerializedEvent) => void;
+  } | null,
+}));
 
 // Prevent real Supabase/realtime connections during unit tests.
 // We mock the hook instead of the individual infrastructure modules so the
 // CalendarGrid component renders without any network activity.
 vi.mock("@/presentation/hooks/useRealtimeSync", () => ({
-  useRealtimeSync: vi.fn(),
+  useRealtimeSync: vi.fn((options) => {
+    realtimeHookState.lastOptions = {
+      onDelete: options.onDelete,
+      onInsert: options.onInsert,
+      onUpdate: options.onUpdate,
+    };
+  }),
 }));
 vi.mock("@/infrastructure/supabase/browser", () => ({
   createBrowserSupabaseClient: vi.fn(() => ({})),
@@ -399,5 +414,79 @@ describe("CalendarGrid", () => {
         />,
       ),
     ).not.toThrow();
+  });
+
+  it("shows a browser notification when a realtime INSERT arrives", () => {
+    const notificationConstructor = vi.fn();
+    vi.stubGlobal("Notification", notificationConstructor);
+    Object.defineProperty(window.Notification, "permission", {
+      value: "granted",
+      configurable: true,
+    });
+
+    render(
+      <CalendarGrid
+        initialEvents={[]}
+        members={MEMBERS}
+        initialYear={2026}
+        initialMonth={4}
+        {...DEFAULT_PROPS}
+      />,
+    );
+
+    act(() => {
+      realtimeHookState.lastOptions?.onInsert({
+        type: "recurring",
+        id: "shift-1",
+        familyId: "f1",
+        createdBy: "u2",
+        title: "Turno mañana",
+        category: "work",
+        startDate: "2026-04-10",
+        endDate: null,
+        frequencyUnit: "weekly",
+        frequencyInterval: 1,
+        shiftType: "morning",
+      });
+    });
+
+    expect(notificationConstructor).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not show browser notifications when permission is denied", () => {
+    const notificationConstructor = vi.fn();
+    vi.stubGlobal("Notification", notificationConstructor);
+    Object.defineProperty(window.Notification, "permission", {
+      value: "denied",
+      configurable: true,
+    });
+
+    render(
+      <CalendarGrid
+        initialEvents={[]}
+        members={MEMBERS}
+        initialYear={2026}
+        initialMonth={4}
+        {...DEFAULT_PROPS}
+      />,
+    );
+
+    act(() => {
+      realtimeHookState.lastOptions?.onUpdate({
+        type: "recurring",
+        id: "shift-1",
+        familyId: "f1",
+        createdBy: "u2",
+        title: "Turno tarde",
+        category: "work",
+        startDate: "2026-04-10",
+        endDate: null,
+        frequencyUnit: "weekly",
+        frequencyInterval: 1,
+        shiftType: "afternoon",
+      });
+    });
+
+    expect(notificationConstructor).not.toHaveBeenCalled();
   });
 });

@@ -33,7 +33,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="es">
       <body>
-        <SerwistProvider swUrl="/serwist/sw.js">{children}</SerwistProvider>
+        <SerwistProvider swUrl="/sw.js">{children}</SerwistProvider>
       </body>
     </html>
   );
