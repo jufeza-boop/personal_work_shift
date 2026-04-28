@@ -28,5 +28,8 @@ describe("RegisterForm", () => {
     expect(screen.getByText("Introduce un correo válido.")).toBeInTheDocument();
     expect(screen.getByText("La contraseña no es segura.")).toBeInTheDocument();
     expect(screen.getByText("No se pudo crear la cuenta.")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /continuar con google/i }),
+    ).toBeInTheDocument();
   });
 });

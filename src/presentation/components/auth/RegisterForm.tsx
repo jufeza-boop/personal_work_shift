@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { AuthSubmitButton } from "@/presentation/components/auth/AuthSubmitButton";
+import { GoogleLoginButton } from "@/presentation/components/auth/GoogleLoginButton";
 import {
   EMPTY_AUTH_FORM_STATE,
   type AuthFormAction,
@@ -105,6 +106,17 @@ export function RegisterForm({
 
           <AuthSubmitButton label="Crear cuenta" />
         </form>
+
+        <div className="relative my-4">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-stone-200" />
+          </div>
+          <div className="relative flex justify-center">
+            <span className="bg-white px-2 text-xs text-slate-400">o</span>
+          </div>
+        </div>
+
+        <GoogleLoginButton />
 
         <p className="mt-4 text-sm text-slate-600">
           ¿Ya tienes cuenta?{" "}
