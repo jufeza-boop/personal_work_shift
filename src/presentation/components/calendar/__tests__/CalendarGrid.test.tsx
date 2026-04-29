@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import type {
@@ -7,6 +7,47 @@ import type {
 } from "@/application/services/calendarUtils";
 import { CalendarGrid } from "@/presentation/components/calendar/CalendarGrid";
 import { useOfflineSync } from "@/presentation/hooks/useOfflineSync";
+
+function fireTouchSwipe(
+  el: Element,
+  startX: number,
+  endX: number,
+  startY = 100,
+  endY = 103,
+) {
+  const mkTouch = (x: number, y: number) =>
+    ({
+      clientX: x,
+      clientY: y,
+      identifier: 0,
+      target: el,
+      pageX: x,
+      pageY: y,
+      screenX: x,
+      screenY: y,
+      radiusX: 0,
+      radiusY: 0,
+      rotationAngle: 0,
+      force: 1,
+    }) as Touch;
+
+  const start = mkTouch(startX, startY);
+  const end = mkTouch(endX, endY);
+
+  el.dispatchEvent(
+    new TouchEvent("touchstart", {
+      bubbles: true,
+      touches: [start],
+      changedTouches: [start],
+    }),
+  );
+  el.dispatchEvent(
+    new TouchEvent("touchend", {
+      bubbles: true,
+      changedTouches: [end],
+    }),
+  );
+}
 
 // Prevent real Supabase/realtime connections during unit tests.
 // We mock the hook instead of the individual infrastructure modules so the
@@ -399,5 +440,62 @@ describe("CalendarGrid", () => {
         />,
       ),
     ).not.toThrow();
+  });
+
+  it("navigates to next month on swipe left", () => {
+    render(
+      <CalendarGrid
+        initialEvents={[]}
+        members={[]}
+        initialYear={2026}
+        initialMonth={4}
+        {...DEFAULT_PROPS}
+      />,
+    );
+
+    const grid = screen.getByTestId("calendar-grid");
+    act(() => {
+      fireTouchSwipe(grid, 300, 180); // swipe left 120px
+    });
+
+    expect(screen.getByText("Mayo 2026")).toBeInTheDocument();
+  });
+
+  it("navigates to previous month on swipe right", () => {
+    render(
+      <CalendarGrid
+        initialEvents={[]}
+        members={[]}
+        initialYear={2026}
+        initialMonth={4}
+        {...DEFAULT_PROPS}
+      />,
+    );
+
+    const grid = screen.getByTestId("calendar-grid");
+    act(() => {
+      fireTouchSwipe(grid, 180, 300); // swipe right 120px
+    });
+
+    expect(screen.getByText("Marzo 2026")).toBeInTheDocument();
+  });
+
+  it("does not navigate on a short swipe below threshold", () => {
+    render(
+      <CalendarGrid
+        initialEvents={[]}
+        members={[]}
+        initialYear={2026}
+        initialMonth={4}
+        {...DEFAULT_PROPS}
+      />,
+    );
+
+    const grid = screen.getByTestId("calendar-grid");
+    act(() => {
+      fireTouchSwipe(grid, 200, 230); // only 30px, below 50px threshold
+    });
+
+    expect(screen.getByText("Abril 2026")).toBeInTheDocument();
   });
 });
