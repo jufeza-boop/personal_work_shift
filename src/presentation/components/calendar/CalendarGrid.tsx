@@ -251,6 +251,7 @@ export function CalendarGrid({
       {/* Calendar grid */}
       <div
         ref={swipeRef}
+        data-testid="calendar-grid"
         className="flex-1 overflow-hidden rounded-2xl border border-stone-200 bg-stone-100"
       >
         {/* Day-of-week headers */}

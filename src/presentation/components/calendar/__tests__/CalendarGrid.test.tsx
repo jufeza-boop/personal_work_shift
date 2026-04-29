@@ -453,7 +453,7 @@ describe("CalendarGrid", () => {
       />,
     );
 
-    const grid = screen.getByText("Lun").closest(".rounded-2xl") as HTMLElement;
+    const grid = screen.getByTestId("calendar-grid");
     act(() => {
       fireTouchSwipe(grid, 300, 180); // swipe left 120px
     });
@@ -472,7 +472,7 @@ describe("CalendarGrid", () => {
       />,
     );
 
-    const grid = screen.getByText("Lun").closest(".rounded-2xl") as HTMLElement;
+    const grid = screen.getByTestId("calendar-grid");
     act(() => {
       fireTouchSwipe(grid, 180, 300); // swipe right 120px
     });
@@ -491,7 +491,7 @@ describe("CalendarGrid", () => {
       />,
     );
 
-    const grid = screen.getByText("Lun").closest(".rounded-2xl") as HTMLElement;
+    const grid = screen.getByTestId("calendar-grid");
     act(() => {
       fireTouchSwipe(grid, 200, 230); // only 30px, below 50px threshold
     });

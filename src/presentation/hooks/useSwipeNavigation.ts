@@ -30,10 +30,8 @@ export function useSwipeNavigation({
 
   useEffect(() => {
     onSwipeLeftRef.current = onSwipeLeft;
-  });
-  useEffect(() => {
     onSwipeRightRef.current = onSwipeRight;
-  });
+  }, [onSwipeLeft, onSwipeRight]);
 
   useEffect(() => {
     const el = ref.current;
