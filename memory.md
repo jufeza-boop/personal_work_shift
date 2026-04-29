@@ -8,13 +8,31 @@
 
 ## Current State
 
-- **Phase**: Google OAuth Login integration completed
-- **Last Updated**: 2026-04-27
-- **Tests**: 495 Vitest unit tests passing + E2E suites for mobile, accessibility, PWA
+- **Phase**: Touch swipe navigation added to CalendarGrid
+- **Last Updated**: 2026-04-29
+- **Tests**: 507 Vitest unit tests passing + E2E suites for mobile, accessibility, PWA
 
 ---
 
 ## Decisions Log
+
+### 2026-04-29 - Touch Swipe Navigation (CalendarGrid)
+
+- **What was done**:
+  - Created `useSwipeNavigation` custom hook (`src/presentation/hooks/useSwipeNavigation.ts`).
+  - Hook attaches `touchstart`, `touchmove`, and `touchend` listeners to a `RefObject<HTMLElement>`.
+  - Swipe left → `onSwipeLeft()` (next month); swipe right → `onSwipeRight()` (previous month).
+  - `touchmove` uses `{ passive: false }` and calls `preventDefault()` only when horizontal movement dominates, blocking browser history swipe gestures.
+  - Latest callbacks are stored in refs so the effect never re-runs due to inline arrow functions.
+  - Applied the hook to the calendar grid `div` in `CalendarGrid.tsx` (the `.rounded-2xl` container).
+  - Swiping also clears `selectedDate` (same as clicking the arrow buttons).
+- **Decisions**:
+  - Extracted logic to a reusable `useSwipeNavigation` hook (not inline in the component) for testability and reuse.
+  - Used `passive: false` only on `touchmove` (not `touchstart`/`touchend`) to preserve scroll performance while still being able to call `preventDefault()`.
+  - Threshold defaults to 50 px and is configurable.
+- **Tests added**: 9 unit tests for `useSwipeNavigation` + 3 integration tests in `CalendarGrid.test.tsx`.
+
+---
 
 ### 2026-04-27 - Google OAuth Login Integration
 

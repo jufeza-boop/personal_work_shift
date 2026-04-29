@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
   SerializedEvent,
   SerializedEventException,
@@ -22,6 +22,7 @@ import { EMPTY_EVENT_FORM_STATE } from "@/presentation/components/events/types";
 import { useCalendarEvents } from "@/presentation/hooks/useCalendarEvents";
 import { useOfflineSync } from "@/presentation/hooks/useOfflineSync";
 import { useRealtimeSync } from "@/presentation/hooks/useRealtimeSync";
+import { useSwipeNavigation } from "@/presentation/hooks/useSwipeNavigation";
 
 const MONTH_NAMES = [
   "Enero",
@@ -165,6 +166,19 @@ export function CalendarGrid({
 
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
+  const swipeRef = useRef<HTMLDivElement>(null);
+  useSwipeNavigation({
+    ref: swipeRef,
+    onSwipeLeft: () => {
+      navigate(1);
+      setSelectedDate(null);
+    },
+    onSwipeRight: () => {
+      navigate(-1);
+      setSelectedDate(null);
+    },
+  });
+
   const today = new Date().toISOString().slice(0, 10);
   const todayYear = Number(today.slice(0, 4));
   const todayMonth = Number(today.slice(5, 7));
@@ -235,7 +249,10 @@ export function CalendarGrid({
       )}
 
       {/* Calendar grid */}
-      <div className="flex-1 overflow-hidden rounded-2xl border border-stone-200 bg-stone-100">
+      <div
+        ref={swipeRef}
+        className="flex-1 overflow-hidden rounded-2xl border border-stone-200 bg-stone-100"
+      >
         {/* Day-of-week headers */}
         <div className="grid grid-cols-7 border-b border-stone-200 bg-stone-50">
           {DAY_HEADERS.map((label) => (
