@@ -217,6 +217,24 @@ export function DayDetailPanel({
                         {SHIFT_TYPE_LABELS[occ.shiftType] ?? occ.shiftType}
                       </div>
                     )}
+                    {occ.startTime && (
+                      <div>
+                        <span className="font-medium text-slate-700">Hora inicio: </span>
+                        {occ.startTime}
+                      </div>
+                    )}
+                    {occ.endTime && (
+                      <div>
+                        <span className="font-medium text-slate-700">Hora fin: </span>
+                        {occ.endTime}
+                      </div>
+                    )}
+                    {occ.description && (
+                      <div>
+                        <span className="font-medium text-slate-700">Descripción: </span>
+                        {occ.description}
+                      </div>
+                    )}
                   </div>
                 )}
               </li>

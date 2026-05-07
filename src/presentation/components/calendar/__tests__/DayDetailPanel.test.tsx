@@ -19,6 +19,9 @@ const PUNCTUAL_OCCURRENCE: CalendarOccurrence = {
   category: null,
   shiftType: null,
   createdBy: "u1",
+  description: null,
+  startTime: null,
+  endTime: null,
 };
 
 const RECURRING_OCCURRENCE: CalendarOccurrence = {
@@ -29,6 +32,9 @@ const RECURRING_OCCURRENCE: CalendarOccurrence = {
   category: "work",
   shiftType: "morning",
   createdBy: "u1",
+  description: null,
+  startTime: null,
+  endTime: null,
 };
 
 describe("DayDetailPanel", () => {
@@ -405,6 +411,9 @@ describe("DayDetailPanel", () => {
       category: null,
       shiftType: null,
       createdBy: "delegated-1",
+      description: null,
+      startTime: null,
+      endTime: null,
     };
 
     render(
@@ -478,5 +487,72 @@ describe("DayDetailPanel", () => {
       "href",
       "/calendar/events/e2/edit?date=2026-04-15",
     );
+  });
+
+  it("shows description, start time, and end time in expanded detail when present", async () => {
+    const user = userEvent.setup();
+
+    const richOccurrence: CalendarOccurrence = {
+      eventId: "e10",
+      date: "2026-04-10",
+      title: "Team meeting",
+      type: "punctual",
+      category: null,
+      shiftType: null,
+      createdBy: "u1",
+      description: "Quarterly review with the team",
+      startTime: "09:00",
+      endTime: "10:30",
+    };
+
+    render(
+      <DayDetailPanel
+        date="2026-04-10"
+        day={10}
+        month={4}
+        year={2026}
+        occurrences={[richOccurrence]}
+        members={MEMBERS}
+        currentUserId="u1"
+        familyId="f1"
+        createAction={vi.fn()}
+        deleteAction={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: /ver detalle/i }));
+
+    expect(screen.getByText("09:00")).toBeInTheDocument();
+    expect(screen.getByText("10:30")).toBeInTheDocument();
+    expect(
+      screen.getByText("Quarterly review with the team"),
+    ).toBeInTheDocument();
+  });
+
+  it("does not show start time, end time, or description rows when absent", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <DayDetailPanel
+        date="2026-04-10"
+        day={10}
+        month={4}
+        year={2026}
+        occurrences={[PUNCTUAL_OCCURRENCE]}
+        members={MEMBERS}
+        currentUserId="u1"
+        familyId="f1"
+        createAction={vi.fn()}
+        deleteAction={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: /ver detalle/i }));
+
+    expect(screen.queryByText(/hora inicio/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/hora fin/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/descripción/i)).not.toBeInTheDocument();
   });
 });

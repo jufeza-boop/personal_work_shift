@@ -20,6 +20,9 @@ const PUNCTUAL_OCCURRENCE: CalendarOccurrence = {
   category: null,
   shiftType: null,
   createdBy: "u1",
+  description: null,
+  startTime: null,
+  endTime: null,
 };
 
 const SHIFT_OCCURRENCE: CalendarOccurrence = {
@@ -30,6 +33,9 @@ const SHIFT_OCCURRENCE: CalendarOccurrence = {
   category: "work",
   shiftType: "morning",
   createdBy: "u1",
+  description: null,
+  startTime: null,
+  endTime: null,
 };
 
 const SHIFT_OCCURRENCE_2: CalendarOccurrence = {
@@ -40,6 +46,9 @@ const SHIFT_OCCURRENCE_2: CalendarOccurrence = {
   category: "work",
   shiftType: "night",
   createdBy: "u2",
+  description: null,
+  startTime: null,
+  endTime: null,
 };
 
 describe("DayCell", () => {
