@@ -2,6 +2,8 @@
 
 > PWA para gestionar turnos de trabajo en familia. Permite coordinar calendarios de trabajo, estudios y eventos puntuales entre los miembros de una familia.
 
+Personal Work Shift está diseñado para familias donde varios miembros tienen horarios laborales rotativos o irregulares (turnos de mañana, tarde, noche, festivos, etc.). El objetivo es tener una única vista compartida del calendario familiar, evitar conflictos de planificación y permitir a cada miembro gestionar su propio calendario — o el de otra persona bajo su cargo — desde cualquier dispositivo, incluso sin conexión a internet.
+
 ---
 
 ## Características
@@ -39,14 +41,83 @@ El proyecto sigue **Clean Architecture** con separación estricta de capas:
 
 ```
 src/
-├── domain/          # Entidades, value objects, interfaces de repositorio
-├── application/     # Casos de uso, servicios de aplicación
-├── infrastructure/  # Implementaciones Supabase, auth, realtime, offline
-├── presentation/    # Componentes React, hooks, validaciones
-└── app/             # Rutas Next.js (App Router)
+├── domain/                  # Capa de dominio — TypeScript puro, sin dependencias externas
+│   ├── entities/            # Entidades de negocio (Event, Family, User…)
+│   ├── value-objects/       # Objetos de valor (Color, ShiftType…)
+│   ├── repositories/        # Interfaces de repositorio (contratos)
+│   ├── rules/               # Reglas de negocio puras
+│   └── errors/              # Errores de dominio personalizados
+├── application/             # Casos de uso y orquestación
+│   ├── use-cases/           # Un archivo por caso de uso
+│   ├── services/            # Servicios de aplicación reutilizables
+│   └── dto/                 # Data Transfer Objects
+├── infrastructure/          # Implementaciones concretas e integraciones externas
+│   ├── supabase/            # Cliente Supabase y helpers
+│   ├── auth/                # Implementación de autenticación (Supabase Auth)
+│   ├── events/              # Repositorio de eventos (Supabase)
+│   ├── family/              # Repositorio de familias (Supabase)
+│   ├── invitation/          # Gestión de invitaciones
+│   ├── realtime/            # Suscripciones Supabase Realtime
+│   ├── offline/             # Cola offline e IndexedDB
+│   ├── push/                # Notificaciones push (Web Push API)
+│   ├── storage/             # Almacenamiento de archivos
+│   └── security/            # Utilidades de seguridad
+├── presentation/            # Componentes React y lógica de UI
+│   ├── components/          # Componentes reutilizables
+│   ├── hooks/               # Custom hooks de React
+│   ├── validation/          # Esquemas Zod para formularios
+│   └── utils/               # Utilidades de presentación
+├── shared/                  # Código compartido entre capas
+├── test/                    # Utilidades y mocks globales de tests
+└── app/                     # Rutas Next.js (App Router)
+    ├── (auth)/              # Páginas de autenticación (login, registro)
+    ├── (dashboard)/         # Páginas protegidas (calendario, familia…)
+    ├── actions/             # Server Actions de Next.js
+    ├── api/                 # Route Handlers de Next.js
+    ├── invite/              # Página de aceptación de invitaciones
+    ├── ~offline/            # Página de fallback offline (PWA)
+    ├── serwist/             # Configuración del Service Worker
+    ├── manifest.ts          # Web App Manifest dinámico
+    └── layout.tsx           # Layout raíz
 ```
 
 **Regla de dependencia**: las capas internas nunca importan de las externas.
+
+```
+Domain ← Application ← Infrastructure
+                    ↑
+              Presentation → app/
+```
+
+### Estructura del repositorio
+
+```
+personal_work_shift/
+├── src/                     # Código fuente (ver árbol anterior)
+├── e2e/                     # Tests end-to-end con Playwright
+│   ├── auth.spec.ts
+│   ├── calendar.spec.ts
+│   ├── events.spec.ts
+│   ├── family.spec.ts
+│   ├── accessibility.spec.ts
+│   ├── mobile-responsiveness.spec.ts
+│   └── pwa.spec.ts
+├── supabase/                # Configuración de Supabase CLI
+│   ├── migrations/          # Migraciones SQL versionadas
+│   ├── seed.sql             # Datos de prueba
+│   └── config.toml          # Configuración del proyecto Supabase
+├── doc/                     # Documentación técnica
+│   ├── architecture.md
+│   ├── user-stories.md
+│   └── security.md
+├── public/                  # Assets estáticos e iconos PWA
+├── scripts/                 # Scripts auxiliares de desarrollo
+├── .github/                 # Workflows de CI/CD (GitHub Actions)
+├── next.config.ts           # Configuración de Next.js
+├── vitest.config.ts         # Configuración de Vitest
+├── playwright.config.ts     # Configuración de Playwright
+└── tsconfig.json            # Configuración de TypeScript (strict)
+```
 
 ---
 
