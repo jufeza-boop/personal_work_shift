@@ -168,8 +168,7 @@ export function DayDetailPanel({
                       className="text-slate-400 transition-transform hover:text-slate-700"
                     >
                       <span
-                        className="inline-block transition-transform duration-200"
-                        style={{ transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)" }}
+                        className={`inline-block transition-transform duration-200${isExpanded ? " rotate-90" : ""}`}
                       >
                         ›
                       </span>
@@ -209,13 +208,13 @@ export function DayDetailPanel({
                     {occ.category && (
                       <div>
                         <span className="font-medium text-slate-700">Categoría: </span>
-                        {CATEGORY_LABELS[occ.category]}
+                        {CATEGORY_LABELS[occ.category] ?? occ.category}
                       </div>
                     )}
                     {occ.shiftType && (
                       <div>
                         <span className="font-medium text-slate-700">Turno: </span>
-                        {SHIFT_TYPE_LABELS[occ.shiftType]}
+                        {SHIFT_TYPE_LABELS[occ.shiftType] ?? occ.shiftType}
                       </div>
                     )}
                   </div>
