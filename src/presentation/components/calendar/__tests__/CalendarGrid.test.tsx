@@ -211,6 +211,22 @@ describe("CalendarGrid", () => {
     expect(screen.getByText("Dom")).toBeInTheDocument();
   });
 
+  it("renders day-of-week headers with sufficient contrast (text-slate-600)", () => {
+    render(
+      <CalendarGrid
+        initialEvents={[]}
+        members={[]}
+        initialYear={2026}
+        initialMonth={4}
+        {...DEFAULT_PROPS}
+      />,
+    );
+
+    const header = screen.getByText("Lun");
+    expect(header.className).toContain("text-slate-600");
+    expect(header.className).not.toContain("text-slate-400");
+  });
+
   it("renders the correct number of day cells for the month", () => {
     render(
       <CalendarGrid

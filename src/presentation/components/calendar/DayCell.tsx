@@ -128,7 +128,7 @@ export function DayCell({
       {shiftOccurrences.map((occ) => (
         <span
           key={`${occ.eventId}-${occ.date}`}
-          className="truncate rounded bg-white/40 px-1 py-px text-[10px] leading-4 text-slate-700"
+          className="truncate rounded bg-white/40 px-1 py-px text-[10px] leading-4 text-slate-900"
           title={occ.title}
         >
           {occ.title}
@@ -143,7 +143,7 @@ export function DayCell({
         return (
           <span
             key={`${occ.eventId}-${occ.date}`}
-            className="truncate rounded px-1 py-px text-[10px] leading-4 text-slate-700"
+            className="truncate rounded px-1 py-px text-[10px] leading-4 text-slate-900"
             style={bgColor ? { backgroundColor: bgColor } : undefined}
             title={occ.title}
           >
@@ -160,7 +160,7 @@ export function DayCell({
         return (
           <span
             key={`${occ.eventId}-${occ.date}`}
-            className="truncate rounded px-1 py-px text-[10px] leading-4 text-slate-700"
+            className="truncate rounded px-1 py-px text-[10px] leading-4 text-slate-900"
             style={{ backgroundColor: bgColor }}
             title={occ.title}
           >

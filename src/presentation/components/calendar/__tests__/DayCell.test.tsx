@@ -223,4 +223,36 @@ describe("DayCell", () => {
       background: "linear-gradient(135deg, #E0F2FE 50%, #E11D48 50%)",
     });
   });
+
+  it("uses text-slate-900 for shift event labels to meet WCAG AA contrast", () => {
+    render(
+      <DayCell
+        day={10}
+        dateStr="2026-04-10"
+        isToday={false}
+        occurrences={[SHIFT_OCCURRENCE]}
+        members={MEMBERS}
+        onSelect={vi.fn()}
+      />,
+    );
+
+    const label = screen.getByText("Morning shift");
+    expect(label.className).toContain("text-slate-900");
+  });
+
+  it("uses text-slate-900 for punctual event labels to meet WCAG AA contrast", () => {
+    render(
+      <DayCell
+        day={10}
+        dateStr="2026-04-10"
+        isToday={false}
+        occurrences={[PUNCTUAL_OCCURRENCE]}
+        members={MEMBERS}
+        onSelect={vi.fn()}
+      />,
+    );
+
+    const label = screen.getByText("Doctor visit");
+    expect(label.className).toContain("text-slate-900");
+  });
 });
