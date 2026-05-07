@@ -19,6 +19,7 @@ export interface SerializedPunctualEvent {
   familyId: string;
   createdBy: string;
   title: string;
+  description: string | null;
   /** YYYY-MM-DD */
   date: string;
   startTime: string | null;
@@ -31,6 +32,7 @@ export interface SerializedRecurringEvent {
   familyId: string;
   createdBy: string;
   title: string;
+  description: string | null;
   category: RecurringEventCategory;
   /** YYYY-MM-DD */
   startDate: string;
@@ -39,6 +41,8 @@ export interface SerializedRecurringEvent {
   frequencyUnit: EventFrequencyUnit;
   frequencyInterval: number;
   shiftType: ShiftTypeValue | null;
+  startTime: string | null;
+  endTime: string | null;
 }
 
 export type SerializedEvent =
@@ -72,6 +76,11 @@ export interface CalendarOccurrence {
   category: RecurringEventCategory | null;
   shiftType: ShiftTypeValue | null;
   createdBy: string;
+  description: string | null;
+  /** HH:MM or null */
+  startTime: string | null;
+  /** HH:MM or null */
+  endTime: string | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -172,6 +181,7 @@ export function serializeEvent(event: Event): SerializedEvent {
       familyId: event.familyId,
       createdBy: event.createdBy,
       title: event.title,
+      description: event.description,
       date: toDateString(event.date),
       startTime: event.startTime,
       endTime: event.endTime,
@@ -185,12 +195,15 @@ export function serializeEvent(event: Event): SerializedEvent {
       familyId: event.familyId,
       createdBy: event.createdBy,
       title: event.title,
+      description: event.description,
       category: event.category,
       startDate: toDateString(event.startDate),
       endDate: event.endDate ? toDateString(event.endDate) : null,
       frequencyUnit: event.frequency.unit,
       frequencyInterval: event.frequency.interval,
       shiftType: event.shiftType?.value ?? null,
+      startTime: event.startTime,
+      endTime: event.endTime,
     };
   }
 
@@ -257,6 +270,9 @@ export function getOccurrencesForMonth(
             category: event.category,
             shiftType: event.shiftType,
             createdBy: event.createdBy,
+            description: event.description,
+            startTime: event.startTime,
+            endTime: event.endTime,
           });
         }
       }
@@ -274,6 +290,9 @@ export function getOccurrencesForMonth(
           category: null,
           shiftType: null,
           createdBy: event.createdBy,
+          description: event.description,
+          startTime: event.startTime,
+          endTime: event.endTime,
         });
       }
     } else {
@@ -293,6 +312,9 @@ export function getOccurrencesForMonth(
           category: event.category,
           shiftType: event.shiftType,
           createdBy: event.createdBy,
+          description: event.description,
+          startTime: event.startTime,
+          endTime: event.endTime,
         });
       }
     }
