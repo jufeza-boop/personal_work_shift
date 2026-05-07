@@ -17,8 +17,12 @@
  *   WS_DURATION_MS       - How long to keep connections alive in ms (default: 30000)
  */
 
-const SUPABASE_URL = process.env.SUPABASE_URL || "http://127.0.0.1:54321";
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || "test-anon-key";
+const SUPABASE_URL =
+  process.env.SUPABASE_URL ||
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  "http://127.0.0.1:54321";
+const SUPABASE_ANON_KEY =
+  process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const CONCURRENT = Number(process.env.WS_CONCURRENT) || 50;
 const DURATION_MS = Number(process.env.WS_DURATION_MS) || 30_000;
 
@@ -120,6 +124,14 @@ async function createConnection(id) {
 }
 
 async function runLoadTest() {
+  if (!SUPABASE_ANON_KEY) {
+    console.error(
+      "Missing Supabase anon key. Set SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+    );
+    process.exitCode = 1;
+    return;
+  }
+
   console.log("=== WebSocket Load Test ===");
   console.log(`Target:       ${wsUrl}`);
   console.log(`Concurrent:   ${CONCURRENT}`);
@@ -161,7 +173,7 @@ async function runLoadTest() {
     console.error(
       `\n❌ FAIL: Success rate ${(successRate * 100).toFixed(1)}% is below 80% threshold`,
     );
-    process.exit(1);
+    process.exitCode = 1;
   } else {
     console.log(
       `\n✅ PASS: Success rate ${(successRate * 100).toFixed(1)}% meets 80% threshold`,

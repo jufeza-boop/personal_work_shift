@@ -17,7 +17,7 @@
     "test:e2e:a11y": "playwright test e2e/accessibility.spec.ts",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:ws-load": "node e2e/websocket-load-test.mjs",
+    "test:ws-load": "node --env-file=.env.local e2e/websocket-load-test.mjs",
     "lighthouse": "npx @lhci/cli autorun",
     "supabase:init": "npx supabase init --yes",
     "supabase:start": "npx supabase start",
