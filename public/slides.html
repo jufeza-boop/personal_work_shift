@@ -698,7 +698,7 @@
       /* ─── Phone frames for screenshot slide ─────────────────────────── */
       .phone-frame {
         width: 100%;
-        max-width: 190px;
+        max-width: clamp(120px, 13vw, 155px);
         aspect-ratio: 9 / 19.5;
         border: 3px solid #d1c0ae;
         border-radius: 28px;
@@ -948,41 +948,68 @@
             <h2>Así se ve <span class="gradient-text">Personal Work Shift</span></h2>
             <p style="margin:0 auto;max-width:620px">Una interfaz cálida y familiar, diseñada para que cualquier miembro de la familia la entienda desde el primer momento.</p>
           </div>
-          <div class="four-col" style="align-items:start;gap:clamp(16px,2.5vw,32px)">
-            <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+          <div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:clamp(10px,1.5vw,20px);flex:1;align-content:flex-start">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
               <div class="phone-frame">
-                <img src="https://github.com/user-attachments/assets/6b96d23a-31e6-4e14-a33b-cc7ac8aa2bc3" alt="Pantalla Crear familia" loading="lazy" />
+                <img src="img/calendario.png" alt="Pantalla Calendario" loading="lazy" />
               </div>
               <div style="text-align:center">
-                <div style="font-size:clamp(12px,1.1vw,14px);font-weight:600;color:var(--text)">Crear familia</div>
-                <div style="font-size:clamp(11px,0.9vw,12px);color:var(--text-muted)">Paleta de color exclusiva</div>
+                <div style="font-size:clamp(11px,1vw,13px);font-weight:600;color:var(--text)">Calendario</div>
+                <div style="font-size:clamp(10px,0.85vw,11px);color:var(--text-muted)">Vista de turnos</div>
               </div>
             </div>
-            <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
               <div class="phone-frame">
-                <img src="https://github.com/user-attachments/assets/d9c4340a-eca3-48ae-83e0-950dbe2e4b59" alt="Pantalla Usuarios delegados" loading="lazy" />
+                <img src="img/crearFamilia.png" alt="Pantalla Crear familia" loading="lazy" />
               </div>
               <div style="text-align:center">
-                <div style="font-size:clamp(12px,1.1vw,14px);font-weight:600;color:var(--text)">Usuarios delegados</div>
-                <div style="font-size:clamp(11px,0.9vw,12px);color:var(--text-muted)">Gestión de menores</div>
+                <div style="font-size:clamp(11px,1vw,13px);font-weight:600;color:var(--text)">Crear familia</div>
+                <div style="font-size:clamp(10px,0.85vw,11px);color:var(--text-muted)">Color exclusivo</div>
               </div>
             </div>
-            <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
               <div class="phone-frame">
-                <img src="https://github.com/user-attachments/assets/5598b045-c72f-42a8-97ed-693fbe784ba0" alt="Pantalla Configuración y seguridad" loading="lazy" />
+                <img src="img/selectoFamilia.png" alt="Pantalla Selector de familia" loading="lazy" />
               </div>
               <div style="text-align:center">
-                <div style="font-size:clamp(12px,1.1vw,14px);font-weight:600;color:var(--text)">Configuración</div>
-                <div style="font-size:clamp(11px,0.9vw,12px);color:var(--text-muted)">Contraseña y seguridad</div>
+                <div style="font-size:clamp(11px,1vw,13px);font-weight:600;color:var(--text)">Selector familia</div>
+                <div style="font-size:clamp(10px,0.85vw,11px);color:var(--text-muted)">Cambio de contexto</div>
               </div>
             </div>
-            <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
               <div class="phone-frame">
-                <img src="https://github.com/user-attachments/assets/8e14e2e0-8fa8-4c07-8a69-c3584d0f0cc9" alt="Pantalla Selector de familia" loading="lazy" />
+                <img src="img/delegados.png" alt="Pantalla Usuarios delegados" loading="lazy" />
               </div>
               <div style="text-align:center">
-                <div style="font-size:clamp(12px,1.1vw,14px);font-weight:600;color:var(--text)">Selector de familia</div>
-                <div style="font-size:clamp(11px,0.9vw,12px);color:var(--text-muted)">Cambio de contexto</div>
+                <div style="font-size:clamp(11px,1vw,13px);font-weight:600;color:var(--text)">Delegados</div>
+                <div style="font-size:clamp(10px,0.85vw,11px);color:var(--text-muted)">Gestión de menores</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+              <div class="phone-frame">
+                <img src="img/perfil.png" alt="Pantalla Perfil de usuario" loading="lazy" />
+              </div>
+              <div style="text-align:center">
+                <div style="font-size:clamp(11px,1vw,13px);font-weight:600;color:var(--text)">Perfil</div>
+                <div style="font-size:clamp(10px,0.85vw,11px);color:var(--text-muted)">Datos del usuario</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+              <div class="phone-frame">
+                <img src="img/ajustes.png" alt="Pantalla Ajustes y seguridad" loading="lazy" />
+              </div>
+              <div style="text-align:center">
+                <div style="font-size:clamp(11px,1vw,13px);font-weight:600;color:var(--text)">Ajustes</div>
+                <div style="font-size:clamp(10px,0.85vw,11px);color:var(--text-muted)">Seguridad</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+              <div class="phone-frame">
+                <img src="img/userButton.png" alt="Pantalla Menú de usuario" loading="lazy" />
+              </div>
+              <div style="text-align:center">
+                <div style="font-size:clamp(11px,1vw,13px);font-weight:600;color:var(--text)">Menú usuario</div>
+                <div style="font-size:clamp(10px,0.85vw,11px);color:var(--text-muted)">Acciones rápidas</div>
               </div>
             </div>
           </div>
