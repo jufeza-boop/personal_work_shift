@@ -160,7 +160,9 @@ export function DayDetailPanel({
                   <div className="ml-3 flex shrink-0 items-center gap-2">
                     <button
                       type="button"
-                      aria-label={isExpanded ? "Ocultar detalle" : "Ver detalle"}
+                      aria-label={
+                        isExpanded ? "Ocultar detalle" : "Ver detalle"
+                      }
                       aria-expanded={isExpanded}
                       onClick={() =>
                         setExpandedEventId(isExpanded ? null : occ.eventId)
@@ -212,31 +214,41 @@ export function DayDetailPanel({
                     </div>
                     {occ.category && (
                       <div>
-                        <span className="font-medium text-slate-700">Categoría: </span>
+                        <span className="font-medium text-slate-700">
+                          Categoría:{" "}
+                        </span>
                         {CATEGORY_LABELS[occ.category] ?? occ.category}
                       </div>
                     )}
                     {occ.shiftType && (
                       <div>
-                        <span className="font-medium text-slate-700">Turno: </span>
+                        <span className="font-medium text-slate-700">
+                          Turno:{" "}
+                        </span>
                         {SHIFT_TYPE_LABELS[occ.shiftType] ?? occ.shiftType}
                       </div>
                     )}
                     {occ.startTime && (
                       <div>
-                        <span className="font-medium text-slate-700">Hora inicio: </span>
+                        <span className="font-medium text-slate-700">
+                          Hora inicio:{" "}
+                        </span>
                         {occ.startTime}
                       </div>
                     )}
                     {occ.endTime && (
                       <div>
-                        <span className="font-medium text-slate-700">Hora fin: </span>
+                        <span className="font-medium text-slate-700">
+                          Hora fin:{" "}
+                        </span>
                         {occ.endTime}
                       </div>
                     )}
                     {occ.description && (
                       <div>
-                        <span className="font-medium text-slate-700">Descripción: </span>
+                        <span className="font-medium text-slate-700">
+                          Descripción:{" "}
+                        </span>
                         {occ.description}
                       </div>
                     )}

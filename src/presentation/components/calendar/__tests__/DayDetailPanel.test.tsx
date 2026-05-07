@@ -236,7 +236,9 @@ describe("DayDetailPanel", () => {
       />,
     );
 
-    const toggleButtons = screen.getAllByRole("button", { name: /ver detalle/i });
+    const toggleButtons = screen.getAllByRole("button", {
+      name: /ver detalle/i,
+    });
     expect(toggleButtons).toHaveLength(2);
   });
 
