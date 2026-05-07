@@ -129,11 +129,11 @@
 - `getOccurrencesForMonth` expands recurring events (daily/weekly/annual, with interval and optional endDate) into concrete dated occurrences for a given month using UTC date math and a fast-skip optimization
 - `getShiftColor` resolves the hex color for a (paletteName, shiftType) pair via the domain ColorPalette/ShiftType value objects
 - Added `src/presentation/hooks/useCalendarEvents.ts` — client hook that wraps occurrence expansion with month navigation state and per-member visibility toggle (enforces at least one member visible)
-- Added `CalendarGrid`, `DayCell`, `ShiftBlock`, `MemberToggle` presentation components under `src/presentation/components/calendar/`
+- Added `CalendarGrid`, `DayCell`, `ShiftBlock`, `MemberFilterSheet` presentation components under `src/presentation/components/calendar/`
 - `CalendarGrid` is a client component; renders a Monday-first 7-column monthly grid with prev/next navigation
 - `DayCell` separates shift blocks (recurring work/studies → colored ShiftBlock) from text labels (punctual + recurring other)
 - `ShiftBlock` renders a proportionally equal-width colored bar with member initials; multiple shifts in a day cell appear side-by-side (split-day view)
-- `MemberToggle` disables the last visible member's checkbox to enforce at least one always-visible rule
+- `MemberFilterSheet` is a bottom-sheet (fixed overlay, slides up from bottom) with backdrop, member checkboxes, and an "Aplicar" close button; opened via a filter icon button in the calendar header. Disables the last visible member's checkbox to enforce at least one always-visible rule.
 - Updated `calendar/page.tsx` to serialize events + members and render `CalendarGrid` replacing the placeholder section
 - All 133 Vitest tests pass; lint clean; build succeeds
 
@@ -919,3 +919,29 @@
 #### Next steps
 
 - Optionally add E2E coverage for the full profile update flow in Playwright
+
+---
+
+### 2026-05-07 - MemberFilterSheet Bottom Sheet (visual refactor)
+
+#### What was done
+
+- Replaced `MemberToggle` sidebar widget with `MemberFilterSheet` — a mobile-native bottom sheet
+- `MemberFilterSheet` props: `{ isOpen, members, hiddenMemberIds, onToggle, onClose }`
+- Sheet overlays the full screen via `position: fixed`; backdrop darkens calendar with `bg-black/40`
+- Slide-up / slide-down animations via Tailwind `transition-transform duration-300 translate-y-0 / translate-y-full`
+- `aria-hidden={!isOpen}` on the dialog so accessibility queries only find checkboxes when sheet is open
+- Added a filter icon button (people SVG) to the CalendarGrid header; only rendered when `members.length > 0`
+- Added `isSheetOpen` state in `CalendarGrid`; `MemberFilterSheet` placed at the end of the return (after DayDetailPanel)
+- Deleted `MemberToggle.tsx` and its test; created `MemberFilterSheet.tsx` and `MemberFilterSheet.test.tsx` (7 TDD tests)
+- Updated 3 CalendarGrid tests that interact with checkboxes to first click the filter button
+
+#### Decisions
+
+- Kept sheet always in the DOM (no conditional mount) so the close animation plays correctly
+- `aria-hidden` is the key mechanism to hide checkboxes from the accessibility tree (and testing-library queries) when closed
+
+#### Patterns
+
+- Bottom sheet pattern: `fixed inset-x-0 bottom-0 z-50 rounded-t-2xl` + `transition-transform` toggle
+- Always render sheet in DOM; toggle visual state with `translate-y-full` / `translate-y-0` + `aria-hidden`

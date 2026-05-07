@@ -255,7 +255,8 @@ describe("CalendarGrid", () => {
     expect(screen.getByText("Marzo 2026")).toBeInTheDocument();
   });
 
-  it("renders member toggle checkboxes for each member", () => {
+  it("renders a filter button that opens the member bottom sheet", async () => {
+    const user = userEvent.setup();
     render(
       <CalendarGrid
         initialEvents={[]}
@@ -265,6 +266,12 @@ describe("CalendarGrid", () => {
         {...DEFAULT_PROPS}
       />,
     );
+
+    // The sheet is closed — checkboxes are not in the accessibility tree yet
+    expect(screen.queryAllByRole("checkbox")).toHaveLength(0);
+
+    // Open the sheet via the filter button in the header
+    await user.click(screen.getByRole("button", { name: /filtrar miembros/i }));
 
     expect(screen.getByText("Alice Smith")).toBeInTheDocument();
     expect(screen.getByText("Bob Jones")).toBeInTheDocument();
@@ -316,6 +323,9 @@ describe("CalendarGrid", () => {
       />,
     );
 
+    // Open the member filter sheet first
+    await user.click(screen.getByRole("button", { name: /filtrar miembros/i }));
+
     // Doctor visit belongs to u1 (Alice). Toggle off Alice.
     const checkboxes = screen.getAllByRole("checkbox");
     // First checkbox is Alice
@@ -335,6 +345,9 @@ describe("CalendarGrid", () => {
         {...DEFAULT_PROPS}
       />,
     );
+
+    // Open the member filter sheet first
+    await user.click(screen.getByRole("button", { name: /filtrar miembros/i }));
 
     const checkboxes = screen.getAllByRole("checkbox");
     // Hide Bob first (second checkbox)
