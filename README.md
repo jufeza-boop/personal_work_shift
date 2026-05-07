@@ -199,9 +199,9 @@ Cobertura mínima:
 
 ## Despliegue
 
-La app se despliega automáticamente en **Vercel** al hacer push a `main` a través del flujo de CI en `.github/workflows/ci.yml`.
+La app se despliega automáticamente en **Vercel** al hacer push a `main`.
 
-El flujo de CI ejecuta: `format → lint → test → build → deploy`.
+El flujo de CI  `.github/workflows/ci.yml` ejecuta: `format → lint → test → build`.
 
 ---
 
