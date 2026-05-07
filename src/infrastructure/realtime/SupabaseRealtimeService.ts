@@ -20,6 +20,7 @@ function mapEventRowToSerialized(row: EventRow): SerializedEvent {
     return {
       createdBy: row.created_by,
       date: row.event_date as string,
+      description: row.description ?? null,
       endTime: normalizeTime(row.end_time),
       familyId: row.family_id,
       id: row.id,
@@ -32,13 +33,16 @@ function mapEventRowToSerialized(row: EventRow): SerializedEvent {
   return {
     category: row.category ?? "other",
     createdBy: row.created_by,
+    description: row.description ?? null,
     endDate: row.end_date,
+    endTime: normalizeTime(row.end_time),
     familyId: row.family_id,
     frequencyInterval: row.frequency_interval ?? 1,
     frequencyUnit: row.frequency_unit ?? "weekly",
     id: row.id,
     shiftType: row.shift_type,
     startDate: row.start_date as string,
+    startTime: normalizeTime(row.start_time),
     title: row.title,
     type: "recurring",
   };

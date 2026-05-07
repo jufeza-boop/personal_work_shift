@@ -30,6 +30,7 @@ function buildService(): IRealtimeService & {
 const PUNCTUAL_EVENT: SerializedEvent = {
   createdBy: "user-1",
   date: "2026-04-10",
+  description: null,
   endTime: null,
   familyId: "family-1",
   id: "event-1",
