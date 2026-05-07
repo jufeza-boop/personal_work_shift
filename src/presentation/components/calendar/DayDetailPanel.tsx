@@ -111,7 +111,10 @@ export function DayDetailPanel({
   const delegatedUserIds = new Set(delegatedUsers.map((u) => u.id));
 
   return (
-    <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-lg">
+    <div
+      data-testid="day-detail-panel"
+      className="rounded-2xl border border-stone-200 bg-white p-5 shadow-lg"
+    >
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-lg font-semibold text-slate-900">

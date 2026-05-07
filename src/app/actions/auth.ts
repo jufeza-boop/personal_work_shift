@@ -7,6 +7,7 @@ import { LogoutUser } from "@/application/use-cases/auth/LogoutUser";
 import { RegisterUser } from "@/application/use-cases/auth/RegisterUser";
 import { createServerAuthDependencies } from "@/infrastructure/auth/runtime";
 import { getAuthenticatedUser } from "@/infrastructure/auth/runtime";
+import { isMockAuthEnabled } from "@/infrastructure/auth/runtime";
 import { authRateLimiter } from "@/infrastructure/security/authRateLimiter";
 import { getClientIp } from "@/infrastructure/security/getClientIp";
 import {
@@ -36,16 +37,18 @@ export async function registerAction(
   // Required by the useActionState server action signature.
   void _previousState;
 
-  const clientIp = await getClientIp();
-  const rateCheck = authRateLimiter.check(clientIp);
+  if (!isMockAuthEnabled()) {
+    const clientIp = await getClientIp();
+    const rateCheck = authRateLimiter.check(clientIp);
 
-  if (!rateCheck.allowed) {
-    const retryMinutes = Math.ceil((rateCheck.retryAfterMs ?? 0) / 60_000);
+    if (!rateCheck.allowed) {
+      const retryMinutes = Math.ceil((rateCheck.retryAfterMs ?? 0) / 60_000);
 
-    return {
-      message: `Demasiados intentos. Por favor, espera ${retryMinutes} minuto${retryMinutes !== 1 ? "s" : ""}.`,
-      success: false,
-    };
+      return {
+        message: `Demasiados intentos. Por favor, espera ${retryMinutes} minuto${retryMinutes !== 1 ? "s" : ""}.`,
+        success: false,
+      };
+    }
   }
 
   const parsed = registerSchema.safeParse({
@@ -101,16 +104,18 @@ export async function loginAction(
   // Required by the useActionState server action signature.
   void _previousState;
 
-  const clientIp = await getClientIp();
-  const rateCheck = authRateLimiter.check(clientIp);
+  if (!isMockAuthEnabled()) {
+    const clientIp = await getClientIp();
+    const rateCheck = authRateLimiter.check(clientIp);
 
-  if (!rateCheck.allowed) {
-    const retryMinutes = Math.ceil((rateCheck.retryAfterMs ?? 0) / 60_000);
+    if (!rateCheck.allowed) {
+      const retryMinutes = Math.ceil((rateCheck.retryAfterMs ?? 0) / 60_000);
 
-    return {
-      message: `Demasiados intentos. Por favor, espera ${retryMinutes} minuto${retryMinutes !== 1 ? "s" : ""}.`,
-      success: false,
-    };
+      return {
+        message: `Demasiados intentos. Por favor, espera ${retryMinutes} minuto${retryMinutes !== 1 ? "s" : ""}.`,
+        success: false,
+      };
+    }
   }
 
   const parsed = loginSchema.safeParse({
