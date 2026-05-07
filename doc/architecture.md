@@ -138,7 +138,7 @@ src/
 │   │   ├── calendar/
 │   │   │   ├── CalendarGrid.tsx
 │   │   │   ├── DayCell.tsx
-│   │   │   ├── MemberToggle.tsx
+│   │   │   ├── MemberFilterSheet.tsx
 │   │   │   └── ShiftBlock.tsx
 │   │   ├── events/
 │   │   │   ├── EventForm.tsx
