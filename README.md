@@ -201,7 +201,7 @@ Cobertura mínima:
 
 La app se despliega automáticamente en **Vercel** al hacer push a `main`.
 
-El flujo de CI  `.github/workflows/ci.yml` ejecuta: `format → lint → test → build`.
+El flujo de CI `.github/workflows/ci.yml` ejecuta: `format → lint → test → build`.
 
 ---
 
