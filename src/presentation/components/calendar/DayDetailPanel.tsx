@@ -49,6 +49,19 @@ const MONTH_NAMES_FULL = [
   "diciembre",
 ] as const;
 
+const CATEGORY_LABELS: Record<string, string> = {
+  work: "Trabajo",
+  studies: "Estudios",
+  other: "Otro",
+};
+
+const SHIFT_TYPE_LABELS: Record<string, string> = {
+  morning: "Mañana",
+  day: "Día",
+  afternoon: "Tarde",
+  night: "Noche",
+};
+
 interface DayDetailPanelProps {
   date: string;
   day: number;
@@ -85,6 +98,7 @@ export function DayDetailPanel({
   onClose,
 }: DayDetailPanelProps) {
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [expandedEventId, setExpandedEventId] = useState<string | null>(null);
   const [deleteDialog, setDeleteDialog] = useState<DeleteDialogState | null>(
     null,
   );
@@ -128,49 +142,84 @@ export function DayDetailPanel({
               occ.createdBy === currentUserId ||
               delegatedUserIds.has(occ.createdBy);
 
+            const isExpanded = expandedEventId === occ.eventId;
+
             return (
-              <li
-                key={`${occ.eventId}-${occ.date}`}
-                className="flex items-center justify-between py-2"
-              >
-                <div className="min-w-0 flex-1">
-                  <span className="text-sm font-medium text-slate-800">
-                    {occ.title}
-                  </span>
-                  {member && (
-                    <span className="ml-2 text-xs text-slate-400">
-                      {member.displayName}
+              <li key={`${occ.eventId}-${occ.date}`} className="py-2">
+                <div className="flex items-center justify-between">
+                  <div className="min-w-0 flex-1">
+                    <span className="text-sm font-medium text-slate-800">
+                      {occ.title}
                     </span>
-                  )}
-                </div>
-                <div className="ml-3 flex shrink-0 items-center gap-2">
-                  <span className="rounded-full bg-stone-100 px-2 py-0.5 text-xs text-slate-500">
-                    {occ.type === "punctual" ? "Puntual" : "Recurrente"}
-                  </span>
-                  {isOwner && (
-                    <>
-                      <Link
-                        href={`/calendar/events/${occ.eventId}/edit?date=${date}`}
-                        className="text-xs text-blue-600 hover:underline"
+                    {member && (
+                      <span className="ml-2 text-xs text-slate-400">
+                        {member.displayName}
+                      </span>
+                    )}
+                  </div>
+                  <div className="ml-3 flex shrink-0 items-center gap-2">
+                    <button
+                      type="button"
+                      aria-label={isExpanded ? "Ocultar detalle" : "Ver detalle"}
+                      aria-expanded={isExpanded}
+                      onClick={() =>
+                        setExpandedEventId(isExpanded ? null : occ.eventId)
+                      }
+                      className="text-slate-400 transition-transform hover:text-slate-700"
+                    >
+                      <span
+                        className="inline-block transition-transform duration-200"
+                        style={{ transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)" }}
                       >
-                        Editar
-                      </Link>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setDeleteDialog({
-                            eventId: occ.eventId,
-                            eventType: occ.type,
-                            scope: "all",
-                          })
-                        }
-                        className="text-xs text-red-600 hover:underline"
-                      >
-                        Eliminar
-                      </button>
-                    </>
-                  )}
+                        ›
+                      </span>
+                    </button>
+                    {isOwner && (
+                      <>
+                        <Link
+                          href={`/calendar/events/${occ.eventId}/edit?date=${date}`}
+                          className="text-xs text-blue-600 hover:underline"
+                        >
+                          Editar
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setDeleteDialog({
+                              eventId: occ.eventId,
+                              eventType: occ.type,
+                              scope: "all",
+                            })
+                          }
+                          className="text-xs text-red-600 hover:underline"
+                        >
+                          Eliminar
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
+
+                {isExpanded && (
+                  <div className="mt-2 space-y-1 rounded-lg bg-stone-50 px-3 py-2 text-xs text-slate-600">
+                    <div>
+                      <span className="font-medium text-slate-700">Tipo: </span>
+                      {occ.type === "punctual" ? "Puntual" : "Recurrente"}
+                    </div>
+                    {occ.category && (
+                      <div>
+                        <span className="font-medium text-slate-700">Categoría: </span>
+                        {CATEGORY_LABELS[occ.category]}
+                      </div>
+                    )}
+                    {occ.shiftType && (
+                      <div>
+                        <span className="font-medium text-slate-700">Turno: </span>
+                        {SHIFT_TYPE_LABELS[occ.shiftType]}
+                      </div>
+                    )}
+                  </div>
+                )}
               </li>
             );
           })}
