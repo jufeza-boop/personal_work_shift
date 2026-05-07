@@ -46,10 +46,7 @@ export function MemberToggle({
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 16 16"
           fill="currentColor"
-          className={[
-            "h-3 w-3 shrink-0 text-slate-400 transition-transform duration-200",
-            isOpen ? "rotate-0" : "-rotate-90",
-          ].join(" ")}
+          className={`h-3 w-3 shrink-0 text-slate-400 transition-transform duration-200 ${isOpen ? "rotate-0" : "-rotate-90"}`}
           aria-hidden="true"
         >
           <path
