@@ -121,7 +121,9 @@ describe("MemberFilterSheet", () => {
 
     // Only member "1" (jufeza) is visible; her checkbox must be disabled
     const checkboxes = screen.getAllByRole("checkbox");
-    const visibleCheckbox = checkboxes.find((cb) => !cb.hasAttribute("disabled") === false);
-    expect(visibleCheckbox ?? checkboxes[0]).toBeDisabled();
+    // checkboxes[0] = jufeza (visible, last visible → disabled)
+    // checkboxes[1] = Juan (hidden, so its checkbox should NOT be disabled)
+    expect(checkboxes[0]).toBeDisabled();
+    expect(checkboxes[1]).not.toBeDisabled();
   });
 });
