@@ -1373,7 +1373,7 @@
 
         // Keyboard navigation
         document.addEventListener('keydown', function (e) {
-          if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+          if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
             e.preventDefault();
             goTo(current + 1);
           } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
@@ -1387,16 +1387,16 @@
         });
 
         // Touch swipe navigation
-        var touchStartX = 0;
-        var touchStartY = 0;
+        let touchStartX = 0;
+        let touchStartY = 0;
         document.getElementById('viewport').addEventListener('touchstart', function (e) {
           touchStartX = e.touches[0].clientX;
           touchStartY = e.touches[0].clientY;
         }, { passive: true });
 
         document.getElementById('viewport').addEventListener('touchend', function (e) {
-          var dx = e.changedTouches[0].clientX - touchStartX;
-          var dy = e.changedTouches[0].clientY - touchStartY;
+          const dx = e.changedTouches[0].clientX - touchStartX;
+          const dy = e.changedTouches[0].clientY - touchStartY;
           if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
             if (dx < 0) goTo(current + 1);
             else goTo(current - 1);
