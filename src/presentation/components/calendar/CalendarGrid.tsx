@@ -272,7 +272,7 @@ export function CalendarGrid({
           {DAY_HEADERS.map((label) => (
             <div
               key={label}
-              className="py-2 text-center text-xs font-semibold tracking-wide text-slate-400 uppercase"
+              className="py-2 text-center text-xs font-semibold tracking-wide text-slate-600 uppercase"
             >
               {label}
             </div>
