@@ -40,7 +40,7 @@ export function MemberFilterSheet({
         aria-hidden="true"
         onClick={isOpen ? onClose : undefined}
         className={`fixed inset-0 z-40 bg-black/40 transition-opacity duration-300 ${
-          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+          isOpen ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       />
 
@@ -51,16 +51,16 @@ export function MemberFilterSheet({
         aria-modal="true"
         aria-hidden={!isOpen}
         className={`fixed inset-x-0 bottom-0 z-50 flex flex-col rounded-t-2xl bg-white shadow-2xl transition-transform duration-300 ease-in-out ${
-          isOpen ? "translate-y-0" : "translate-y-full pointer-events-none"
+          isOpen ? "translate-y-0" : "pointer-events-none translate-y-full"
         }`}
       >
         {/* Drag handle */}
-        <div className="flex justify-center pb-1 pt-3">
+        <div className="flex justify-center pt-3 pb-1">
           <div className="h-1 w-10 rounded-full bg-stone-300" />
         </div>
 
         {/* Title */}
-        <div className="px-5 pb-2 pt-1">
+        <div className="px-5 pt-1 pb-2">
           <h2 className="text-base font-semibold text-slate-800">
             Filtrar miembros
           </h2>
@@ -111,7 +111,7 @@ export function MemberFilterSheet({
         </ul>
 
         {/* Apply button */}
-        <div className="px-5 pb-8 pt-2">
+        <div className="px-5 pt-2 pb-8">
           <button
             type="button"
             onClick={onClose}
