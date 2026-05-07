@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Personal Work Shift — Presentación del Proyecto</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ─── Reset & Base ──────────────────────────────────────────────── */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #f5ece0;
+        --surface: #ffffff;
+        --surface2: #fdf7f2;
+        --border: rgba(124, 74, 30, 0.15);
+        --accent: #7c4a1e;
+        --accent2: #a0652a;
+        --accent3: #c4862c;
+        --green: #16a34a;
+        --amber: #d97706;
+        --red: #dc2626;
+        --text: #1a2332;
+        --text-muted: #6b7280;
+        --text-dim: #9ca3af;
+        --radius: 16px;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        background: var(--bg);
+        font-family: "Inter", system-ui, sans-serif;
+        overflow: hidden;
+        color: var(--text);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* ─── Slide Deck — Desktop ──────────────────────────────────────── */
+      #deck {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e8d4be;
+      }
+
+      #viewport {
+        position: relative;
+        width: 100%;
+        max-width: 1440px;
+        height: calc(100% - 72px);
+        overflow: hidden;
+        border-radius: 20px;
+        box-shadow:
+          0 0 0 1px rgba(124, 74, 30, 0.12),
+          0 32px 80px rgba(0, 0, 0, 0.15);
+      }
+
+      /* ─── Slides — Desktop: absolute stacked ───────────────────────── */
+      .slide {
+        position: absolute;
+        inset: 0;
+        background: var(--bg);
+        display: flex;
+        flex-direction: column;
+        padding: clamp(32px, 4vw, 56px) clamp(28px, 5vw, 64px);
+        opacity: 0;
+        pointer-events: none;
+        transition:
+          opacity 0.5s ease,
+          transform 0.5s ease;
+        transform: translateX(40px);
+        overflow: hidden;
+      }
+
+      .slide.active {
+        opacity: 1;
+        pointer-events: all;
+        transform: translateX(0);
+      }
+
+      .slide.exit {
+        opacity: 0;
+        transform: translateX(-40px);
+        pointer-events: none;
+      }
+
+      /* ─── Slide Backgrounds / Themes ───────────────────────────────── */
+      .slide-cover {
+        background: radial-gradient(
+            ellipse 80% 60% at 50% -10%,
+            rgba(124, 74, 30, 0.18) 0%,
+            transparent 70%
+          ),
+          var(--bg);
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .slide-dark {
+        background: radial-gradient(
+            ellipse 100% 60% at 100% 0%,
+            rgba(160, 101, 42, 0.12) 0%,
+            transparent 60%
+          ),
+          #f0e4d4;
+      }
+
+      .slide-teal {
+        background: radial-gradient(
+            ellipse 80% 60% at 0% 100%,
+            rgba(22, 163, 74, 0.07) 0%,
+            transparent 60%
+          ),
+          #f3ece2;
+      }
+
+      .slide-green {
+        background: radial-gradient(
+            ellipse 80% 60% at 100% 100%,
+            rgba(16, 185, 129, 0.07) 0%,
+            transparent 60%
+          ),
+          #f2ede5;
+      }
+
+      .slide-close {
+        background: radial-gradient(
+            ellipse 80% 80% at 50% 100%,
+            rgba(124, 74, 30, 0.22) 0%,
+            transparent 70%
+          ),
+          var(--bg);
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+
+      /* ─── Typography ────────────────────────────────────────────────── */
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: clamp(10px, 1vw, 11px);
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--accent);
+        background: rgba(124, 74, 30, 0.1);
+        border: 1px solid rgba(124, 74, 30, 0.25);
+        border-radius: 100px;
+        padding: 4px 12px;
+        margin-bottom: clamp(12px, 2vw, 24px);
+      }
+
+      .badge.teal {
+        color: #16a34a;
+        background: rgba(22, 163, 74, 0.09);
+        border-color: rgba(22, 163, 74, 0.3);
+      }
+
+      .badge.green {
+        color: var(--green);
+        background: rgba(16, 185, 129, 0.09);
+        border-color: rgba(16, 185, 129, 0.3);
+      }
+
+      .badge.amber {
+        color: var(--amber);
+        background: rgba(217, 119, 6, 0.1);
+        border-color: rgba(217, 119, 6, 0.3);
+      }
+
+      h1 {
+        font-size: clamp(32px, 5vw, 64px);
+        font-weight: 800;
+        line-height: 1.08;
+        letter-spacing: -0.03em;
+        margin-bottom: clamp(12px, 1.5vw, 20px);
+        color: var(--text);
+      }
+
+      h2 {
+        font-size: clamp(22px, 3.2vw, 40px);
+        font-weight: 700;
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+        margin-bottom: 10px;
+        color: var(--text);
+      }
+
+      h3 {
+        font-size: clamp(16px, 1.8vw, 22px);
+        font-weight: 600;
+        line-height: 1.3;
+        margin-bottom: 8px;
+        color: var(--text);
+      }
+
+      .subtitle {
+        font-size: clamp(14px, 1.6vw, 20px);
+        color: var(--text-muted);
+        font-weight: 400;
+        line-height: 1.6;
+        max-width: 640px;
+      }
+
+      .gradient-text {
+        background: linear-gradient(
+          135deg,
+          var(--accent) 0%,
+          var(--accent2) 50%,
+          var(--accent3) 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      p {
+        font-size: clamp(13px, 1.3vw, 16px);
+        line-height: 1.7;
+        color: var(--text-muted);
+      }
+
+      /* ─── Layout Helpers ────────────────────────────────────────────── */
+      .slide-header {
+        margin-bottom: clamp(16px, 2.5vw, 36px);
+        flex-shrink: 0;
+      }
+
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: clamp(12px, 1.8vw, 24px);
+        flex: 1;
+        min-height: 0;
+      }
+
+      .three-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: clamp(10px, 1.5vw, 20px);
+        flex: 1;
+        min-height: 0;
+      }
+
+      .four-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        gap: clamp(8px, 1.2vw, 16px);
+        flex: 1;
+        min-height: 0;
+      }
+
+      /* ─── Cards ─────────────────────────────────────────────────────── */
+      .card {
+        background: var(--surface);
+        border: 1px solid rgba(0, 0, 0, 0.07);
+        border-radius: var(--radius);
+        padding: clamp(14px, 1.8vw, 24px);
+        display: flex;
+        flex-direction: column;
+        gap: clamp(6px, 0.8vw, 10px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+
+      .card.accent-border {
+        border-color: rgba(124, 74, 30, 0.25);
+        background: rgba(124, 74, 30, 0.04);
+      }
+
+      .card.teal-border {
+        border-color: rgba(22, 163, 74, 0.25);
+        background: rgba(22, 163, 74, 0.04);
+      }
+
+      .card.green-border {
+        border-color: rgba(16, 185, 129, 0.25);
+        background: rgba(16, 185, 129, 0.04);
+      }
+
+      .card.amber-border {
+        border-color: rgba(217, 119, 6, 0.25);
+        background: rgba(217, 119, 6, 0.04);
+      }
+
+      .card.red-border {
+        border-color: rgba(220, 38, 38, 0.25);
+        background: rgba(220, 38, 38, 0.04);
+      }
+
+      .icon {
+        font-size: clamp(20px, 2.2vw, 28px);
+        line-height: 1;
+        flex-shrink: 0;
+      }
+
+      .card-title {
+        font-size: clamp(13px, 1.2vw, 15px);
+        font-weight: 600;
+        color: var(--text);
+      }
+
+      .card-desc {
+        font-size: clamp(11px, 1vw, 13px);
+        color: var(--text-muted);
+        line-height: 1.6;
+      }
+
+      /* ─── Code / Mono ───────────────────────────────────────────────── */
+      code {
+        font-family: "JetBrains Mono", monospace;
+        font-size: clamp(11px, 1vw, 13px);
+        background: rgba(124, 74, 30, 0.08);
+        border: 1px solid rgba(124, 74, 30, 0.15);
+        border-radius: 6px;
+        padding: 2px 7px;
+        color: var(--accent2);
+      }
+
+      .code-block {
+        background: #f8f2eb;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px 24px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: clamp(11px, 1vw, 13px);
+        line-height: 1.7;
+        color: #374151;
+        overflow: hidden;
+      }
+
+      .code-block .keyword { color: #7c4a1e; }
+      .code-block .string  { color: #16a34a; }
+      .code-block .comment { color: #9ca3af; font-style: italic; }
+      .code-block .type    { color: #c4862c; }
+
+      /* ─── Timeline ──────────────────────────────────────────────────── */
+      .timeline {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        flex: 1;
+      }
+
+      .timeline-item {
+        display: flex;
+        gap: 20px;
+        position: relative;
+      }
+
+      .timeline-item:not(:last-child)::before {
+        content: "";
+        position: absolute;
+        left: 17px;
+        top: 36px;
+        bottom: -4px;
+        width: 2px;
+        background: linear-gradient(to bottom, var(--accent), transparent);
+        opacity: 0.25;
+      }
+
+      .timeline-dot {
+        width: clamp(28px, 3vw, 36px);
+        height: clamp(28px, 3vw, 36px);
+        border-radius: 50%;
+        background: rgba(124, 74, 30, 0.1);
+        border: 2px solid rgba(124, 74, 30, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: clamp(13px, 1.3vw, 16px);
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+
+      .timeline-content {
+        padding-bottom: clamp(12px, 1.5vw, 20px);
+        flex: 1;
+      }
+
+      .timeline-title {
+        font-size: clamp(13px, 1.2vw, 15px);
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 4px;
+      }
+
+      .timeline-desc {
+        font-size: clamp(11px, 1vw, 13px);
+        color: var(--text-muted);
+        line-height: 1.6;
+      }
+
+      /* ─── Stat Pills ────────────────────────────────────────────────── */
+      .stats-row {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+      }
+
+      .stat-pill {
+        background: var(--surface);
+        border: 1px solid rgba(0, 0, 0, 0.07);
+        border-radius: 100px;
+        padding: 8px 20px;
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      }
+
+      .stat-number {
+        font-size: clamp(18px, 2vw, 24px);
+        font-weight: 800;
+        color: var(--text);
+        letter-spacing: -0.03em;
+      }
+
+      .stat-label {
+        font-size: clamp(10px, 0.9vw, 12px);
+        color: var(--text-muted);
+        font-weight: 500;
+      }
+
+      /* ─── Check list ────────────────────────────────────────────────── */
+      .check-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: clamp(6px, 0.8vw, 10px);
+      }
+
+      .check-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: clamp(11px, 1.1vw, 14px);
+        color: var(--text-muted);
+        line-height: 1.5;
+      }
+
+      .check-list li::before {
+        content: "✓";
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: rgba(22, 163, 74, 0.12);
+        color: var(--green);
+        font-size: 11px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+
+      .cross-list li::before {
+        content: "✕";
+        background: rgba(220, 38, 38, 0.1);
+        color: var(--red);
+      }
+
+      /* ─── Architecture Diagram ──────────────────────────────────────── */
+      .arch-layer {
+        background: var(--surface);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 10px;
+        padding: clamp(10px, 1.2vw, 14px) clamp(12px, 1.5vw, 20px);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        position: relative;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      }
+
+      .arch-layer-label {
+        font-size: clamp(9px, 0.9vw, 11px);
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-dim);
+        min-width: clamp(70px, 8vw, 110px);
+      }
+
+      .arch-layer-content {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .arch-tag {
+        font-size: clamp(10px, 1vw, 12px);
+        font-weight: 500;
+        padding: 4px 10px;
+        border-radius: 100px;
+        color: var(--text);
+        background: rgba(124, 74, 30, 0.06);
+        border: 1px solid rgba(124, 74, 30, 0.15);
+      }
+
+      .arch-arrow {
+        text-align: center;
+        color: var(--text-dim);
+        font-size: 18px;
+        line-height: 1;
+        padding: 4px 0;
+      }
+
+      /* ─── Mini grid (2-col inside arch slide) ───────────────────────── */
+      .mini-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      /* ─── Navigation ────────────────────────────────────────────────── */
+      #nav {
+        position: fixed;
+        bottom: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(124, 74, 30, 0.18);
+        border-radius: 100px;
+        padding: 8px 16px;
+        z-index: 100;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      }
+
+      .nav-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(124, 74, 30, 0.08);
+        border: 1px solid rgba(124, 74, 30, 0.2);
+        color: var(--accent);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        transition:
+          background 0.15s,
+          color 0.15s,
+          border-color 0.15s;
+      }
+
+      .nav-btn:hover {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+      }
+
+      .nav-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+
+      .nav-btn:disabled:hover {
+        background: rgba(124, 74, 30, 0.08);
+        border-color: rgba(124, 74, 30, 0.2);
+        color: var(--accent);
+      }
+
+      #slide-counter {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-muted);
+        min-width: 52px;
+        text-align: center;
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      /* Dots */
+      #dots {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: rgba(124, 74, 30, 0.25);
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          transform 0.2s;
+      }
+
+      .dot.active {
+        background: var(--accent);
+        transform: scale(1.4);
+      }
+
+      /* ─── Slide number badge ────────────────────────────────────────── */
+      .slide-num {
+        position: absolute;
+        top: 16px;
+        right: 24px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: var(--text-dim);
+      }
+
+      /* ─── Glow decorations ──────────────────────────────────────────── */
+      .glow {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        pointer-events: none;
+        opacity: 0.12;
+      }
+
+      /* ─── Cover slide specific ──────────────────────────────────────── */
+      .cover-logo {
+        width: clamp(52px, 6vw, 72px);
+        height: clamp(52px, 6vw, 72px);
+        background: linear-gradient(135deg, var(--accent), var(--accent2));
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: clamp(26px, 3vw, 36px);
+        margin: 0 auto clamp(16px, 2vw, 28px);
+        box-shadow: 0 0 40px rgba(124, 74, 30, 0.3);
+      }
+
+      .cover-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: clamp(12px, 1.1vw, 13px);
+        font-weight: 500;
+        color: var(--text-muted);
+        background: var(--surface);
+        border: 1px solid rgba(124, 74, 30, 0.15);
+        border-radius: 100px;
+        padding: 6px 16px;
+        margin-top: clamp(20px, 2.5vw, 32px);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+      }
+
+      /* ─── Divider ───────────────────────────────────────────────────── */
+      .divider {
+        height: 1px;
+        background: rgba(124, 74, 30, 0.15);
+        margin: 20px 0;
+      }
+
+      /* ─── Highlight box ─────────────────────────────────────────────── */
+      .highlight {
+        background: rgba(124, 74, 30, 0.06);
+        border: 1px solid rgba(124, 74, 30, 0.18);
+        border-radius: 12px;
+        padding: clamp(12px, 1.5vw, 16px) clamp(14px, 1.8vw, 20px);
+        font-size: clamp(13px, 1.2vw, 15px);
+        color: var(--text);
+        line-height: 1.6;
+      }
+
+      /* ─── Big number ────────────────────────────────────────────────── */
+      .big-num {
+        font-size: clamp(40px, 5vw, 56px);
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        line-height: 1;
+        background: linear-gradient(135deg, var(--accent), var(--accent2));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      /* ─── Phone frames for screenshot slide ─────────────────────────── */
+      .phone-frame {
+        width: 100%;
+        max-width: clamp(120px, 13vw, 155px);
+        aspect-ratio: 9 / 19.5;
+        border: 3px solid #d1c0ae;
+        border-radius: 28px;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.14);
+        margin: 0 auto;
+      }
+
+      .phone-frame img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top;
+        display: block;
+      }
+
+      /* ════════════════════════════════════════════════════════════════
+         MOBILE ≤ 899px — true responsive layout, no transform tricks
+         ════════════════════════════════════════════════════════════════ */
+      @media (max-width: 899px) {
+        /* Allow body to scroll naturally */
+        html,
+        body {
+          height: auto;
+          overflow-x: hidden;
+          overflow-y: auto;
+        }
+
+        #deck {
+          height: auto;
+          align-items: flex-start;
+        }
+
+        #viewport {
+          position: relative;
+          width: 100%;
+          height: auto;
+          overflow: visible;
+          border-radius: 0;
+          max-width: 100%;
+          box-shadow: none;
+        }
+
+        /* Show only the active slide; others hidden */
+        .slide {
+          position: relative;
+          display: none;
+          opacity: 1;
+          transform: none;
+          pointer-events: auto;
+          min-height: 100svh;
+          overflow: visible;
+          /* Extra bottom padding keeps content above the fixed nav bar */
+          padding: 28px 20px 110px;
+        }
+
+        .slide.active {
+          display: flex;
+          opacity: 1;
+          transform: none;
+        }
+
+        .slide.exit {
+          display: none;
+        }
+
+        /* Typography */
+        h1 { font-size: clamp(28px, 9vw, 44px); }
+        h2 { font-size: clamp(20px, 6.5vw, 30px); }
+        .subtitle { font-size: 15px; max-width: 100%; }
+        p { font-size: 14px; }
+
+        /* Override inline font-size on closing slide h2 */
+        .slide-close h2 { font-size: clamp(20px, 6vw, 28px) !important; }
+
+        /* Slide header */
+        .slide-header { margin-bottom: 20px; }
+        .badge { margin-bottom: 12px; }
+
+        /* Grid collapse to single column */
+        .two-col,
+        .three-col {
+          grid-template-columns: 1fr;
+          flex: none;
+        }
+
+        /* Four-col becomes two-col on mobile */
+        .four-col {
+          grid-template-columns: 1fr 1fr;
+          flex: none;
+        }
+
+        /* Mini 2-col grid stays 2-col — it's compact enough */
+        .mini-grid { grid-template-columns: 1fr 1fr; }
+
+        /* Cards */
+        .card { padding: 14px; gap: 8px; }
+        .card-title { font-size: 14px; }
+        .card-desc { font-size: 13px; }
+        .icon { font-size: 22px; }
+
+        /* Timeline */
+        .timeline { flex: none; }
+        .timeline-content { padding-bottom: 16px; }
+
+        /* Slide number badge: redundant with nav counter on mobile */
+        .slide-num { display: none; }
+
+        /* Glow blobs: hidden on mobile for performance */
+        .glow { display: none; }
+
+        /* Navigation bar: larger touch targets */
+        #nav {
+          bottom: 12px;
+          gap: 8px;
+          padding: 10px 14px;
+        }
+
+        .nav-btn {
+          width: 48px;
+          height: 48px;
+          font-size: 20px;
+        }
+
+        /* Hide dots on mobile — counter is enough */
+        #dots { display: none; }
+
+        #slide-counter { font-size: 14px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="deck">
+      <div id="viewport">
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- SLIDE 1 — COVER                                               -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <section class="slide slide-cover active" id="s1">
+          <div class="glow" style="width:400px;height:400px;background:var(--accent);top:-100px;left:50%;transform:translateX(-50%)"></div>
+          <div class="cover-logo">📅</div>
+          <div class="badge">Proyecto Final de Máster</div>
+          <h1>Personal<br /><span class="gradient-text">Work Shift</span></h1>
+          <p class="subtitle">
+            La app familiar que elimina el caos de los turnos rotativos.<br />
+            PWA · Tiempo real · Push notifications · Coste cero.
+          </p>
+          <div class="cover-tag">
+            <span>👨‍💻</span> Juan Fernández Zafra &nbsp;·&nbsp; 2026
+          </div>
+          <div class="slide-num">01 / 13</div>
+        </section>
+
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- SLIDE 2 — EL PROBLEMA                                         -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <section class="slide slide-dark" id="s2">
+          <div class="slide-header">
+            <div class="badge">🔍 El Problema</div>
+            <h2>El caos de los <span class="gradient-text">turnos rotativos</span></h2>
+            <p style="max-width:600px">Coordinar la vida familiar cuando trabajas a turnos es frustrante.<br/>Las herramientas del mercado no entienden cómo vivimos.</p>
+          </div>
+          <div class="two-col">
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div class="card red-border">
+                <div class="icon">🗓️</div>
+                <div class="card-title">Google Calendar & Outlook</div>
+                <div class="card-desc">Pensados para el mundo corporativo: reuniones, videollamadas, horarios de oficina 9–5. No entienden turnos rotativos ni horarios irregulares.</div>
+              </div>
+              <div class="card red-border">
+                <div class="icon">👨‍👩‍👧‍👦</div>
+                <div class="card-title">Apps familiares existentes</div>
+                <div class="card-desc">Sobrecargadas con listas de compra, chats, tareas compartidas… y encima las funciones útiles detrás de una suscripción de pago.</div>
+              </div>
+              <div class="card red-border">
+                <div class="icon">📲</div>
+                <div class="card-title">Barrera de adopción</div>
+                <div class="card-desc">Descargar 100MB desde la tienda, crear cuenta, aprender la app… Imposible convencer a la familia. El calendario acaba siendo solo tuyo.</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:16px;justify-content:center">
+              <div class="highlight">
+                <strong>La pregunta real era simple:</strong><br/><br/>
+                "¿Quién trabaja esta semana y cuándo? ¿Tenemos algo el jueves?"<br/><br/>
+                Sin ruido. Sin suscripción. Sin que nadie tenga que instalar nada raro.
+              </div>
+              <div class="card amber-border">
+                <div class="icon">⚡</div>
+                <div class="card-title">El mayor dolor</div>
+                <div class="card-desc">La sincronización. Cuando te cambian un turno a última hora, tienes que avisar a todos manualmente. La información siempre llega tarde o incompleta.</div>
+              </div>
+            </div>
+          </div>
+          <div class="slide-num">02 / 13</div>
+        </section>
+
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- SLIDE 3 — LA SOLUCIÓN                                         -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <section class="slide slide-teal" id="s3">
+          <div class="slide-header">
+            <div class="badge teal">✨ La Solución</div>
+            <h2>Una app <span class="gradient-text">hecha a medida</span> para la familia</h2>
+            <p>Sin ruido. Sin barreras. Tan fácil como mandar un WhatsApp.</p>
+          </div>
+          <div class="three-col">
+            <div class="card teal-border">
+              <div class="icon">👁️</div>
+              <div class="card-title">Visual ante todo</div>
+              <div class="card-desc">Cada miembro tiene su paleta de color. De un vistazo sabes quién trabaja, en qué turno y cuándo tiene el día libre. Sin leer nada.</div>
+            </div>
+            <div class="card teal-border">
+              <div class="icon">🔗</div>
+              <div class="card-title">Únete con un link</div>
+              <div class="card-desc">Envías el enlace por WhatsApp. Tu pareja entra, inicia sesión en segundos, le da a "Añadir a pantalla de inicio" y listo. App instalada. Sin tienda de aplicaciones.</div>
+            </div>
+            <div class="card teal-border">
+              <div class="icon">⚡</div>
+              <div class="card-title">Actualización en tiempo real</div>
+              <div class="card-desc">El turno cambia → el móvil del resto vibra automáticamente. La pantalla se actualiza sola. Sin refrescar. Sin avisar por otro canal.</div>
+            </div>
+            <div class="card accent-border">
+              <div class="icon">📅</div>
+              <div class="card-title">Turnos rotativos</div>
+              <div class="card-desc">Crea eventos recurrentes por día, semana o año. Mañana, tarde, noche, día completo. El calendario los expande automáticamente.</div>
+            </div>
+            <div class="card accent-border">
+              <div class="icon">🔔</div>
+              <div class="card-title">Notificaciones push</div>
+              <div class="card-desc">Push nativo sin intermediarios. Tus propias claves VAPID hablan directamente con los servicios de Google y Apple. Gratis para siempre.</div>
+            </div>
+            <div class="card accent-border">
+              <div class="icon">📵</div>
+              <div class="card-title">Funciona sin internet</div>
+              <div class="card-desc">Service worker con cache inteligente. Consultas el calendario aunque pierdas cobertura. Las acciones se encolan y sincronizan al reconectar.</div>
+            </div>
+          </div>
+          <div class="slide-num">03 / 13</div>
+        </section>
+
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- SLIDE 4 — LA APP EN ACCIÓN (screenshots)                      -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <section class="slide slide-teal" id="s4">
+          <div class="slide-header" style="text-align:center">
+            <div class="badge teal">📱 La App en Acción</div>
+            <h2>Así se ve <span class="gradient-text">Personal Work Shift</span></h2>
+            <p style="margin:0 auto;max-width:620px">Una interfaz cálida y familiar, diseñada para que cualquier miembro de la familia la entienda desde el primer momento.</p>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:clamp(10px,1.5vw,20px);flex:1;align-content:flex-start">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+              <div class="phone-frame">
+                <img src="img/calendario.png" alt="Pantalla Calendario" loading="lazy" />
+              </div>
+              <div style="text-align:center">
+                <div style="font-size:clamp(11px,1vw,13px);font-weight:600;color:var(--text)">Calendario</div>
+                <div style="font-size:clamp(10px,0.85vw,11px);color:var(--text-muted)">Vista de turnos</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+              <div class="phone-frame">
+                <img src="img/crearFamilia.png" alt="Pantalla Crear familia" loading="lazy" />
+              </div>
+              <div style="text-align:center">
+                <div style="font-size:clamp(11px,1vw,13px);font-weight:600;color:var(--text)">Crear familia</div>
+                <div style="font-size:clamp(10px,0.85vw,11px);color:var(--text-muted)">Color exclusivo</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+              <div class="phone-frame">
+                <img src="img/selectoFamilia.png" alt="Pantalla Selector de familia" loading="lazy" />
+              </div>
+              <div style="text-align:center">
+                <div style="font-size:clamp(11px,1vw,13px);font-weight:600;color:var(--text)">Selector familia</div>
+                <div style="font-size:clamp(10px,0.85vw,11px);color:var(--text-muted)">Cambio de contexto</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+              <div class="phone-frame">
+                <img src="img/delegados.png" alt="Pantalla Usuarios delegados" loading="lazy" />
+              </div>
+              <div style="text-align:center">
+                <div style="font-size:clamp(11px,1vw,13px);font-weight:600;color:var(--text)">Delegados</div>
+                <div style="font-size:clamp(10px,0.85vw,11px);color:var(--text-muted)">Gestión de menores</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+              <div class="phone-frame">
+                <img src="img/perfil.png" alt="Pantalla Perfil de usuario" loading="lazy" />
+              </div>
+              <div style="text-align:center">
+                <div style="font-size:clamp(11px,1vw,13px);font-weight:600;color:var(--text)">Perfil</div>
+                <div style="font-size:clamp(10px,0.85vw,11px);color:var(--text-muted)">Datos del usuario</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+              <div class="phone-frame">
+                <img src="img/ajustes.png" alt="Pantalla Ajustes y seguridad" loading="lazy" />
+              </div>
+              <div style="text-align:center">
+                <div style="font-size:clamp(11px,1vw,13px);font-weight:600;color:var(--text)">Ajustes</div>
+                <div style="font-size:clamp(10px,0.85vw,11px);color:var(--text-muted)">Seguridad</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+              <div class="phone-frame">
+                <img src="img/userButton.png" alt="Pantalla Menú de usuario" loading="lazy" />
+              </div>
+              <div style="text-align:center">
+                <div style="font-size:clamp(11px,1vw,13px);font-weight:600;color:var(--text)">Menú usuario</div>
+                <div style="font-size:clamp(10px,0.85vw,11px);color:var(--text-muted)">Acciones rápidas</div>
+              </div>
+            </div>
+          </div>
+          <div class="slide-num">04 / 13</div>
+        </section>
+
+
+
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- SLIDE 5 — CÓMO SE CREÓ: MOTIVACIÓN                           -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <section class="slide slide-dark" id="s5">
+          <div class="slide-header">
+            <div class="badge amber">🛠️ Proceso de Desarrollo</div>
+            <h2>Del problema real al <span class="gradient-text">proyecto de máster</span></h2>
+            <p>Matar dos pájaros de un tiro: solucionar un problema personal y demostrar capacidad técnica.</p>
+          </div>
+          <div class="two-col">
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-dot">💡</div>
+                <div class="timeline-content">
+                  <div class="timeline-title">Necesidad real</div>
+                  <div class="timeline-desc">El punto de partida no fue un paper académico sino la frustración diaria de coordinar turnos de trabajo con la familia sin herramientas adecuadas.</div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot">🔍</div>
+                <div class="timeline-content">
+                  <div class="timeline-title">Investigación y decisiones (Gemini)</div>
+                  <div class="timeline-desc">Consulta de soluciones, validación de stack tecnológico y decisiones de arquitectura con IA generativa como asistente de investigación.</div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot">📐</div>
+                <div class="timeline-content">
+                  <div class="timeline-title">Planificación y diseño (Claude + VSCode)</div>
+                  <div class="timeline-desc">Arquitectura Clean Architecture, user stories, documentación de seguridad y fases de desarrollo planificadas antes de escribir la primera línea de código.</div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot">🤖</div>
+                <div class="timeline-content">
+                  <div class="timeline-title">Desarrollo por fases (GitHub Copilot Agents)</div>
+                  <div class="timeline-desc">14 fases ejecutadas con agentes: desde el dominio y la base de datos hasta PWA, tiempo real y push notifications. TDD obligatorio en cada fase.</div>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:16px;justify-content:center">
+              <div class="card green-border">
+                <div class="icon">📱</div>
+                <div class="card-title">Desarrollado desde el móvil</div>
+                <div class="card-desc">Por limitaciones de tiempo, GitHub Copilot Agents + Vercel permitió solicitar nuevas funcionalidades, revisar código y hacer deploys desde el móvil sin necesidad de entorno local.</div>
+              </div>
+              <div class="card green-border">
+                <div class="icon">🚀</div>
+                <div class="card-title">CI/CD desde el día 1</div>
+                <div class="card-desc">GitHub Actions con lint, test y build automático. Cada PR desplegado en Vercel automáticamente. Preview URL disponible sin pasar por local.</div>
+              </div>
+            </div>
+          </div>
+          <div class="slide-num">05 / 13</div>
+        </section>
+
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- SLIDE 6 — STACK A COSTE CERO                                  -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <section class="slide slide-green" id="s6">
+          <div class="slide-header">
+            <div class="badge green">💰 Stack Tecnológico</div>
+            <h2>Infraestructura empresarial a <span class="gradient-text">coste cero</span></h2>
+            <p>Cada decisión tecnológica estuvo guiada por eliminar barreras económicas sin sacrificar calidad.</p>
+          </div>
+          <div class="four-col">
+            <div class="card green-border">
+              <div class="icon">📲</div>
+              <div class="card-title">PWA en lugar de App Nativa</div>
+              <div class="card-desc" style="font-size:12px">
+                Google Play cobra <strong style="color:var(--red)">25$</strong>.<br/><br/>
+                PWA = distribución por link, instalación en pantalla de inicio, comportamiento nativo.<br/><br/>
+                Coste: <strong style="color:var(--green)">0€</strong>
+              </div>
+            </div>
+            <div class="card green-border">
+              <div class="icon">▲</div>
+              <div class="card-title">Vercel Hobby + Next.js</div>
+              <div class="card-desc" style="font-size:12px">
+                VPS propio: <strong style="color:var(--red)">5–20$/mes</strong>.<br/><br/>
+                Vercel: frontend, Server Actions (backend), SSL, CDN global.<br/><br/>
+                Coste: <strong style="color:var(--green)">0€/mes</strong>
+              </div>
+            </div>
+            <div class="card green-border">
+              <div class="icon">🐘</div>
+              <div class="card-title">Supabase Free Tier</div>
+              <div class="card-desc" style="font-size:12px">
+                PostgreSQL + Auth + Realtime por separado: <strong style="color:var(--red)">+30$/mes</strong>.<br/><br/>
+                Supabase: 500MB DB, 50K usuarios/mes, WebSockets incluidos.<br/><br/>
+                Coste: <strong style="color:var(--green)">0€/mes</strong>
+              </div>
+            </div>
+            <div class="card green-border">
+              <div class="icon">🔔</div>
+              <div class="card-title">Web-Push nativo (VAPID)</div>
+              <div class="card-desc" style="font-size:12px">
+                Pusher / OneSignal: dependencia externa, posibles cambios de precio.<br/><br/>
+                VAPID propio: servidor habla directo con Google/Apple/Microsoft.<br/><br/>
+                Coste: <strong style="color:var(--green)">0€ para siempre</strong>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:16px" class="highlight">
+            <strong>Resultado:</strong> Una aplicación con stack de nivel empresa — PostgreSQL, autenticación segura, WebSockets, push notifications, CDN global, CI/CD — funcionando en producción a <strong style="color:var(--green)">literalmente 0€/mes</strong>.
+          </div>
+          <div class="slide-num">06 / 13</div>
+        </section>
+
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- SLIDE 7 — ARQUITECTURA                                        -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <section class="slide slide-dark" id="s7">
+          <div class="slide-header">
+            <div class="badge">🏛️ Arquitectura</div>
+            <h2><span class="gradient-text">Clean Architecture</span> + TDD obligatorio</h2>
+            <p>Capas desacopladas con una regla de dependencia estricta. Los tests se escriben antes del código.</p>
+          </div>
+          <div class="two-col">
+            <div style="display:flex;flex-direction:column;gap:8px;justify-content:center">
+              <div class="arch-layer" style="border-color:rgba(124,74,30,0.35);background:rgba(124,74,30,0.07)">
+                <div class="arch-layer-label" style="color:#7c4a1e">Presentación</div>
+                <div class="arch-layer-content">
+                  <span class="arch-tag">Next.js 15 App Router</span>
+                  <span class="arch-tag">React 19 RSC</span>
+                  <span class="arch-tag">Tailwind CSS</span>
+                  <span class="arch-tag">Shadcn/ui</span>
+                </div>
+              </div>
+              <div class="arch-arrow">↓ depende de</div>
+              <div class="arch-layer" style="border-color:rgba(160,101,42,0.35);background:rgba(160,101,42,0.06)">
+                <div class="arch-layer-label" style="color:#a0652a">Aplicación</div>
+                <div class="arch-layer-content">
+                  <span class="arch-tag">Casos de uso</span>
+                  <span class="arch-tag">Server Actions</span>
+                  <span class="arch-tag">DTOs</span>
+                  <span class="arch-tag">Zod</span>
+                </div>
+              </div>
+              <div class="arch-arrow">↓ depende de</div>
+              <div class="arch-layer" style="border-color:rgba(196,134,44,0.35);background:rgba(196,134,44,0.06)">
+                <div class="arch-layer-label" style="color:#c4862c">Dominio</div>
+                <div class="arch-layer-content">
+                  <span class="arch-tag">Entities</span>
+                  <span class="arch-tag">Value Objects</span>
+                  <span class="arch-tag">Repository Interfaces</span>
+                  <span class="arch-tag">Domain Rules</span>
+                </div>
+              </div>
+              <div class="arch-arrow">⬆ implementa</div>
+              <div class="arch-layer" style="border-color:rgba(22,163,74,0.35);background:rgba(22,163,74,0.06)">
+                <div class="arch-layer-label" style="color:#16a34a">Infraestructura</div>
+                <div class="arch-layer-content">
+                  <span class="arch-tag">Supabase</span>
+                  <span class="arch-tag">Repositories</span>
+                  <span class="arch-tag">Serwist PWA</span>
+                  <span class="arch-tag">Web Push</span>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:14px;justify-content:center">
+              <div class="card accent-border">
+                <div class="icon">🧪</div>
+                <div class="card-title">TDD — Test-Driven Development</div>
+                <div class="card-desc">Tests escritos antes del código de producción. RED → GREEN → REFACTOR en cada funcionalidad sin excepción.</div>
+              </div>
+              <div class="mini-grid">
+                <div class="card">
+                  <div class="card-title" style="font-size:13px">507+ tests</div>
+                  <div class="card-desc" style="font-size:12px">Vitest unitarios pasando en CI</div>
+                </div>
+                <div class="card">
+                  <div class="card-title" style="font-size:13px">E2E Playwright</div>
+                  <div class="card-desc" style="font-size:12px">Mobile, PWA, accesibilidad</div>
+                </div>
+                <div class="card">
+                  <div class="card-title" style="font-size:13px">14 fases</div>
+                  <div class="card-desc" style="font-size:12px">De dominio a seguridad</div>
+                </div>
+                <div class="card">
+                  <div class="card-title" style="font-size:13px">TypeScript strict</div>
+                  <div class="card-desc" style="font-size:12px">Zero <code>any</code>, strict mode</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="slide-num">07 / 13</div>
+        </section>
+
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- SLIDE 8 — CÓMO FUNCIONA: CALENDARIO                          -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <section class="slide slide-teal" id="s8">
+          <div class="slide-header">
+            <div class="badge teal">📅 Funcionalidad</div>
+            <h2>El calendario <span class="gradient-text">que realmente funciona</span></h2>
+            <p>Visual, intuitivo y con toda la información que tu familia necesita de un vistazo.</p>
+          </div>
+          <div class="two-col">
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div class="card teal-border">
+                <div class="icon">🎨</div>
+                <div class="card-title">Sistema de color por miembro</div>
+                <div class="card-desc">Cada miembro de la familia tiene su paleta de color exclusiva (8+ opciones). Los turnos (mañana/tarde/noche/día) se mapean a tonos distintos de esa paleta. Sabes quién es quién sin leer nada.</div>
+              </div>
+              <div class="card teal-border">
+                <div class="icon">🔄</div>
+                <div class="card-title">Eventos recurrentes inteligentes</div>
+                <div class="card-desc">Crea una vez tu patrón de turnos (diario, semanal, anual). El sistema expande automáticamente las ocurrencias mes a mes. Editar o eliminar una ocurrencia o toda la serie.</div>
+              </div>
+              <div class="card teal-border">
+                <div class="icon">↔️</div>
+                <div class="card-title">Vista de día partido</div>
+                <div class="card-desc">Si dos miembros trabajan el mismo día, la celda se divide diagonalmente con los colores de cada uno. Un gradient CSS que hace obvio el solapamiento de turnos.</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div class="card accent-border">
+                <div class="icon">👁️</div>
+                <div class="card-title">Visibilidad por miembro</div>
+                <div class="card-desc">Toggles para mostrar/ocultar cada miembro. Siempre queda al menos uno visible. Persistido en sesión para que no tengas que configurarlo cada vez.</div>
+              </div>
+              <div class="card accent-border">
+                <div class="icon">👆</div>
+                <div class="card-title">Navegación por gestos</div>
+                <div class="card-desc">Swipe horizontal en móvil para cambiar de mes. Detecta si el gesto es más horizontal que vertical para no interferir con el scroll de la página.</div>
+              </div>
+              <div class="card accent-border">
+                <div class="icon">👨‍👧</div>
+                <div class="card-title">Usuarios delegados</div>
+                <div class="card-desc">Los padres pueden gestionar el calendario de los hijos menores en su nombre. Un padre puede crear, editar y eliminar eventos para sus hijos desde su propia cuenta.</div>
+              </div>
+            </div>
+          </div>
+          <div class="slide-num">08 / 13</div>
+        </section>
+
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- SLIDE 9 — TIEMPO REAL Y NOTIFICACIONES                       -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <section class="slide slide-dark" id="s9">
+          <div class="slide-header">
+            <div class="badge">⚡ Tiempo Real</div>
+            <h2>El calendario que <span class="gradient-text">respira</span></h2>
+            <p>Cambias un turno → el móvil del resto vibra y la pantalla se actualiza. Sin refrescar. Sin avisar por otro canal.</p>
+          </div>
+          <div class="two-col">
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <div class="card accent-border">
+                <div class="icon">🔌</div>
+                <div class="card-title">Supabase Realtime WebSockets</div>
+                <div class="card-desc">Subscripción al canal de eventos de la familia activa. INSERT, UPDATE y DELETE en la tabla de eventos se propagan a todos los clientes conectados en &lt;100ms.</div>
+              </div>
+              <div class="card accent-border">
+                <div class="icon">🔄</div>
+                <div class="card-title">Cambio de familia automático</div>
+                <div class="card-desc">Al cambiar de familia en el selector, la suscripción anterior se destruye y se abre una nueva. No hay leaks ni mensajes cruzados entre grupos familiares.</div>
+              </div>
+              <div class="card accent-border">
+                <div class="icon">⚙️</div>
+                <div class="card-title">Hook useRealtimeSync</div>
+                <div class="card-desc">React hook que gestiona el ciclo de vida de la conexión WebSocket, actualiza el estado local del calendario y se integra con el sistema de visibilidad por miembro.</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <div class="card green-border">
+                <div class="icon">🔔</div>
+                <div class="card-title">Push Notifications nativas (VAPID)</div>
+                <div class="card-desc">Implementación propia del protocolo Web Push. Sin servicios de terceros. El servidor firma los mensajes con claves VAPID y los envía directamente a los FCM/APNS de cada dispositivo.</div>
+              </div>
+              <div class="card green-border">
+                <div class="icon">📤</div>
+                <div class="card-title">Notificación en cada cambio</div>
+                <div class="card-desc">Crear, editar o eliminar un evento dispara una push notification a todos los miembros de la familia. El clic en la notificación abre la app en la fecha del evento.</div>
+              </div>
+              <div class="card green-border">
+                <div class="icon">✅</div>
+                <div class="card-title">Opt-in del usuario</div>
+                <div class="card-desc">Prompt de permiso integrado en el onboarding. El token del dispositivo se guarda en Supabase y se gestiona su vigencia para evitar envíos a tokens expirados.</div>
+              </div>
+            </div>
+          </div>
+          <div class="slide-num">09 / 13</div>
+        </section>
+
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- SLIDE 10 — PWA & OFFLINE                                       -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <section class="slide slide-teal" id="s10">
+          <div class="slide-header">
+            <div class="badge teal">📱 PWA</div>
+            <h2>Distribuida por link, <span class="gradient-text">instalada en segundos</span></h2>
+            <p>Cero tiendas de aplicaciones. Cero descargas de 100MB. Un link por WhatsApp y ya está.</p>
+          </div>
+          <div class="three-col">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div class="card teal-border">
+                <div class="icon">🔗</div>
+                <div class="card-title">Distribución por URL</div>
+                <div class="card-desc">Mandas el enlace de la app. Tu familiar abre el link en el móvil y pulsa "Añadir a pantalla de inicio". En 10 segundos tiene una app instalada con icono propio.</div>
+              </div>
+              <div class="card teal-border">
+                <div class="icon">🏠</div>
+                <div class="card-title">Comportamiento nativo</div>
+                <div class="card-desc">Standalone display mode, sin barra de URL, sin interfaz de navegador. Se comporta exactamente como una app instalada desde una tienda.</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div class="card accent-border">
+                <div class="icon">📵</div>
+                <div class="card-title">Modo offline con Serwist</div>
+                <div class="card-desc">Service worker configurado con cache-first para assets estáticos y network-first para datos. Consultas el calendario sin cobertura y la app no se rompe.</div>
+              </div>
+              <div class="card accent-border">
+                <div class="icon">📦</div>
+                <div class="card-title">Cola de operaciones offline</div>
+                <div class="card-desc">Si creas o editas un evento sin internet, la acción se guarda en IndexedDB. Al reconectar, se sincroniza automáticamente con el servidor en background.</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div class="card green-border">
+                <div class="icon">🔄</div>
+                <div class="card-title">Background sync</div>
+                <div class="card-desc">El hook <code>useOfflineSync</code> monitoriza el estado de red, detecta reconexiones y dispara la sincronización de la cola pendiente.</div>
+              </div>
+              <div class="card green-border">
+                <div class="icon">🏆</div>
+                <div class="card-title">Lighthouse &gt;90</div>
+                <div class="card-desc">Performance, Accessibility, Best Practices y PWA auditados. WCAG 2.1 AA compliance verificado con axe-core en los tests E2E.</div>
+              </div>
+            </div>
+          </div>
+          <div class="slide-num">10 / 13</div>
+        </section>
+
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- SLIDE 11 — SEGURIDAD                                          -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <section class="slide slide-dark" id="s11">
+          <div class="slide-header">
+            <div class="badge amber">🔒 Seguridad</div>
+            <h2>Seguridad <span class="gradient-text">por diseño</span>, no como añadido</h2>
+            <p>Cada capa protege los datos. Desde el navegador hasta la base de datos.</p>
+          </div>
+          <div class="two-col">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div class="card amber-border">
+                <div class="icon">🛡️</div>
+                <div class="card-title">Row Level Security (RLS)</div>
+                <div class="card-desc">Políticas RLS en PostgreSQL: los usuarios solo pueden leer y escribir sus propios datos y los de sus familias. Validadas con tests de migración.</div>
+              </div>
+              <div class="card amber-border">
+                <div class="icon">🍪</div>
+                <div class="card-title">Sesiones httpOnly cookie</div>
+                <div class="card-desc">Los tokens de sesión viven únicamente en cookies httpOnly. No accesibles desde JavaScript. Imposible de robar con XSS.</div>
+              </div>
+              <div class="card amber-border">
+                <div class="icon">🔑</div>
+                <div class="card-title">Auth dual: email + Google OAuth</div>
+                <div class="card-desc">Registro con email/contraseña (política estricta: 8 chars, mayúsculas, dígitos) y login con Google OAuth como alternativa.</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div class="card red-border">
+                <div class="icon">🔐</div>
+                <div class="card-title">Headers de seguridad</div>
+                <div class="card-desc">CSP, HSTS, X-Frame-Options, X-Content-Type-Options configurados en Next.js. Protección contra clickjacking, MIME sniffing y ataques de inyección.</div>
+              </div>
+              <div class="card red-border">
+                <div class="icon">⏱️</div>
+                <div class="card-title">Rate limiting en auth</div>
+                <div class="card-desc">Límite de intentos de login y registro en los endpoints de autenticación. Prevención de ataques de fuerza bruta y enumeración de usuarios.</div>
+              </div>
+              <div class="card red-border">
+                <div class="icon">✅</div>
+                <div class="card-title">Validación Zod en todos los inputs</div>
+                <div class="card-desc">Todos los formularios validan con Zod tanto en cliente como en Server Actions. Ningún dato del usuario llega a la base de datos sin ser sanitizado.</div>
+              </div>
+            </div>
+          </div>
+          <div class="slide-num">11 / 13</div>
+        </section>
+
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- SLIDE 12 — MÉTRICAS Y CALIDAD                                 -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <section class="slide slide-green" id="s12">
+          <div class="slide-header">
+            <div class="badge green">📊 Calidad</div>
+            <h2>Números que <span class="gradient-text">respaldan la calidad</span></h2>
+          </div>
+          <div class="two-col">
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <div class="stats-row">
+                <div class="stat-pill">
+                  <span class="stat-number" style="background:linear-gradient(135deg,var(--green),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">507+</span>
+                  <span class="stat-label">tests Vitest</span>
+                </div>
+                <div class="stat-pill">
+                  <span class="stat-number" style="background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">14</span>
+                  <span class="stat-label">fases completadas</span>
+                </div>
+              </div>
+              <div class="stats-row">
+                <div class="stat-pill">
+                  <span class="stat-number" style="background:linear-gradient(135deg,var(--amber),var(--red));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">&gt;90</span>
+                  <span class="stat-label">Lighthouse score</span>
+                </div>
+                <div class="stat-pill">
+                  <span class="stat-number" style="background:linear-gradient(135deg,var(--accent3),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">0€</span>
+                  <span class="stat-label">coste mensual</span>
+                </div>
+              </div>
+              <div class="card accent-border" style="margin-top:4px">
+                <div class="card-title">Stack completo verificado</div>
+                <ul class="check-list" style="margin-top:8px">
+                  <li>Tests unitarios + integración + E2E</li>
+                  <li>Cross-browser: Chrome, Firefox, Safari, Edge</li>
+                  <li>Mobile responsiveness + PWA install (Android)</li>
+                  <li>WCAG 2.1 AA accesibilidad con axe-core</li>
+                  <li>Load testing WebSocket connections</li>
+                </ul>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div class="card green-border">
+                <div class="card-title">14 Fases de Desarrollo</div>
+                <ul class="check-list" style="margin-top:8px">
+                  <li>Phase 0: Bootstrap + CI/CD</li>
+                  <li>Phase 1: Domain Layer (entidades, reglas)</li>
+                  <li>Phase 2: Infrastructure + PostgreSQL + RLS</li>
+                  <li>Phase 3: Autenticación + OAuth</li>
+                  <li>Phase 4: Gestión familiar + invitaciones</li>
+                  <li>Phase 5-6: Eventos + edición + borrado</li>
+                  <li>Phase 7: Calendario visual</li>
+                  <li>Phase 8: Sistema de paletas de color</li>
+                  <li>Phase 9: Tiempo real (Supabase Realtime)</li>
+                  <li>Phase 10: PWA + offline + sync queue</li>
+                  <li>Phase 11: Usuarios delegados (hijos)</li>
+                  <li>Phase 12: Push Notifications (VAPID)</li>
+                  <li>Phase 13: Seguridad + deploy producción</li>
+                  <li>Phase 14: QA + auditorías</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="slide-num">12 / 13</div>
+        </section>
+
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- SLIDE 13 — CIERRE                                             -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <section class="slide slide-close" id="s13">
+          <div class="glow" style="width:500px;height:500px;background:var(--accent2);bottom:-150px;left:50%;transform:translateX(-50%)"></div>
+          <div class="cover-logo">✅</div>
+          <div class="badge">Conclusión</div>
+          <h2 style="font-size:44px">Un problema real,<br/><span class="gradient-text">una solución real.</span></h2>
+          <p class="subtitle" style="max-width:700px;margin:0 auto">
+            Personal Work Shift demuestra que con las herramientas correctas y una arquitectura bien pensada,
+            se puede construir una aplicación de nivel empresa — segura, accesible, en tiempo real —
+            sin coste de infraestructura y con la capacidad de desarrollar desde el móvil.
+          </p>
+          <div class="divider" style="margin:28px auto;max-width:400px"></div>
+          <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap">
+            <div class="cover-tag">📱 PWA instalable</div>
+            <div class="cover-tag">⚡ Tiempo real</div>
+            <div class="cover-tag">🔒 RLS + VAPID</div>
+            <div class="cover-tag">🧪 507+ tests</div>
+            <div class="cover-tag">💰 0€/mes</div>
+          </div>
+          <div class="slide-num">13 / 13</div>
+        </section>
+      </div><!-- /viewport -->
+    </div><!-- /deck -->
+
+    <!-- ─── Navigation Bar ───────────────────────────────────────────── -->
+    <nav id="nav" aria-label="Navegación de diapositivas">
+      <button class="nav-btn" id="btn-prev" aria-label="Diapositiva anterior" disabled>‹</button>
+      <div id="dots" role="tablist"></div>
+      <span id="slide-counter">01 / 13</span>
+      <button class="nav-btn" id="btn-next" aria-label="Siguiente diapositiva">›</button>
+    </nav>
+
+    <script>
+      (function () {
+        const slides = Array.from(document.querySelectorAll('.slide'));
+        const dotsContainer = document.getElementById('dots');
+        const counter = document.getElementById('slide-counter');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const total = slides.length;
+        let current = 0;
+        let transitioning = false;
+
+        // Build dots
+        slides.forEach(function (_, i) {
+          const d = document.createElement('button');
+          d.className = 'dot' + (i === 0 ? ' active' : '');
+          d.setAttribute('role', 'tab');
+          d.setAttribute('aria-label', 'Ir a diapositiva ' + (i + 1));
+          d.addEventListener('click', function () { goTo(i); });
+          dotsContainer.appendChild(d);
+        });
+
+        function goTo(index) {
+          if (transitioning || index === current || index < 0 || index >= total) return;
+          transitioning = true;
+
+          const prev = slides[current];
+          const next = slides[index];
+
+          prev.classList.add('exit');
+          prev.classList.remove('active');
+
+          setTimeout(function () {
+            prev.classList.remove('exit');
+            next.classList.add('active');
+
+            current = index;
+            updateUI();
+
+            // Scroll to top on mobile when changing slides
+            window.scrollTo(0, 0);
+
+            setTimeout(function () { transitioning = false; }, 520);
+          }, 10);
+        }
+
+        function updateUI() {
+          counter.textContent =
+            String(current + 1).padStart(2, '0') + ' / ' +
+            String(total).padStart(2, '0');
+
+          btnPrev.disabled = current === 0;
+          btnNext.disabled = current === total - 1;
+
+          document.querySelectorAll('.dot').forEach(function (d, i) {
+            d.classList.toggle('active', i === current);
+          });
+        }
+
+        btnPrev.addEventListener('click', function () { goTo(current - 1); });
+        btnNext.addEventListener('click', function () { goTo(current + 1); });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            goTo(current + 1);
+          } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            goTo(current - 1);
+          } else if (e.key === 'Home') {
+            goTo(0);
+          } else if (e.key === 'End') {
+            goTo(total - 1);
+          }
+        });
+
+        // Touch swipe navigation
+        let touchStartX = 0;
+        let touchStartY = 0;
+        document.getElementById('viewport').addEventListener('touchstart', function (e) {
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        document.getElementById('viewport').addEventListener('touchend', function (e) {
+          const dx = e.changedTouches[0].clientX - touchStartX;
+          const dy = e.changedTouches[0].clientY - touchStartY;
+          if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+            if (dx < 0) goTo(current + 1);
+            else goTo(current - 1);
+          }
+        }, { passive: true });
+
+        updateUI();
+      })();
+    </script>
+  </body>
+</html>
