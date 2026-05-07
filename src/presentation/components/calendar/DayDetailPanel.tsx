@@ -168,7 +168,12 @@ export function DayDetailPanel({
                       className="text-slate-400 transition-transform hover:text-slate-700"
                     >
                       <span
-                        className={`inline-block transition-transform duration-200${isExpanded ? " rotate-90" : ""}`}
+                        className={[
+                          "inline-block transition-transform duration-200",
+                          isExpanded ? "rotate-90" : "",
+                        ]
+                          .filter(Boolean)
+                          .join(" ")}
                       >
                         ›
                       </span>

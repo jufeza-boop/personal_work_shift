@@ -19,7 +19,7 @@ export interface SerializedPunctualEvent {
   familyId: string;
   createdBy: string;
   title: string;
-  description?: string | null;
+  description: string | null;
   /** YYYY-MM-DD */
   date: string;
   startTime: string | null;
@@ -32,7 +32,7 @@ export interface SerializedRecurringEvent {
   familyId: string;
   createdBy: string;
   title: string;
-  description?: string | null;
+  description: string | null;
   category: RecurringEventCategory;
   /** YYYY-MM-DD */
   startDate: string;
@@ -41,8 +41,8 @@ export interface SerializedRecurringEvent {
   frequencyUnit: EventFrequencyUnit;
   frequencyInterval: number;
   shiftType: ShiftTypeValue | null;
-  startTime?: string | null;
-  endTime?: string | null;
+  startTime: string | null;
+  endTime: string | null;
 }
 
 export type SerializedEvent =
@@ -270,9 +270,9 @@ export function getOccurrencesForMonth(
             category: event.category,
             shiftType: event.shiftType,
             createdBy: event.createdBy,
-            description: event.description ?? null,
-            startTime: event.startTime ?? null,
-            endTime: event.endTime ?? null,
+            description: event.description,
+            startTime: event.startTime,
+            endTime: event.endTime,
           });
         }
       }
@@ -290,7 +290,7 @@ export function getOccurrencesForMonth(
           category: null,
           shiftType: null,
           createdBy: event.createdBy,
-          description: event.description ?? null,
+          description: event.description,
           startTime: event.startTime,
           endTime: event.endTime,
         });
@@ -312,9 +312,9 @@ export function getOccurrencesForMonth(
           category: event.category,
           shiftType: event.shiftType,
           createdBy: event.createdBy,
-          description: event.description ?? null,
-          startTime: event.startTime ?? null,
-          endTime: event.endTime ?? null,
+          description: event.description,
+          startTime: event.startTime,
+          endTime: event.endTime,
         });
       }
     }
