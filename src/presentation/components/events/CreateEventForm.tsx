@@ -54,6 +54,7 @@ export function CreateEventForm({
   const shiftTypeId = useId();
 
   const [activeTab, setActiveTab] = useState<EventTab>("punctual");
+  const [startDateValue, setStartDateValue] = useState("");
   const [formState, formAction] = useActionState(
     action,
     EMPTY_EVENT_FORM_STATE,
@@ -74,6 +75,7 @@ export function CreateEventForm({
             key={tab.value}
             onClick={() => {
               setActiveTab(tab.value);
+              setStartDateValue("");
             }}
             type="button"
           >
@@ -208,6 +210,7 @@ export function CreateEventForm({
                 id={startDateId}
                 name="startDate"
                 type="date"
+                onChange={(e) => setStartDateValue(e.target.value)}
               />
               {formState.errors?.startDate ? (
                 <p className="text-sm text-red-600">
@@ -303,6 +306,7 @@ export function CreateEventForm({
                 id={endDateId}
                 name="endDate"
                 type="date"
+                min={startDateValue || undefined}
               />
               {formState.errors?.endDate ? (
                 <p className="text-sm text-red-600">
@@ -328,6 +332,7 @@ export function CreateEventForm({
                 id={startDateId}
                 name="startDate"
                 type="date"
+                onChange={(e) => setStartDateValue(e.target.value)}
               />
               {formState.errors?.startDate ? (
                 <p className="text-sm text-red-600">
@@ -440,6 +445,7 @@ export function CreateEventForm({
                 id={endDateId}
                 name="endDate"
                 type="date"
+                min={startDateValue || undefined}
               />
               {formState.errors?.endDate ? (
                 <p className="text-sm text-red-600">

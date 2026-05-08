@@ -5,10 +5,11 @@ import { createServerEventDependencies } from "@/infrastructure/events/runtime";
 import { PunctualEvent } from "@/domain/entities/PunctualEvent";
 import { RecurringEvent } from "@/domain/entities/RecurringEvent";
 import { EditEventForm } from "@/presentation/components/events/EditEventForm";
+import { sanitizeRedirectPath } from "@/shared/auth/routeProtection";
 
 interface EditEventPageProps {
   params: Promise<{ id: string }>;
-  searchParams?: Promise<{ date?: string }>;
+  searchParams?: Promise<{ date?: string; redirectTo?: string }>;
 }
 
 export default async function EditEventPage({
@@ -16,7 +17,9 @@ export default async function EditEventPage({
   searchParams,
 }: EditEventPageProps) {
   const { id } = await params;
-  const occurrenceDate = searchParams ? (await searchParams).date : undefined;
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const occurrenceDate = resolvedSearchParams.date;
+  const redirectTo = sanitizeRedirectPath(resolvedSearchParams.redirectTo);
   const { user, delegatedUsers } = await getFamilyPageData("/calendar");
   const { eventRepository } = await createServerEventDependencies();
   const event = await eventRepository.findById(id);
@@ -48,7 +51,7 @@ export default async function EditEventPage({
             startTime: event.startTime ?? undefined,
             endTime: event.endTime ?? undefined,
           }}
-          redirectTo="/calendar"
+          redirectTo={redirectTo}
         />
       </div>
     );
@@ -76,7 +79,7 @@ export default async function EditEventPage({
             frequencyInterval: recurring.frequency.interval,
             shiftType: recurring.shiftType?.value ?? undefined,
           }}
-          redirectTo="/calendar"
+          redirectTo={redirectTo}
           occurrenceDate={occurrenceDate}
           hasExceptions={hasExceptions}
         />
@@ -100,7 +103,7 @@ export default async function EditEventPage({
           startTime: recurring.startTime ?? undefined,
           endTime: recurring.endTime ?? undefined,
         }}
-        redirectTo="/calendar"
+        redirectTo={redirectTo}
         occurrenceDate={occurrenceDate}
         hasExceptions={hasExceptions}
       />

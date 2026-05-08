@@ -467,7 +467,7 @@ describe("DayDetailPanel", () => {
     expect(screen.queryByText(/no hay eventos/i)).not.toBeInTheDocument();
   });
 
-  it("includes the date in the edit link URL for recurring events", () => {
+  it("includes the date and redirectTo in the edit link URL for recurring events", () => {
     render(
       <DayDetailPanel
         date="2026-04-15"
@@ -487,8 +487,36 @@ describe("DayDetailPanel", () => {
     const editLink = screen.getByRole("link", { name: /editar/i });
     expect(editLink).toHaveAttribute(
       "href",
-      "/calendar/events/e2/edit?date=2026-04-15",
+      `/calendar/events/e2/edit?date=2026-04-15&redirectTo=${encodeURIComponent("/calendar?year=2026&month=4")}`,
     );
+  });
+
+  it("uses year/month from props in the delete form redirectTo", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <DayDetailPanel
+        date="2026-10-05"
+        day={5}
+        month={10}
+        year={2026}
+        occurrences={[PUNCTUAL_OCCURRENCE]}
+        members={MEMBERS}
+        currentUserId="u1"
+        familyId="f1"
+        createAction={vi.fn()}
+        deleteAction={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: /eliminar/i }));
+
+    const redirectInput = document.querySelector(
+      'input[type="hidden"][name="redirectTo"]',
+    ) as HTMLInputElement;
+    expect(redirectInput).toBeInTheDocument();
+    expect(redirectInput.value).toBe("/calendar?year=2026&month=10");
   });
 
   it("shows description, start time, and end time in expanded detail when present", async () => {

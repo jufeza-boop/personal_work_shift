@@ -519,4 +519,74 @@ describe("EditEventForm", () => {
       expect(hiddenInput).not.toBeInTheDocument();
     });
   });
+
+  describe("End date min constraint", () => {
+    it("should set min on endDate equal to the current startDate for recurring-work events", () => {
+      render(
+        <EditEventForm
+          {...baseProps}
+          eventType="recurring-work"
+          defaults={{
+            title: "Morning shift",
+            startDate: "2026-06-01",
+            frequencyUnit: "daily" as const,
+            frequencyInterval: 1,
+            shiftType: "morning",
+          }}
+        />,
+      );
+
+      const endDateInput = screen.getByLabelText(
+        /fecha de fin/i,
+      ) as HTMLInputElement;
+      expect(endDateInput).toHaveAttribute("min", "2026-06-01");
+    });
+
+    it("should update min on endDate when startDate changes for recurring-work events", async () => {
+      const user = userEvent.setup();
+
+      render(
+        <EditEventForm
+          {...baseProps}
+          eventType="recurring-work"
+          defaults={{
+            title: "Morning shift",
+            startDate: "2026-06-01",
+            frequencyUnit: "daily" as const,
+            frequencyInterval: 1,
+            shiftType: "morning",
+          }}
+        />,
+      );
+
+      const startDateInput = screen.getByLabelText(/fecha de inicio/i);
+      await user.clear(startDateInput);
+      await user.type(startDateInput, "2026-09-15");
+
+      const endDateInput = screen.getByLabelText(
+        /fecha de fin/i,
+      ) as HTMLInputElement;
+      expect(endDateInput).toHaveAttribute("min", "2026-09-15");
+    });
+
+    it("should set min on endDate equal to the current startDate for recurring-other events", () => {
+      render(
+        <EditEventForm
+          {...baseProps}
+          eventType="recurring-other"
+          defaults={{
+            title: "Gym",
+            startDate: "2026-07-10",
+            frequencyUnit: "weekly" as const,
+            frequencyInterval: 1,
+          }}
+        />,
+      );
+
+      const endDateInput = screen.getByLabelText(
+        /fecha de fin/i,
+      ) as HTMLInputElement;
+      expect(endDateInput).toHaveAttribute("min", "2026-07-10");
+    });
+  });
 });
