@@ -76,9 +76,9 @@ describe("SendEventNotification", () => {
     expect(result.success).toBe(true);
     expect(result.sent).toBe(1);
     expect(service.sendNotification).toHaveBeenCalledWith(subscription, {
-      body: 'El evento "Work shift" ha sido creado.',
+      body: 'El evento "Work shift" ha sido creado el 15/06/2026.',
       date: "2026-06-15",
-      title: "Personal Work Shift",
+      title: "Evento creado",
       url: "/calendar?date=2026-06-15",
     });
   });
@@ -100,6 +100,7 @@ describe("SendEventNotification", () => {
       subscription,
       expect.objectContaining({
         body: 'El evento "Night shift" ha sido actualizado.',
+        title: "Evento actualizado",
         url: "/calendar",
       }),
     );
@@ -122,6 +123,7 @@ describe("SendEventNotification", () => {
       subscription,
       expect.objectContaining({
         body: 'El evento "Morning shift" ha sido eliminado.',
+        title: "Evento eliminado",
       }),
     );
   });

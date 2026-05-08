@@ -17,6 +17,11 @@ export interface SendEventNotificationInput {
 
 export type SendEventNotificationResult = { success: true; sent: number };
 
+function formatDate(isoDate: string): string {
+  const [year, month, day] = isoDate.split("-");
+  return `${day}/${month}/${year}`;
+}
+
 function buildPayload(
   title: string,
   changeType: EventChangeType,
@@ -28,12 +33,21 @@ function buildPayload(
     updated: "actualizado",
   };
 
+  const notificationTitleMap: Record<EventChangeType, string> = {
+    created: "Evento creado",
+    deleted: "Evento eliminado",
+    updated: "Evento actualizado",
+  };
+
   const url = date ? `/calendar?date=${date}` : "/calendar";
 
+  const dateSuffix = date ? ` el ${formatDate(date)}` : "";
+  const body = `El evento "${title}" ha sido ${verbMap[changeType]}${dateSuffix}.`;
+
   return {
-    body: `El evento "${title}" ha sido ${verbMap[changeType]}.`,
+    body,
     date,
-    title: "Personal Work Shift",
+    title: notificationTitleMap[changeType],
     url,
   };
 }
