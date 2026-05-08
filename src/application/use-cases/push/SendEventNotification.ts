@@ -17,7 +17,10 @@ export interface SendEventNotificationInput {
 
 export type SendEventNotificationResult = { success: true; sent: number };
 
-function formatDate(isoDate: string): string {
+export function formatDate(isoDate: string): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) {
+    return isoDate;
+  }
   const [year, month, day] = isoDate.split("-");
   return `${day}/${month}/${year}`;
 }

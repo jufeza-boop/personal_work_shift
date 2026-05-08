@@ -1,7 +1,26 @@
 import { describe, expect, it, vi } from "vitest";
-import { SendEventNotification } from "@/application/use-cases/push/SendEventNotification";
+import {
+  formatDate,
+  SendEventNotification,
+} from "@/application/use-cases/push/SendEventNotification";
 import type { IPushNotificationService } from "@/application/services/IPushNotificationService";
 import type { IPushSubscriptionRepository } from "@/domain/repositories/IPushSubscriptionRepository";
+
+describe("formatDate", () => {
+  it("converts YYYY-MM-DD to DD/MM/YYYY", () => {
+    expect(formatDate("2026-06-15")).toBe("15/06/2026");
+  });
+
+  it("preserves zero-padded single-digit months and days", () => {
+    expect(formatDate("2026-01-05")).toBe("05/01/2026");
+  });
+
+  it("returns the raw input when the format is invalid", () => {
+    expect(formatDate("not-a-date")).toBe("not-a-date");
+    expect(formatDate("2026-06")).toBe("2026-06");
+    expect(formatDate("")).toBe("");
+  });
+});
 
 function createPushSubscriptionRepository(): IPushSubscriptionRepository {
   return {
