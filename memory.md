@@ -16,6 +16,16 @@
 
 ## Decisions Log
 
+### 2026-05-08 - Supabase Email Confirmation Temporarily Disabled
+
+- **What was done**:
+  - Disabled Supabase "Confirm email" requirement for first sign-in in current environment.
+- **Decisions**:
+  - Kept email/password authentication but removed mandatory email confirmation temporarily because Supabase free tier allows only 2 emails/hour.
+  - Deferred paid SMTP setup to avoid infrastructure cost during current project stage.
+- **Next steps**:
+  - Re-enable email confirmation once a dedicated SMTP provider is configured.
+
 ### 2026-04-29 - Touch Swipe Navigation (CalendarGrid)
 
 - **What was done**:

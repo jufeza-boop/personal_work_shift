@@ -89,7 +89,8 @@ describe("notifyFamilyOnEventChange", () => {
     expect(pushService.sendNotification).toHaveBeenCalledWith(
       subscription,
       expect.objectContaining({
-        body: 'El evento "Work shift" ha sido creado.',
+        body: 'El evento "Work shift" ha sido creado el 15/06/2026.',
+        title: "Evento creado",
       }),
     );
   });
@@ -172,6 +173,7 @@ describe("notifyFamilyOnEventChange", () => {
       expect.anything(),
       expect.objectContaining({
         body: 'El evento "Night shift" ha sido eliminado.',
+        title: "Evento eliminado",
       }),
     );
   });
