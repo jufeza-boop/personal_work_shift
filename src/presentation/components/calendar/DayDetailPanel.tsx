@@ -109,6 +109,7 @@ export function DayDetailPanel({
 
   const memberMap = new Map(members.map((m) => [m.userId, m]));
   const delegatedUserIds = new Set(delegatedUsers.map((u) => u.id));
+  const calendarRedirectTo = `/calendar?year=${year}&month=${month}`;
 
   return (
     <div
@@ -186,7 +187,7 @@ export function DayDetailPanel({
                     {isOwner && (
                       <>
                         <Link
-                          href={`/calendar/events/${occ.eventId}/edit?date=${date}`}
+                          href={`/calendar/events/${occ.eventId}/edit?date=${date}&redirectTo=${encodeURIComponent(calendarRedirectTo)}`}
                           className="text-xs text-blue-600 hover:underline"
                         >
                           Editar
@@ -270,6 +271,7 @@ export function DayDetailPanel({
           familyId={familyId}
           date={date}
           delegatedUsers={delegatedUsers}
+          redirectTo={calendarRedirectTo}
           onCancel={() => setShowCreateForm(false)}
         />
       ) : (
@@ -305,7 +307,7 @@ export function DayDetailPanel({
                 value={deleteDialog.eventId}
               />
               <input type="hidden" name="scope" value={deleteDialog.scope} />
-              <input type="hidden" name="redirectTo" value="/calendar" />
+              <input type="hidden" name="redirectTo" value={calendarRedirectTo} />
 
               {deleteDialog.eventType === "recurring" && (
                 <fieldset className="space-y-2">

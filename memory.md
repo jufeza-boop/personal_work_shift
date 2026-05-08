@@ -8,13 +8,29 @@
 
 ## Current State
 
-- **Phase**: Touch swipe navigation added to CalendarGrid
-- **Last Updated**: 2026-04-29
-- **Tests**: 507 Vitest unit tests passing + E2E suites for mobile, accessibility, PWA
+- **Phase**: Calendar UX improvements — end-date min constraint + month retention after edit/delete
+- **Last Updated**: 2026-05-08
+- **Tests**: 528 Vitest unit tests passing + E2E suites for mobile, accessibility, PWA
 
 ---
 
 ## Decisions Log
+
+### 2026-05-08 - End Date Min Constraint & Calendar Month Retention
+
+- **What was done**:
+  - `CreateEventForm.tsx`: Added `startDateValue` state; both recurring-work and recurring-other tabs now set `min={startDateValue}` on their end-date inputs and track `onChange` on start-date. State resets when switching tabs.
+  - `EditEventForm.tsx`: Existing `startDate` state now passed as `min` to the end-date input.
+  - `DayCreateEventForm.tsx`: Added optional `redirectTo` prop (defaults to `/calendar`); both recurring tabs set `min={date}` on end-date inputs.
+  - `DayDetailPanel.tsx`: Computes `calendarRedirectTo = /calendar?year=${year}&month=${month}` from props; used in the delete form's hidden `redirectTo` input, in the edit link (`?redirectTo=…`), and passed to `DayCreateEventForm`.
+  - `edit/page.tsx`: Reads `redirectTo` search param, sanitizes with `sanitizeRedirectPath`, and passes it to all three `EditEventForm` renders.
+  - `calendar/page.tsx`: Accepts `searchParams`, reads `year`/`month` params (validated to 2000–2100 and 1–12), and uses them as `initialYear`/`initialMonth` for `CalendarGrid`.
+- **Decisions**:
+  - Used `sanitizeRedirectPath` in the edit page to prevent open-redirect abuse via the `redirectTo` param.
+  - Year accepted in 2000–2100 range and month 1–12 to guard against invalid query param values.
+- **Tests added**: 10 new tests across `EditEventForm.test.tsx`, `DayCreateEventForm.test.tsx`, and `DayDetailPanel.test.tsx`. Updated one existing test whose expected edit-link href changed.
+
+---
 
 ### 2026-04-29 - Touch Swipe Navigation (CalendarGrid)
 

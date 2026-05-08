@@ -15,6 +15,7 @@ interface DayCreateEventFormProps {
   /** Pre-filled date in YYYY-MM-DD format */
   date: string;
   delegatedUsers?: { id: string; displayName: string }[];
+  redirectTo?: string;
   onCancel: () => void;
 }
 
@@ -42,6 +43,7 @@ export function DayCreateEventForm({
   familyId,
   date,
   delegatedUsers = [],
+  redirectTo = "/calendar",
   onCancel,
 }: DayCreateEventFormProps) {
   const titleId = useId();
@@ -94,7 +96,7 @@ export function DayCreateEventForm({
       <form action={formAction} className="space-y-3">
         <input name="familyId" type="hidden" value={familyId} />
         <input name="eventType" type="hidden" value={activeTab} />
-        <input name="redirectTo" type="hidden" value="/calendar" />
+        <input name="redirectTo" type="hidden" value={redirectTo} />
 
         {/* Pre-fill date for punctual events */}
         {activeTab === "punctual" && (
@@ -274,6 +276,7 @@ export function DayCreateEventForm({
                 id={endDateId}
                 name="endDate"
                 type="date"
+                min={date}
               />
             </div>
           </>
@@ -364,6 +367,7 @@ export function DayCreateEventForm({
                 id={endDateId}
                 name="endDate"
                 type="date"
+                min={date}
               />
             </div>
           </>

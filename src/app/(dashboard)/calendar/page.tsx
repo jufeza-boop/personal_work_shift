@@ -9,7 +9,13 @@ import type { SerializedMember } from "@/application/services/calendarUtils";
 import { createServerEventDependencies } from "@/infrastructure/events/runtime";
 import { CalendarGrid } from "@/presentation/components/calendar/CalendarGrid";
 
-export default async function CalendarPage() {
+interface CalendarPageProps {
+  searchParams?: Promise<{ year?: string; month?: string }>;
+}
+
+export default async function CalendarPage({
+  searchParams,
+}: CalendarPageProps) {
   const { activeFamily, delegatedUsers, memberDirectory, user } =
     await getFamilyPageData("/calendar");
 
@@ -28,8 +34,17 @@ export default async function CalendarPage() {
   const serializedExceptions = exceptions.map(serializeException);
 
   const now = new Date();
-  const initialYear = now.getUTCFullYear();
-  const initialMonth = now.getUTCMonth() + 1;
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const paramYear = Number(resolvedSearchParams.year);
+  const paramMonth = Number(resolvedSearchParams.month);
+  const initialYear =
+    Number.isInteger(paramYear) && paramYear >= 2000 && paramYear <= 2100
+      ? paramYear
+      : now.getUTCFullYear();
+  const initialMonth =
+    Number.isInteger(paramMonth) && paramMonth >= 1 && paramMonth <= 12
+      ? paramMonth
+      : now.getUTCMonth() + 1;
 
   if (!activeFamily) {
     return (

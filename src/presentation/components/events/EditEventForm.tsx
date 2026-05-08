@@ -315,6 +315,7 @@ export function EditEventForm({
                   defaultValue={
                     (defaults as EditRecurringWorkEventDefaults).endDate ?? ""
                   }
+                  min={startDate || undefined}
                   className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
                 />
               </div>

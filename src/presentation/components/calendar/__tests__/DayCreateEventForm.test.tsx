@@ -104,6 +104,64 @@ describe("DayCreateEventForm", () => {
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
 
+  it("sets min on endDate equal to the selected date for recurring-work tab", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <DayCreateEventForm
+        action={vi.fn()}
+        familyId="f1"
+        date="2026-10-05"
+        onCancel={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Trabajo/Estudio" }));
+
+    const endDateInput = screen.getByLabelText(
+      /fecha de fin/i,
+    ) as HTMLInputElement;
+    expect(endDateInput).toHaveAttribute("min", "2026-10-05");
+  });
+
+  it("sets min on endDate equal to the selected date for recurring-other tab", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <DayCreateEventForm
+        action={vi.fn()}
+        familyId="f1"
+        date="2026-10-05"
+        onCancel={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Otro recurrente" }));
+
+    const endDateInput = screen.getByLabelText(
+      /fecha de fin/i,
+    ) as HTMLInputElement;
+    expect(endDateInput).toHaveAttribute("min", "2026-10-05");
+  });
+
+  it("uses provided redirectTo prop in the form hidden input", () => {
+    render(
+      <DayCreateEventForm
+        action={vi.fn()}
+        familyId="f1"
+        date="2026-10-05"
+        redirectTo="/calendar?year=2026&month=10"
+        onCancel={vi.fn()}
+      />,
+    );
+
+    const redirectInput = document.querySelector(
+      'input[type="hidden"][name="redirectTo"]',
+    ) as HTMLInputElement;
+    expect(redirectInput).toBeInTheDocument();
+    expect(redirectInput.value).toBe("/calendar?year=2026&month=10");
+  });
+
   it("renders the submit button", () => {
     render(
       <DayCreateEventForm
