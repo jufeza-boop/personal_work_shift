@@ -307,7 +307,11 @@ export function DayDetailPanel({
                 value={deleteDialog.eventId}
               />
               <input type="hidden" name="scope" value={deleteDialog.scope} />
-              <input type="hidden" name="redirectTo" value={calendarRedirectTo} />
+              <input
+                type="hidden"
+                name="redirectTo"
+                value={calendarRedirectTo}
+              />
 
               {deleteDialog.eventType === "recurring" && (
                 <fieldset className="space-y-2">
