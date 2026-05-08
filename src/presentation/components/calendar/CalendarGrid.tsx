@@ -201,7 +201,7 @@ export function CalendarGrid({
     : [];
 
   return (
-    <div className="flex flex-1 flex-col gap-2 p-2 sm:p-3">
+    <div className="flex flex-1 flex-col gap-2 p-2 sm:p-3 lg:mx-auto lg:w-[70%]">
       {/* Offline status banner */}
       <OfflineBanner
         isOnline={isOnline}
