@@ -149,6 +149,7 @@ export const editRecurringEventSchema = editEventBaseSchema.extend({
     .or(z.literal("")),
   frequencyUnit: z.enum(["daily", "weekly", "annual"]).optional(),
   frequencyInterval: z.coerce.number().int().min(1).max(365).optional(),
+  category: z.enum(CATEGORIES).optional(),
   shiftType: z.enum(["morning", "day", "afternoon", "night"]).optional().or(z.literal("")),
   startTime: z
     .string()

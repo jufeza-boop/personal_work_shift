@@ -117,7 +117,10 @@ export class EditEvent {
               input.description !== undefined
                 ? input.description
                 : event.description,
-            category: recurring.category,
+            category:
+              input.category !== undefined
+                ? input.category
+                : recurring.category,
             startDate: input.startDate ?? recurring.startDate,
             endDate:
               input.endDate !== undefined ? input.endDate : recurring.endDate,
