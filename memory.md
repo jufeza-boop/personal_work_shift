@@ -8,16 +8,43 @@
 
 ## Current State
 
-- **Phase**: Calendar UX improvements — end-date min constraint + month retention after edit/delete
-- **Last Updated**: 2026-05-08
-- **Tests**: 528 Vitest unit tests passing + E2E suites for mobile, accessibility, PWA
+- **Phase**: Event category system refactor — decoupled periodicity from category, added vacations
+- **Last Updated**: 2026-05-09
+- **Tests**: 549 Vitest unit tests passing
 
 ---
 
 ## Decisions Log
 
-<<<<<<< copilot/mejoras-calendario-eventos
-### 2026-05-08 - End Date Min Constraint & Calendar Month Retention
+### 2026-05-09 - Event Category System Refactor
+
+- **What was done**:
+  - Added `EventCategory` type (`"work" | "studies" | "vacations" | "other"`) shared across both event types
+  - `PunctualEvent` now supports optional `category` and `shiftType` (same invariants as RecurringEvent)
+  - `RecurringEvent` extended with `"vacations"` in the category union and the validation updated
+  - SQL migration `20260509150000_refactor_event_categories.sql` adds `vacations` to enum and replaces `events_shape_valid` constraint
+  - UI redesigned from 3 tabs (Puntual / Trabajo-Estudio / Otro recurrente) to 2 tabs (Puntual / Recurrente) with in-tab category selector
+  - Server actions consolidated from 3 branches to 2 (`punctual` / `recurring`)
+  - Validation schemas consolidated: `createRecurringEventSchema` unifies work+other, with cross-validation refinements for category/shiftType
+  - `DayCell` color rendering now extends to punctual events with shift types (not just recurring)
+  - `DayDetailPanel` now shows `"Vacaciones"` label
+  - Edit page simplified: no more `eventSubType` logic; passes `category` and `shiftType` in defaults for both event types
+
+- **Decisions**:
+  - Kept `RecurringEventCategory` as a deprecated alias for `EventCategory` for backward compatibility
+  - Kept deprecated aliases `createRecurringWorkEventSchema` / `createRecurringOtherEventSchema` to avoid breaking any external references during transition
+  - The `"recurring-work"` / `"recurring-other"` eventType values in the UI were replaced by a single `"recurring"` value with in-form category selection
+
+- **Patterns**:
+  - Category/shiftType cross-validation: `work|studies` → shiftType required; `vacations|other` → shiftType prohibited; `null` → shiftType must also be null
+  - MockEventStore updated to persist/restore `category` and `shiftType` for punctual events
+
+- **Next steps**:
+  - Connect to Supabase local and run migration with `npx supabase db push --local`
+  - Test seed still works with `npx supabase db reset`
+  - Consider E2E tests for new punctual event creation with category/shift flow
+
+
 
 - **What was done**:
   - `CreateEventForm.tsx`: Added `startDateValue` state; both recurring-work and recurring-other tabs now set `min={startDateValue}` on their end-date inputs and track `onChange` on start-date. State resets when switching tabs.

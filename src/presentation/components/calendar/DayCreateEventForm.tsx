@@ -7,7 +7,7 @@ import {
   type EventFormAction,
 } from "@/presentation/components/events/types";
 
-type EventTab = "punctual" | "recurring-work" | "recurring-other";
+type EventTab = "punctual" | "recurring";
 
 interface DayCreateEventFormProps {
   action: EventFormAction;
@@ -21,9 +21,20 @@ interface DayCreateEventFormProps {
 
 const TABS: { label: string; value: EventTab }[] = [
   { label: "Puntual", value: "punctual" },
-  { label: "Trabajo/Estudio", value: "recurring-work" },
-  { label: "Otro recurrente", value: "recurring-other" },
+  { label: "Recurrente", value: "recurring" },
 ];
+
+const CATEGORY_OPTIONS: { label: string; value: string }[] = [
+  { label: "Sin categoría", value: "" },
+  { label: "Trabajo", value: "work" },
+  { label: "Estudios", value: "studies" },
+  { label: "Vacaciones", value: "vacations" },
+  { label: "Otro", value: "other" },
+];
+
+const CATEGORY_OPTIONS_REQUIRED = CATEGORY_OPTIONS.filter(
+  (opt) => opt.value !== "",
+);
 
 const SHIFT_TYPE_OPTIONS: { label: string; value: string }[] = [
   { label: "Mañana", value: "morning" },
@@ -58,10 +69,18 @@ export function DayCreateEventForm({
   const targetUserId = useId();
 
   const [activeTab, setActiveTab] = useState<EventTab>("punctual");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [formState, formAction] = useActionState(
     action,
     EMPTY_EVENT_FORM_STATE,
   );
+
+  const needsShiftType =
+    selectedCategory === "work" || selectedCategory === "studies";
+  const hasTimeFields =
+    selectedCategory === "" ||
+    selectedCategory === "vacations" ||
+    selectedCategory === "other";
 
   return (
     <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
@@ -85,7 +104,10 @@ export function DayCreateEventForm({
                 : "text-slate-500 hover:text-slate-700"
             }`}
             key={tab.value}
-            onClick={() => setActiveTab(tab.value)}
+            onClick={() => {
+              setActiveTab(tab.value);
+              setSelectedCategory(tab.value === "recurring" ? "work" : "");
+            }}
             type="button"
           >
             {tab.label}
@@ -151,8 +173,70 @@ export function DayCreateEventForm({
           )}
         </div>
 
-        {/* Punctual: time fields */}
-        {activeTab === "punctual" && (
+        {/* Category selector — visible in both tabs */}
+        <div className="space-y-1">
+          <label
+            className="text-xs font-medium text-slate-700"
+            htmlFor={categoryId}
+          >
+            Categoría {activeTab === "recurring" ? "" : "(opcional)"}
+          </label>
+          <select
+            className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
+            id={categoryId}
+            name="category"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+          >
+            {activeTab === "punctual" ? (
+              CATEGORY_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))
+            ) : (
+              CATEGORY_OPTIONS_REQUIRED.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))
+            )}
+          </select>
+          {formState.errors?.category && (
+            <p className="text-xs text-red-600">{formState.errors.category}</p>
+          )}
+        </div>
+
+        {/* Shift type — only when work or studies */}
+        {needsShiftType && (
+          <div className="space-y-1">
+            <label
+              className="text-xs font-medium text-slate-700"
+              htmlFor={shiftTypeId}
+            >
+              Tipo de turno
+            </label>
+            <select
+              className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
+              id={shiftTypeId}
+              name="shiftType"
+            >
+              {SHIFT_TYPE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            {formState.errors?.shiftType && (
+              <p className="text-xs text-red-600">
+                {formState.errors.shiftType}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Time fields for non-shift categories */}
+        {hasTimeFields && (
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-1">
               <label
@@ -185,105 +269,8 @@ export function DayCreateEventForm({
           </div>
         )}
 
-        {/* Recurring work fields */}
-        {activeTab === "recurring-work" && (
-          <>
-            <div className="space-y-1">
-              <label
-                className="text-xs font-medium text-slate-700"
-                htmlFor={categoryId}
-              >
-                Categoría
-              </label>
-              <select
-                className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
-                id={categoryId}
-                name="category"
-              >
-                <option value="work">Trabajo</option>
-                <option value="studies">Estudios</option>
-              </select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <div className="space-y-1">
-                <label
-                  className="text-xs font-medium text-slate-700"
-                  htmlFor={frequencyUnitId}
-                >
-                  Frecuencia
-                </label>
-                <select
-                  className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
-                  id={frequencyUnitId}
-                  name="frequencyUnit"
-                >
-                  {FREQUENCY_UNIT_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-1">
-                <label
-                  className="text-xs font-medium text-slate-700"
-                  htmlFor={frequencyIntervalId}
-                >
-                  Intervalo
-                </label>
-                <input
-                  className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
-                  defaultValue="1"
-                  id={frequencyIntervalId}
-                  min="1"
-                  max="365"
-                  name="frequencyInterval"
-                  type="number"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label
-                className="text-xs font-medium text-slate-700"
-                htmlFor={shiftTypeId}
-              >
-                Tipo de turno
-              </label>
-              <select
-                className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
-                id={shiftTypeId}
-                name="shiftType"
-              >
-                {SHIFT_TYPE_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-1">
-              <label
-                className="text-xs font-medium text-slate-700"
-                htmlFor={endDateId}
-              >
-                Fecha de fin (opcional)
-              </label>
-              <input
-                className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
-                id={endDateId}
-                name="endDate"
-                type="date"
-                min={date}
-              />
-            </div>
-          </>
-        )}
-
-        {/* Recurring other fields */}
-        {activeTab === "recurring-other" && (
+        {/* Recurring-specific: frequency and end date */}
+        {activeTab === "recurring" && (
           <>
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1">
@@ -320,37 +307,6 @@ export function DayCreateEventForm({
                   max="365"
                   name="frequencyInterval"
                   type="number"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <div className="space-y-1">
-                <label
-                  className="text-xs font-medium text-slate-700"
-                  htmlFor={startTimeId}
-                >
-                  Hora inicio
-                </label>
-                <input
-                  className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
-                  id={startTimeId}
-                  name="startTime"
-                  type="time"
-                />
-              </div>
-              <div className="space-y-1">
-                <label
-                  className="text-xs font-medium text-slate-700"
-                  htmlFor={endTimeId}
-                >
-                  Hora fin
-                </label>
-                <input
-                  className="w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
-                  id={endTimeId}
-                  name="endTime"
-                  type="time"
                 />
               </div>
             </div>
@@ -404,3 +360,4 @@ export function DayCreateEventForm({
     </div>
   );
 }
+

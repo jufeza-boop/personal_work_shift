@@ -127,6 +127,50 @@ describe("EditEvent", () => {
     expect(saved.shiftType?.value).toBe("afternoon");
   });
 
+  it("scope 'all' on recurring: updates category from work to studies", async () => {
+    const eventRepository = createEventRepository();
+    vi.mocked(eventRepository.findById).mockResolvedValue(makeRecurringEvent());
+    vi.mocked(eventRepository.save).mockResolvedValue(undefined);
+
+    const useCase = new EditEvent(eventRepository);
+    const result = await useCase.execute({
+      scope: "all",
+      eventId: "event-2",
+      requestedBy: "user-1",
+      title: "Morning shift",
+      category: "studies",
+      shiftType: "morning",
+    });
+
+    expect(result.success).toBe(true);
+    const saved = vi.mocked(eventRepository.save).mock
+      .calls[0][0] as RecurringEvent;
+    expect(saved.category).toBe("studies");
+    expect(saved.shiftType?.value).toBe("morning");
+  });
+
+  it("scope 'all' on recurring: updates category from work to vacations and clears shiftType", async () => {
+    const eventRepository = createEventRepository();
+    vi.mocked(eventRepository.findById).mockResolvedValue(makeRecurringEvent());
+    vi.mocked(eventRepository.save).mockResolvedValue(undefined);
+
+    const useCase = new EditEvent(eventRepository);
+    const result = await useCase.execute({
+      scope: "all",
+      eventId: "event-2",
+      requestedBy: "user-1",
+      title: "Vacation",
+      category: "vacations",
+      shiftType: null,
+    });
+
+    expect(result.success).toBe(true);
+    const saved = vi.mocked(eventRepository.save).mock
+      .calls[0][0] as RecurringEvent;
+    expect(saved.category).toBe("vacations");
+    expect(saved.shiftType).toBeNull();
+  });
+
   it("scope 'single' on punctual: returns INVALID_SCOPE", async () => {
     const eventRepository = createEventRepository();
     vi.mocked(eventRepository.findById).mockResolvedValue(makePunctualEvent());

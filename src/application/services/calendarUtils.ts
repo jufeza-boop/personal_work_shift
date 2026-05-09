@@ -1,7 +1,7 @@
 import type { Event } from "@/domain/entities/Event";
 import type { EventException } from "@/domain/entities/EventException";
 import { PunctualEvent } from "@/domain/entities/PunctualEvent";
-import type { RecurringEventCategory } from "@/domain/entities/RecurringEvent";
+import type { EventCategory } from "@/domain/entities/RecurringEvent";
 import { RecurringEvent } from "@/domain/entities/RecurringEvent";
 import type { ColorPaletteName } from "@/domain/value-objects/ColorPalette";
 import { ColorPalette } from "@/domain/value-objects/ColorPalette";
@@ -24,6 +24,8 @@ export interface SerializedPunctualEvent {
   date: string;
   startTime: string | null;
   endTime: string | null;
+  category: EventCategory | null;
+  shiftType: ShiftTypeValue | null;
 }
 
 export interface SerializedRecurringEvent {
@@ -33,7 +35,7 @@ export interface SerializedRecurringEvent {
   createdBy: string;
   title: string;
   description: string | null;
-  category: RecurringEventCategory;
+  category: EventCategory;
   /** YYYY-MM-DD */
   startDate: string;
   /** YYYY-MM-DD | null */
@@ -73,7 +75,7 @@ export interface CalendarOccurrence {
   date: string;
   title: string;
   type: "punctual" | "recurring";
-  category: RecurringEventCategory | null;
+  category: EventCategory | null;
   shiftType: ShiftTypeValue | null;
   createdBy: string;
   description: string | null;
@@ -185,6 +187,8 @@ export function serializeEvent(event: Event): SerializedEvent {
       date: toDateString(event.date),
       startTime: event.startTime,
       endTime: event.endTime,
+      category: event.category,
+      shiftType: event.shiftType?.value ?? null,
     };
   }
 
@@ -287,8 +291,8 @@ export function getOccurrencesForMonth(
           date: event.date,
           title: event.title,
           type: "punctual",
-          category: null,
-          shiftType: null,
+          category: event.category,
+          shiftType: event.shiftType,
           createdBy: event.createdBy,
           description: event.description,
           startTime: event.startTime,
@@ -343,10 +347,19 @@ export function getShiftColor(
 }
 
 /**
- * Returns a representative base color for a palette without a specific shift
- * type (e.g. "other" recurring events). Uses the `afternoon` tone as a
- * medium-weight accent. Returns null when the palette name is absent or invalid.
+ * Returns the lightest (morning) tone for a palette, used as the stripe color
+ * for vacation events. Returns null when the palette name is absent or invalid.
  */
+export function getVacationColor(paletteName: string | null): string | null {
+  if (!paletteName) return null;
+
+  try {
+    const palette = ColorPalette.create(paletteName);
+    return palette.getLightestTone();
+  } catch {
+    return null;
+  }
+}
 export function getBaseColor(paletteName: string | null): string | null {
   if (!paletteName) return null;
 

@@ -15,6 +15,7 @@ import {
 } from "@/domain/entities/EventException";
 import { PunctualEvent } from "@/domain/entities/PunctualEvent";
 import { RecurringEvent } from "@/domain/entities/RecurringEvent";
+import type { EventCategory } from "@/domain/entities/RecurringEvent";
 import { EventFrequency } from "@/domain/value-objects/EventFrequency";
 import { ShiftType } from "@/domain/value-objects/ShiftType";
 
@@ -28,6 +29,8 @@ interface StoredPunctualEvent {
   date: string;
   startTime: string | null;
   endTime: string | null;
+  category: string | null;
+  shiftType: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -39,7 +42,7 @@ interface StoredRecurringEvent {
   createdBy: string;
   title: string;
   description: string | null;
-  category: "work" | "studies" | "other";
+  category: "work" | "studies" | "vacations" | "other";
   startDate: string;
   frequencyUnit: string;
   frequencyInterval: number;
@@ -131,6 +134,8 @@ function serializeEvent(event: Event): StoredEvent {
       startTime: event.startTime,
       title: event.title,
       updatedAt: event.updatedAt.toISOString(),
+      category: event.category ?? null,
+      shiftType: event.shiftType?.value ?? null,
     };
   }
 
@@ -171,6 +176,8 @@ export function toDomainEvent(stored: StoredEvent): Event {
       startTime: stored.startTime,
       title: stored.title,
       updatedAt: new Date(stored.updatedAt),
+      category: stored.category as EventCategory | null,
+      shiftType: stored.shiftType ? ShiftType.create(stored.shiftType) : null,
     });
   }
 

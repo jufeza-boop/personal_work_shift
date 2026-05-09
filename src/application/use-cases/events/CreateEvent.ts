@@ -3,6 +3,7 @@ import { PunctualEvent } from "@/domain/entities/PunctualEvent";
 import { RecurringEvent } from "@/domain/entities/RecurringEvent";
 import type { PunctualEvent as PunctualEventType } from "@/domain/entities/PunctualEvent";
 import type { RecurringEvent as RecurringEventType } from "@/domain/entities/RecurringEvent";
+import type { EventCategory } from "@/domain/entities/RecurringEvent";
 import { ValidationError } from "@/domain/errors/DomainError";
 import type { IEventRepository } from "@/domain/repositories/IEventRepository";
 import type { IFamilyRepository } from "@/domain/repositories/IFamilyRepository";
@@ -18,6 +19,8 @@ interface CreatePunctualEventInput {
   date: Date;
   startTime?: string;
   endTime?: string;
+  category?: EventCategory;
+  shiftType?: string;
 }
 
 interface CreateRecurringEventInput {
@@ -26,7 +29,7 @@ interface CreateRecurringEventInput {
   createdBy: string;
   title: string;
   description?: string;
-  category: "work" | "studies" | "other";
+  category: EventCategory;
   startDate: Date;
   frequencyUnit: "daily" | "weekly" | "annual";
   frequencyInterval: number;
@@ -94,6 +97,8 @@ export class CreateEvent {
           id: randomUUID(),
           startTime: input.startTime,
           title: input.title,
+          category: input.category ?? null,
+          shiftType: input.shiftType ? ShiftType.create(input.shiftType) : null,
         });
 
         await this.eventRepository.save(event);

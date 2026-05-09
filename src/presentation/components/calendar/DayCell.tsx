@@ -6,6 +6,7 @@ import type {
 import {
   getBaseColor,
   getShiftColor,
+  getVacationColor,
 } from "@/application/services/calendarUtils";
 
 interface DayCellProps {
@@ -54,18 +55,29 @@ export function DayCell({
 }: DayCellProps) {
   const memberMap = new Map(members.map((m) => [m.userId, m]));
 
-  // Shift occurrences: recurring work/studies events — fill the entire day cell
+  // Shift occurrences: work/studies events with shift type — fill the entire day cell
   const shiftOccurrences = occurrences.filter(
     (o) =>
-      o.type === "recurring" &&
       (o.category === "work" || o.category === "studies") &&
       o.shiftType !== null,
   );
 
-  // Punctual events: shown as palette-colored text labels
-  const punctualOccurrences = occurrences.filter((o) => o.type === "punctual");
+  // Vacation recurring events: fill the cell with a diagonal stripe pattern
+  const vacationOccurrences = occurrences.filter(
+    (o) => o.type === "recurring" && o.category === "vacations",
+  );
 
-  // Other recurring events: shown as colored text labels
+  // Punctual events without shift: shown as palette-colored text labels
+  const punctualOccurrences = occurrences.filter(
+    (o) =>
+      o.type === "punctual" &&
+      !(
+        (o.category === "work" || o.category === "studies") &&
+        o.shiftType !== null
+      ),
+  );
+
+  // Other recurring events (non-vacations): shown as colored text labels
   const otherOccurrences = occurrences.filter(
     (o) => o.type === "recurring" && o.category === "other",
   );
@@ -83,12 +95,29 @@ export function DayCell({
   const gradientBg = buildShiftBackground(shiftColors);
 
   const firstShiftColor = shiftColors[0];
+
+  // Vacation stripe: use lightest palette tone of the first vacation member.
+  // Only fills the cell background when no shift events are present.
+  const firstVacationColor = vacationOccurrences.length > 0
+    ? getVacationColor(
+        memberMap.get(vacationOccurrences[0]!.createdBy)?.colorPaletteName ?? null,
+      ) ?? "#E0F2FE"
+    : null;
+  const hasVacationFill = firstVacationColor !== null && !hasShiftBg;
+  const vacationStripeBg = hasVacationFill
+    ? `repeating-linear-gradient(45deg, ${firstVacationColor} 0px, ${firstVacationColor} 6px, #ffffff 6px, #ffffff 12px)`
+    : null;
+
+  const hasCellFill = hasShiftBg || hasVacationFill;
+
   const buttonBgStyle: CSSProperties =
     gradientBg !== null
       ? { background: gradientBg }
       : firstShiftColor !== undefined
         ? { backgroundColor: firstShiftColor }
-        : {};
+        : vacationStripeBg !== null
+          ? { background: vacationStripeBg }
+          : {};
 
   return (
     <button
@@ -98,7 +127,7 @@ export function DayCell({
       aria-pressed={isSelected}
       className={[
         "flex min-h-[5.5rem] cursor-pointer flex-col gap-0.5 overflow-hidden rounded-lg p-1 text-left text-xs transition-colors sm:min-h-[6.5rem]",
-        !hasShiftBg
+        !hasCellFill
           ? isToday
             ? "bg-blue-50"
             : "bg-white hover:bg-stone-50"
@@ -134,6 +163,37 @@ export function DayCell({
           {occ.title}
         </span>
       ))}
+
+      {/* Vacation recurring events: fill cell with diagonal stripes and show title */}
+      {hasVacationFill &&
+        vacationOccurrences.map((occ) => (
+          <span
+            key={`${occ.eventId}-${occ.date}`}
+            className="truncate rounded bg-white/40 px-1 py-px text-[10px] leading-4 text-slate-900"
+            title={occ.title}
+          >
+            {occ.title}
+          </span>
+        ))}
+
+      {/* Vacation events coexisting with shifts: small striped pill labels */}
+      {!hasVacationFill &&
+        vacationOccurrences.map((occ) => {
+          const member = memberMap.get(occ.createdBy);
+          const vColor =
+            getVacationColor(member?.colorPaletteName ?? null) ?? "#E0F2FE";
+          const stripeBg = `repeating-linear-gradient(45deg, ${vColor} 0px, ${vColor} 6px, #ffffff 6px, #ffffff 12px)`;
+          return (
+            <span
+              key={`${occ.eventId}-${occ.date}`}
+              className="truncate rounded px-1 py-px text-[10px] leading-4 text-slate-900"
+              style={{ background: stripeBg }}
+              title={occ.title}
+            >
+              {occ.title}
+            </span>
+          );
+        })}
 
       {/* Colored text labels for "other" recurring events */}
       {otherOccurrences.map((occ) => {

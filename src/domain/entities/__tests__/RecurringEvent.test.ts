@@ -49,6 +49,38 @@ describe("RecurringEvent", () => {
           frequency: EventFrequency.create("annual", 1),
           shiftType: ShiftType.create("night"),
         }),
-    ).toThrow("Recurring other events cannot define a shift type");
+    ).toThrow("Recurring other/vacations events cannot define a shift type");
+  });
+
+  it("creates a recurring vacations event without a shift type", () => {
+    const event = new RecurringEvent({
+      id: "event-4",
+      familyId: "family-1",
+      createdBy: "user-1",
+      title: "Annual vacation",
+      category: "vacations",
+      startDate: new Date("2026-07-01"),
+      frequency: EventFrequency.create("annual", 1),
+    });
+
+    expect(event.category).toBe("vacations");
+    expect(event.shiftType).toBeNull();
+  });
+
+  it("rejects shift types for recurring vacations events", () => {
+    expect(
+      () =>
+        new RecurringEvent({
+          id: "event-5",
+          familyId: "family-1",
+          createdBy: "user-1",
+          title: "Summer holiday",
+          category: "vacations",
+          startDate: new Date("2026-07-01"),
+          frequency: EventFrequency.create("annual", 1),
+          shiftType: ShiftType.create("morning"),
+        }),
+    ).toThrow("Recurring other/vacations events cannot define a shift type");
   });
 });
+

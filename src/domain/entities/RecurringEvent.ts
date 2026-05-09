@@ -7,10 +7,13 @@ import { ValidationError } from "@/domain/errors/DomainError";
 import { EventFrequency } from "@/domain/value-objects/EventFrequency";
 import { ShiftType } from "@/domain/value-objects/ShiftType";
 
-export type RecurringEventCategory = "work" | "studies" | "other";
+export type EventCategory = "work" | "studies" | "vacations" | "other";
+
+/** @deprecated Use EventCategory instead */
+export type RecurringEventCategory = EventCategory;
 
 export interface RecurringEventProps extends EventProps {
-  category: RecurringEventCategory;
+  category: EventCategory;
   startDate: Date;
   frequency: EventFrequency;
   shiftType?: ShiftType | null;
@@ -21,7 +24,7 @@ export interface RecurringEventProps extends EventProps {
 
 export class RecurringEvent extends Event {
   public readonly type = "recurring" as const;
-  public readonly category: RecurringEventCategory;
+  public readonly category: EventCategory;
   public readonly startDate: Date;
   public readonly frequency: EventFrequency;
   public readonly shiftType: ShiftType | null;
@@ -61,10 +64,12 @@ export class RecurringEvent extends Event {
       );
     }
 
-    if (props.category === "other" && props.shiftType) {
-      throw new ValidationError(
-        "Recurring other events cannot define a shift type",
-      );
+    if (props.category === "other" || props.category === "vacations") {
+      if (props.shiftType) {
+        throw new ValidationError(
+          "Recurring other/vacations events cannot define a shift type",
+        );
+      }
     }
 
     this.category = props.category;

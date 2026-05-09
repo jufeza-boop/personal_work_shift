@@ -29,10 +29,7 @@ describe("DayCreateEventForm", () => {
 
     expect(screen.getByRole("button", { name: "Puntual" })).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Trabajo/Estudio" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Otro recurrente" }),
+      screen.getByRole("button", { name: "Recurrente" }),
     ).toBeInTheDocument();
   });
 
@@ -50,7 +47,7 @@ describe("DayCreateEventForm", () => {
     expect(screen.getByLabelText(/hora fin/i)).toBeInTheDocument();
   });
 
-  it("shows work-specific fields when switching to trabajo tab", async () => {
+  it("shows recurring fields and category when switching to recurrente tab", async () => {
     const user = userEvent.setup();
 
     render(
@@ -62,14 +59,13 @@ describe("DayCreateEventForm", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Trabajo/Estudio" }));
+    await user.click(screen.getByRole("button", { name: "Recurrente" }));
 
     expect(screen.getByLabelText(/categoría/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/frecuencia/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/tipo de turno/i)).toBeInTheDocument();
   });
 
-  it("shows other-recurring fields when switching to otro recurrente tab", async () => {
+  it("shows shift type when work category is selected", async () => {
     const user = userEvent.setup();
 
     render(
@@ -81,7 +77,27 @@ describe("DayCreateEventForm", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Otro recurrente" }));
+    await user.click(screen.getByRole("button", { name: "Recurrente" }));
+
+    const categorySelect = screen.getByLabelText(/categoría/i);
+    await user.selectOptions(categorySelect, "work");
+
+    expect(screen.getByLabelText(/tipo de turno/i)).toBeInTheDocument();
+  });
+
+  it("shows frequency and interval fields in recurring tab", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <DayCreateEventForm
+        action={vi.fn()}
+        familyId="f1"
+        date="2026-04-10"
+        onCancel={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Recurrente" }));
 
     expect(screen.getByLabelText(/frecuencia/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/intervalo/i)).toBeInTheDocument();
@@ -104,7 +120,7 @@ describe("DayCreateEventForm", () => {
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
 
-  it("sets min on endDate equal to the selected date for recurring-work tab", async () => {
+  it("sets min on endDate equal to the selected date for recurring tab", async () => {
     const user = userEvent.setup();
 
     render(
@@ -116,27 +132,7 @@ describe("DayCreateEventForm", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "Trabajo/Estudio" }));
-
-    const endDateInput = screen.getByLabelText(
-      /fecha de fin/i,
-    ) as HTMLInputElement;
-    expect(endDateInput).toHaveAttribute("min", "2026-10-05");
-  });
-
-  it("sets min on endDate equal to the selected date for recurring-other tab", async () => {
-    const user = userEvent.setup();
-
-    render(
-      <DayCreateEventForm
-        action={vi.fn()}
-        familyId="f1"
-        date="2026-10-05"
-        onCancel={vi.fn()}
-      />,
-    );
-
-    await user.click(screen.getByRole("button", { name: "Otro recurrente" }));
+    await user.click(screen.getByRole("button", { name: "Recurrente" }));
 
     const endDateInput = screen.getByLabelText(
       /fecha de fin/i,
@@ -177,3 +173,4 @@ describe("DayCreateEventForm", () => {
     ).toBeInTheDocument();
   });
 });
+
