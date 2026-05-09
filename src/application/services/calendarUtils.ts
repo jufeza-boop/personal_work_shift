@@ -347,10 +347,19 @@ export function getShiftColor(
 }
 
 /**
- * Returns a representative base color for a palette without a specific shift
- * type (e.g. "other" recurring events). Uses the `afternoon` tone as a
- * medium-weight accent. Returns null when the palette name is absent or invalid.
+ * Returns the lightest (morning) tone for a palette, used as the stripe color
+ * for vacation events. Returns null when the palette name is absent or invalid.
  */
+export function getVacationColor(paletteName: string | null): string | null {
+  if (!paletteName) return null;
+
+  try {
+    const palette = ColorPalette.create(paletteName);
+    return palette.getLightestTone();
+  } catch {
+    return null;
+  }
+}
 export function getBaseColor(paletteName: string | null): string | null {
   if (!paletteName) return null;
 

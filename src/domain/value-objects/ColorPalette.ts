@@ -89,6 +89,10 @@ export class ColorPalette {
     return this.toneMap[shiftType.value];
   }
 
+  getLightestTone(): string {
+    return this.toneMap.morning;
+  }
+
   equals(other: ColorPalette): boolean {
     return this.name === other.name;
   }

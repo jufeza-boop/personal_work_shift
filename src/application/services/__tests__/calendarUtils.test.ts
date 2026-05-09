@@ -3,6 +3,7 @@ import {
   getBaseColor,
   getOccurrencesForMonth,
   getShiftColor,
+  getVacationColor,
   serializeEvent,
 } from "@/application/services/calendarUtils";
 import { PunctualEvent } from "@/domain/entities/PunctualEvent";
@@ -479,5 +480,32 @@ describe("getShiftColor", () => {
     const night = getShiftColor("sky", "night");
 
     expect(morning).not.toBe(night);
+  });
+});
+
+describe("getVacationColor", () => {
+  it("returns the morning (lightest) tone for a valid palette", () => {
+    const color = getVacationColor("sky");
+
+    expect(color).toBe("#E0F2FE"); // sky morning tone
+  });
+
+  it("returns null when palette name is null", () => {
+    expect(getVacationColor(null)).toBeNull();
+  });
+
+  it("returns null for an invalid palette name", () => {
+    expect(getVacationColor("neon")).toBeNull();
+  });
+
+  it("returns different lightest tones for different palettes", () => {
+    expect(getVacationColor("sky")).not.toBe(getVacationColor("rose"));
+  });
+
+  it("returns lighter color than getBaseColor for the same palette", () => {
+    // morning tone is lighter than afternoon tone used by getBaseColor
+    expect(getVacationColor("sky")).toBe("#E0F2FE");
+    expect(getBaseColor("sky")).toBe("#7DD3FC");
+    expect(getVacationColor("sky")).not.toBe(getBaseColor("sky"));
   });
 });

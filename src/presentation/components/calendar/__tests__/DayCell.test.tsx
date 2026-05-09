@@ -51,6 +51,19 @@ const SHIFT_OCCURRENCE_2: CalendarOccurrence = {
   endTime: null,
 };
 
+const VACATION_OCCURRENCE: CalendarOccurrence = {
+  eventId: "e4",
+  date: "2026-04-10",
+  title: "Summer vacation",
+  type: "recurring",
+  category: "vacations",
+  shiftType: null,
+  createdBy: "u1",
+  description: null,
+  startTime: null,
+  endTime: null,
+};
+
 describe("DayCell", () => {
   it("calls onSelect with the date string when clicked", async () => {
     const user = userEvent.setup();
@@ -254,5 +267,65 @@ describe("DayCell", () => {
 
     const label = screen.getByText("Doctor visit");
     expect(label.className).toContain("text-slate-900");
+  });
+
+  it("fills the day cell background with a diagonal stripe for vacation events", () => {
+    render(
+      <DayCell
+        day={10}
+        dateStr="2026-04-10"
+        isToday={false}
+        occurrences={[VACATION_OCCURRENCE]}
+        members={MEMBERS}
+        onSelect={vi.fn()}
+      />,
+    );
+
+    // sky/morning (lightest tone) = #E0F2FE
+    const button = screen.getByRole("button", { name: /10/ });
+    expect(button).toHaveStyle({
+      background:
+        "repeating-linear-gradient(45deg, #E0F2FE 0px, #E0F2FE 6px, #ffffff 6px, #ffffff 12px)",
+    });
+  });
+
+  it("renders the vacation event title inside the cell", () => {
+    render(
+      <DayCell
+        day={10}
+        dateStr="2026-04-10"
+        isToday={false}
+        occurrences={[VACATION_OCCURRENCE]}
+        members={MEMBERS}
+        onSelect={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Summer vacation")).toBeInTheDocument();
+  });
+
+  it("shows a striped pill label for vacation when a shift event also fills the cell", () => {
+    render(
+      <DayCell
+        day={10}
+        dateStr="2026-04-10"
+        isToday={false}
+        occurrences={[SHIFT_OCCURRENCE, VACATION_OCCURRENCE]}
+        members={MEMBERS}
+        onSelect={vi.fn()}
+      />,
+    );
+
+    // The shift event should dominate the cell background (sky/morning = #E0F2FE)
+    const button = screen.getByRole("button", { name: /10/ });
+    expect(button).toHaveStyle({ backgroundColor: "#E0F2FE" });
+
+    // Vacation title should still appear as a striped label
+    const label = screen.getByText("Summer vacation");
+    expect(label).toBeInTheDocument();
+    expect(label).toHaveStyle({
+      background:
+        "repeating-linear-gradient(45deg, #E0F2FE 0px, #E0F2FE 6px, #ffffff 6px, #ffffff 12px)",
+    });
   });
 });
