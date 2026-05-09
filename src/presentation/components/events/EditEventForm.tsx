@@ -58,6 +58,10 @@ const CATEGORY_OPTIONS: { label: string; value: string }[] = [
   { label: "Otro", value: "other" },
 ];
 
+const CATEGORY_OPTIONS_REQUIRED = CATEGORY_OPTIONS.filter(
+  (opt) => opt.value !== "",
+);
+
 export function EditEventForm({
   action,
   eventId,
@@ -442,7 +446,7 @@ export function EditEventForm({
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
               >
-                {CATEGORY_OPTIONS.filter((opt) => opt.value !== "").map((opt) => (
+                {CATEGORY_OPTIONS_REQUIRED.map((opt) => (
                   <option key={opt.value} value={opt.value}>
                     {opt.label}
                   </option>

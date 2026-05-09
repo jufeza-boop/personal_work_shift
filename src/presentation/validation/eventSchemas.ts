@@ -9,14 +9,14 @@ const CATEGORIES = ["work", "studies", "vacations", "other"] as const;
 const MAX_FREQUENCY_INTERVAL = 365;
 
 // Shared cross-field validators for category/shiftType invariant
-function requiresShiftType(data: { category?: string; shiftType?: string }) {
+function isShiftTypeValid(data: { category?: string; shiftType?: string }) {
   if (data.category === "work" || data.category === "studies") {
     return !!data.shiftType;
   }
   return true;
 }
 
-function prohibitsShiftType(data: { category?: string; shiftType?: string }) {
+function isShiftTypeAbsent(data: { category?: string; shiftType?: string }) {
   if (data.category === "other" || data.category === "vacations") {
     return !data.shiftType;
   }
@@ -24,12 +24,12 @@ function prohibitsShiftType(data: { category?: string; shiftType?: string }) {
 }
 
 const SHIFT_TYPE_REQUIRED_REFINEMENT = {
-  fn: requiresShiftType,
+  fn: isShiftTypeValid,
   opts: { message: "Selecciona un tipo de turno.", path: ["shiftType"] as string[] },
 };
 
 const SHIFT_TYPE_PROHIBITED_REFINEMENT = {
-  fn: prohibitsShiftType,
+  fn: isShiftTypeAbsent,
   opts: { message: "Esta categoría no admite tipo de turno.", path: ["shiftType"] as string[] },
 };
 

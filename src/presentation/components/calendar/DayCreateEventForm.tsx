@@ -32,6 +32,10 @@ const CATEGORY_OPTIONS: { label: string; value: string }[] = [
   { label: "Otro", value: "other" },
 ];
 
+const CATEGORY_OPTIONS_REQUIRED = CATEGORY_OPTIONS.filter(
+  (opt) => opt.value !== "",
+);
+
 const SHIFT_TYPE_OPTIONS: { label: string; value: string }[] = [
   { label: "Mañana", value: "morning" },
   { label: "Día", value: "day" },
@@ -191,7 +195,7 @@ export function DayCreateEventForm({
                 </option>
               ))
             ) : (
-              CATEGORY_OPTIONS.filter((opt) => opt.value !== "").map((opt) => (
+              CATEGORY_OPTIONS_REQUIRED.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
