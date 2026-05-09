@@ -159,8 +159,8 @@ export async function createEventAction(
     const parsed = createPunctualEventSchema.safeParse({
       date: formData.get("date"),
       description: formData.get("description"),
-      endTime: formData.get("endTime"),
-      startTime: formData.get("startTime"),
+      endTime: formData.get("endTime") ?? undefined,
+      startTime: formData.get("startTime") ?? undefined,
       title: formData.get("title"),
       category: formData.get("category") || undefined,
       shiftType: formData.get("shiftType") || undefined,
@@ -237,12 +237,12 @@ export async function createEventAction(
       category: formData.get("category"),
       description: formData.get("description"),
       endDate: formData.get("endDate"),
-      endTime: formData.get("endTime"),
+      endTime: formData.get("endTime") ?? undefined,
       frequencyInterval: formData.get("frequencyInterval"),
       frequencyUnit: formData.get("frequencyUnit"),
       shiftType: formData.get("shiftType") || undefined,
       startDate: formData.get("startDate"),
-      startTime: formData.get("startTime"),
+      startTime: formData.get("startTime") ?? undefined,
       title: formData.get("title"),
     });
 

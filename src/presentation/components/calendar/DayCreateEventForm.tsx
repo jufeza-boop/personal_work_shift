@@ -106,7 +106,7 @@ export function DayCreateEventForm({
             key={tab.value}
             onClick={() => {
               setActiveTab(tab.value);
-              setSelectedCategory("");
+              setSelectedCategory(tab.value === "recurring" ? "work" : "");
             }}
             type="button"
           >

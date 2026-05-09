@@ -95,7 +95,7 @@ export function CreateEventForm({
             onClick={() => {
               setActiveTab(tab.value);
               setStartDateValue("");
-              setSelectedCategory("");
+              setSelectedCategory(tab.value === "recurring" ? "work" : "");
             }}
             type="button"
           >
