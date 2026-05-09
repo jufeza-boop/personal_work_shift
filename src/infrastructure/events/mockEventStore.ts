@@ -15,6 +15,7 @@ import {
 } from "@/domain/entities/EventException";
 import { PunctualEvent } from "@/domain/entities/PunctualEvent";
 import { RecurringEvent } from "@/domain/entities/RecurringEvent";
+import type { EventCategory } from "@/domain/entities/RecurringEvent";
 import { EventFrequency } from "@/domain/value-objects/EventFrequency";
 import { ShiftType } from "@/domain/value-objects/ShiftType";
 
@@ -175,7 +176,7 @@ export function toDomainEvent(stored: StoredEvent): Event {
       startTime: stored.startTime,
       title: stored.title,
       updatedAt: new Date(stored.updatedAt),
-      category: stored.category as import("@/domain/entities/RecurringEvent").EventCategory | null,
+      category: stored.category as EventCategory | null,
       shiftType: stored.shiftType ? ShiftType.create(stored.shiftType) : null,
     });
   }

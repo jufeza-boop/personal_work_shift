@@ -8,6 +8,31 @@ const CATEGORIES = ["work", "studies", "vacations", "other"] as const;
 // but a user could want "every 365 days" which is effectively annual too).
 const MAX_FREQUENCY_INTERVAL = 365;
 
+// Shared cross-field validators for category/shiftType invariant
+function requiresShiftType(data: { category?: string; shiftType?: string }) {
+  if (data.category === "work" || data.category === "studies") {
+    return !!data.shiftType;
+  }
+  return true;
+}
+
+function prohibitsShiftType(data: { category?: string; shiftType?: string }) {
+  if (data.category === "other" || data.category === "vacations") {
+    return !data.shiftType;
+  }
+  return true;
+}
+
+const SHIFT_TYPE_REQUIRED_REFINEMENT = {
+  fn: requiresShiftType,
+  opts: { message: "Selecciona un tipo de turno.", path: ["shiftType"] as string[] },
+};
+
+const SHIFT_TYPE_PROHIBITED_REFINEMENT = {
+  fn: prohibitsShiftType,
+  opts: { message: "Esta categoría no admite tipo de turno.", path: ["shiftType"] as string[] },
+};
+
 export const createPunctualEventSchema = z
   .object({
     description: z.string().trim().optional(),
@@ -26,27 +51,8 @@ export const createPunctualEventSchema = z
     category: z.enum(CATEGORIES).optional(),
     shiftType: z.enum(SHIFT_TYPES).optional().or(z.literal("")),
   })
-  .refine(
-    (data) => {
-      if (data.category === "work" || data.category === "studies") {
-        return !!data.shiftType;
-      }
-      return true;
-    },
-    { message: "Selecciona un tipo de turno.", path: ["shiftType"] },
-  )
-  .refine(
-    (data) => {
-      if (data.category === "other" || data.category === "vacations") {
-        return !data.shiftType;
-      }
-      return true;
-    },
-    {
-      message: "Esta categoría no admite tipo de turno.",
-      path: ["shiftType"],
-    },
-  );
+  .refine(SHIFT_TYPE_REQUIRED_REFINEMENT.fn, SHIFT_TYPE_REQUIRED_REFINEMENT.opts)
+  .refine(SHIFT_TYPE_PROHIBITED_REFINEMENT.fn, SHIFT_TYPE_PROHIBITED_REFINEMENT.opts);
 
 export const createRecurringEventSchema = z
   .object({
@@ -73,27 +79,8 @@ export const createRecurringEventSchema = z
     category: z.enum(CATEGORIES, { message: "Selecciona una categoría." }),
     shiftType: z.enum(SHIFT_TYPES).optional().or(z.literal("")),
   })
-  .refine(
-    (data) => {
-      if (data.category === "work" || data.category === "studies") {
-        return !!data.shiftType;
-      }
-      return true;
-    },
-    { message: "Selecciona un tipo de turno.", path: ["shiftType"] },
-  )
-  .refine(
-    (data) => {
-      if (data.category === "other" || data.category === "vacations") {
-        return !data.shiftType;
-      }
-      return true;
-    },
-    {
-      message: "Esta categoría no admite tipo de turno.",
-      path: ["shiftType"],
-    },
-  );
+  .refine(SHIFT_TYPE_REQUIRED_REFINEMENT.fn, SHIFT_TYPE_REQUIRED_REFINEMENT.opts)
+  .refine(SHIFT_TYPE_PROHIBITED_REFINEMENT.fn, SHIFT_TYPE_PROHIBITED_REFINEMENT.opts);
 
 // Keep old schema names as aliases for backward compatibility during transition
 /** @deprecated Use createRecurringEventSchema */
@@ -145,27 +132,8 @@ export const editPunctualEventSchema = editEventBaseSchema
     category: z.enum(CATEGORIES).optional().or(z.literal("")),
     shiftType: z.enum(SHIFT_TYPES).optional().or(z.literal("")),
   })
-  .refine(
-    (data) => {
-      if (data.category === "work" || data.category === "studies") {
-        return !!data.shiftType;
-      }
-      return true;
-    },
-    { message: "Selecciona un tipo de turno.", path: ["shiftType"] },
-  )
-  .refine(
-    (data) => {
-      if (data.category === "other" || data.category === "vacations") {
-        return !data.shiftType;
-      }
-      return true;
-    },
-    {
-      message: "Esta categoría no admite tipo de turno.",
-      path: ["shiftType"],
-    },
-  );
+  .refine(SHIFT_TYPE_REQUIRED_REFINEMENT.fn, SHIFT_TYPE_REQUIRED_REFINEMENT.opts)
+  .refine(SHIFT_TYPE_PROHIBITED_REFINEMENT.fn, SHIFT_TYPE_PROHIBITED_REFINEMENT.opts);
 
 export const editRecurringEventSchema = editEventBaseSchema.extend({
   title: z.string().trim().min(1, "El título es obligatorio.").max(200),
