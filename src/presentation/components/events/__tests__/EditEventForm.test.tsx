@@ -29,7 +29,7 @@ describe("EditEventForm", () => {
       render(
         <EditEventForm
           {...baseProps}
-          eventType="recurring-work"
+          eventType="recurring"
           defaults={{
             title: "Morning shift",
             startDate: "2026-04-01",
@@ -52,7 +52,7 @@ describe("EditEventForm", () => {
       render(
         <EditEventForm
           {...baseProps}
-          eventType="recurring-work"
+          eventType="recurring"
           defaults={{
             title: "Morning shift",
             startDate: "2026-04-01",
@@ -84,7 +84,7 @@ describe("EditEventForm", () => {
       render(
         <EditEventForm
           {...baseProps}
-          eventType="recurring-work"
+          eventType="recurring"
           defaults={{
             title: "Morning shift",
             startDate: "2026-04-01",
@@ -115,7 +115,7 @@ describe("EditEventForm", () => {
       render(
         <EditEventForm
           {...baseProps}
-          eventType="recurring-work"
+          eventType="recurring"
           defaults={{
             title: "Morning shift",
             startDate: "2026-04-01",
@@ -147,7 +147,7 @@ describe("EditEventForm", () => {
       render(
         <EditEventForm
           {...baseProps}
-          eventType="recurring-other"
+          eventType="recurring"
           defaults={{
             title: "Event",
             startDate: "2026-04-01",
@@ -176,7 +176,7 @@ describe("EditEventForm", () => {
       render(
         <EditEventForm
           {...baseProps}
-          eventType="recurring-work"
+          eventType="recurring"
           defaults={{
             title: "Morning shift",
             startDate: "2026-04-01",
@@ -214,7 +214,7 @@ describe("EditEventForm", () => {
       render(
         <EditEventForm
           {...baseProps}
-          eventType="recurring-work"
+          eventType="recurring"
           defaults={recurringWorkDefaults}
           hasExceptions={false}
         />,
@@ -227,7 +227,7 @@ describe("EditEventForm", () => {
       render(
         <EditEventForm
           {...baseProps}
-          eventType="recurring-work"
+          eventType="recurring"
           defaults={recurringWorkDefaults}
           hasExceptions={true}
         />,
@@ -242,7 +242,7 @@ describe("EditEventForm", () => {
       render(
         <EditEventForm
           {...baseProps}
-          eventType="recurring-work"
+          eventType="recurring"
           defaults={recurringWorkDefaults}
           hasExceptions={true}
         />,
@@ -266,7 +266,7 @@ describe("EditEventForm", () => {
       render(
         <EditEventForm
           {...baseProps}
-          eventType="recurring-work"
+          eventType="recurring"
           defaults={recurringWorkDefaults}
           hasExceptions={true}
         />,
@@ -284,7 +284,7 @@ describe("EditEventForm", () => {
       render(
         <EditEventForm
           {...baseProps}
-          eventType="recurring-work"
+          eventType="recurring"
           defaults={recurringWorkDefaults}
           hasExceptions={true}
         />,
@@ -303,7 +303,7 @@ describe("EditEventForm", () => {
       render(
         <EditEventForm
           {...baseProps}
-          eventType="recurring-work"
+          eventType="recurring"
           defaults={recurringWorkDefaults}
           hasExceptions={true}
           occurrenceDate="2026-04-15"
@@ -326,7 +326,7 @@ describe("EditEventForm", () => {
       render(
         <EditEventForm
           {...baseProps}
-          eventType="recurring-work"
+          eventType="recurring"
           defaults={recurringWorkDefaults}
           hasExceptions={true}
         />,
@@ -381,7 +381,7 @@ describe("EditEventForm", () => {
       render(
         <EditEventForm
           {...baseProps}
-          eventType="recurring-work"
+          eventType="recurring"
           defaults={recurringWorkDefaults}
           hasExceptions={true}
         />,
@@ -406,7 +406,7 @@ describe("EditEventForm", () => {
       render(
         <EditEventForm
           {...baseProps}
-          eventType="recurring-work"
+          eventType="recurring"
           defaults={recurringWorkDefaults}
           hasExceptions={true}
         />,
@@ -433,7 +433,7 @@ describe("EditEventForm", () => {
       render(
         <EditEventForm
           {...baseProps}
-          eventType="recurring-work"
+          eventType="recurring"
           defaults={recurringWorkDefaults}
           hasExceptions={true}
         />,
@@ -464,7 +464,7 @@ describe("EditEventForm", () => {
       render(
         <EditEventForm
           {...baseProps}
-          eventType="recurring-work"
+          eventType="recurring"
           defaults={recurringWorkDefaults}
           hasExceptions={true}
         />,
@@ -486,7 +486,7 @@ describe("EditEventForm", () => {
       render(
         <EditEventForm
           {...baseProps}
-          eventType="recurring-work"
+          eventType="recurring"
           defaults={recurringWorkDefaults}
           hasExceptions={true}
         />,
@@ -507,7 +507,7 @@ describe("EditEventForm", () => {
       render(
         <EditEventForm
           {...baseProps}
-          eventType="recurring-work"
+          eventType="recurring"
           defaults={recurringWorkDefaults}
           hasExceptions={true}
         />,
@@ -525,7 +525,7 @@ describe("EditEventForm", () => {
       render(
         <EditEventForm
           {...baseProps}
-          eventType="recurring-work"
+          eventType="recurring"
           defaults={{
             title: "Morning shift",
             startDate: "2026-06-01",
@@ -548,7 +548,7 @@ describe("EditEventForm", () => {
       render(
         <EditEventForm
           {...baseProps}
-          eventType="recurring-work"
+          eventType="recurring"
           defaults={{
             title: "Morning shift",
             startDate: "2026-06-01",
@@ -573,7 +573,7 @@ describe("EditEventForm", () => {
       render(
         <EditEventForm
           {...baseProps}
-          eventType="recurring-other"
+          eventType="recurring"
           defaults={{
             title: "Gym",
             startDate: "2026-07-10",

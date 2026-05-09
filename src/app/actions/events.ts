@@ -16,11 +16,9 @@ import {
 } from "@/presentation/components/events/types";
 import {
   createPunctualEventSchema,
-  createRecurringOtherEventSchema,
-  createRecurringWorkEventSchema,
+  createRecurringEventSchema,
   editPunctualEventSchema,
-  editRecurringOtherEventSchema,
-  editRecurringWorkEventSchema,
+  editRecurringEventSchema,
 } from "@/presentation/validation/eventSchemas";
 import { sanitizeRedirectPath } from "@/shared/auth/routeProtection";
 
@@ -164,6 +162,8 @@ export async function createEventAction(
       endTime: formData.get("endTime"),
       startTime: formData.get("startTime"),
       title: formData.get("title"),
+      category: formData.get("category") || undefined,
+      shiftType: formData.get("shiftType") || undefined,
     });
 
     if (!parsed.success) {
@@ -176,6 +176,8 @@ export async function createEventAction(
           endTime: fieldErrors.endTime?.[0],
           startTime: fieldErrors.startTime?.[0],
           title: fieldErrors.title?.[0],
+          category: fieldErrors.category?.[0],
+          shiftType: fieldErrors.shiftType?.[0],
         },
         success: false,
       };
@@ -206,6 +208,8 @@ export async function createEventAction(
       familyId,
       startTime: toOptionalString(parsed.data.startTime),
       title: parsed.data.title,
+      category: parsed.data.category,
+      shiftType: toOptionalString(parsed.data.shiftType),
     });
 
     if (!result.success) {
@@ -228,15 +232,17 @@ export async function createEventAction(
     redirect(redirectTo);
   }
 
-  if (eventType === "recurring-work") {
-    const parsed = createRecurringWorkEventSchema.safeParse({
+  if (eventType === "recurring") {
+    const parsed = createRecurringEventSchema.safeParse({
       category: formData.get("category"),
       description: formData.get("description"),
       endDate: formData.get("endDate"),
+      endTime: formData.get("endTime"),
       frequencyInterval: formData.get("frequencyInterval"),
       frequencyUnit: formData.get("frequencyUnit"),
-      shiftType: formData.get("shiftType"),
+      shiftType: formData.get("shiftType") || undefined,
       startDate: formData.get("startDate"),
+      startTime: formData.get("startTime"),
       title: formData.get("title"),
     });
 
@@ -248,10 +254,12 @@ export async function createEventAction(
           category: fieldErrors.category?.[0],
           description: fieldErrors.description?.[0],
           endDate: fieldErrors.endDate?.[0],
+          endTime: fieldErrors.endTime?.[0],
           frequencyInterval: fieldErrors.frequencyInterval?.[0],
           frequencyUnit: fieldErrors.frequencyUnit?.[0],
           shiftType: fieldErrors.shiftType?.[0],
           startDate: fieldErrors.startDate?.[0],
+          startTime: fieldErrors.startTime?.[0],
           title: fieldErrors.title?.[0],
         },
         success: false,
@@ -279,89 +287,12 @@ export async function createEventAction(
       createdBy,
       description: parsed.data.description,
       endDate: toOptionalDate(parsed.data.endDate),
-      eventType: "recurring",
-      familyId,
-      frequencyInterval: parsed.data.frequencyInterval,
-      frequencyUnit: parsed.data.frequencyUnit,
-      shiftType: parsed.data.shiftType,
-      startDate: toDate(parsed.data.startDate),
-      title: parsed.data.title,
-    });
-
-    if (!result.success) {
-      return {
-        message: buildErrorMessage(result.error.code),
-        success: false,
-      };
-    }
-
-    await dispatchFamilyNotification(
-      user.id,
-      familyId,
-      parsed.data.title,
-      "created",
-    );
-
-    revalidatePath("/calendar");
-    redirect(redirectTo);
-  }
-
-  if (eventType === "recurring-other") {
-    const parsed = createRecurringOtherEventSchema.safeParse({
-      description: formData.get("description"),
-      endDate: formData.get("endDate"),
-      endTime: formData.get("endTime"),
-      frequencyInterval: formData.get("frequencyInterval"),
-      frequencyUnit: formData.get("frequencyUnit"),
-      startDate: formData.get("startDate"),
-      startTime: formData.get("startTime"),
-      title: formData.get("title"),
-    });
-
-    if (!parsed.success) {
-      const fieldErrors = parsed.error.flatten().fieldErrors;
-
-      return {
-        errors: {
-          description: fieldErrors.description?.[0],
-          endDate: fieldErrors.endDate?.[0],
-          endTime: fieldErrors.endTime?.[0],
-          frequencyInterval: fieldErrors.frequencyInterval?.[0],
-          frequencyUnit: fieldErrors.frequencyUnit?.[0],
-          startDate: fieldErrors.startDate?.[0],
-          startTime: fieldErrors.startTime?.[0],
-          title: fieldErrors.title?.[0],
-        },
-        success: false,
-      };
-    }
-
-    const user = await requireAuthenticatedUser(redirectTo);
-    const { eventRepository, familyRepository, userRepository } =
-      await createServerEventDependencies();
-    const createdBy = await resolveCreatedBy(user.id, targetUserId, () =>
-      userRepository.findDelegatedUsers(user.id),
-    );
-
-    if (!createdBy) {
-      return {
-        message:
-          "No tienes permiso para crear eventos en nombre de ese usuario.",
-        success: false,
-      };
-    }
-
-    const useCase = new CreateEvent(eventRepository, familyRepository);
-    const result = await useCase.execute({
-      category: "other",
-      createdBy,
-      description: parsed.data.description,
-      endDate: toOptionalDate(parsed.data.endDate),
       endTime: toOptionalString(parsed.data.endTime),
       eventType: "recurring",
       familyId,
       frequencyInterval: parsed.data.frequencyInterval,
       frequencyUnit: parsed.data.frequencyUnit,
+      shiftType: toOptionalString(parsed.data.shiftType),
       startDate: toDate(parsed.data.startDate),
       startTime: toOptionalString(parsed.data.startTime),
       title: parsed.data.title,
@@ -435,6 +366,8 @@ export async function editEventAction(
       date: formData.get("date"),
       startTime: formData.get("startTime"),
       endTime: formData.get("endTime"),
+      category: formData.get("category") || undefined,
+      shiftType: formData.get("shiftType") || undefined,
     });
 
     if (!parsed.success) {
@@ -447,9 +380,14 @@ export async function editEventAction(
           date: fieldErrors.date?.[0],
           startTime: fieldErrors.startTime?.[0],
           endTime: fieldErrors.endTime?.[0],
+          category: fieldErrors.category?.[0],
+          shiftType: fieldErrors.shiftType?.[0],
         },
       };
     }
+
+    const categoryValue = parsed.data.category || undefined;
+    const shiftTypeValue = parsed.data.shiftType || undefined;
 
     const result = await useCase.execute({
       scope: "all",
@@ -460,6 +398,8 @@ export async function editEventAction(
       date: toDate(parsed.data.date),
       startTime: toOptionalString(parsed.data.startTime) ?? null,
       endTime: toOptionalString(parsed.data.endTime) ?? null,
+      category: categoryValue ?? null,
+      shiftType: shiftTypeValue ?? null,
     });
 
     if (!result.success) {
@@ -480,12 +420,8 @@ export async function editEventAction(
     redirect(redirectTo);
   }
 
-  if (eventType === "recurring-work" || eventType === "recurring-other") {
-    const schema =
-      eventType === "recurring-work"
-        ? editRecurringWorkEventSchema
-        : editRecurringOtherEventSchema;
-    const parsed = schema.safeParse({
+  if (eventType === "recurring") {
+    const parsed = editRecurringEventSchema.safeParse({
       eventId,
       scope,
       occurrenceDate: occurrenceDateRaw ?? undefined,
@@ -496,18 +432,9 @@ export async function editEventAction(
       endDate: formData.get("endDate") ?? undefined,
       frequencyUnit: formData.get("frequencyUnit") ?? undefined,
       frequencyInterval: formData.get("frequencyInterval") ?? undefined,
-      shiftType:
-        eventType === "recurring-work"
-          ? (formData.get("shiftType") ?? undefined)
-          : undefined,
-      startTime:
-        eventType === "recurring-other"
-          ? (formData.get("startTime") ?? undefined)
-          : undefined,
-      endTime:
-        eventType === "recurring-other"
-          ? (formData.get("endTime") ?? undefined)
-          : undefined,
+      shiftType: formData.get("shiftType") || undefined,
+      startTime: formData.get("startTime") || undefined,
+      endTime: formData.get("endTime") || undefined,
     });
 
     if (!parsed.success) {
@@ -521,6 +448,9 @@ export async function editEventAction(
           endDate: fieldErrors.endDate?.[0],
           frequencyUnit: fieldErrors.frequencyUnit?.[0],
           frequencyInterval: fieldErrors.frequencyInterval?.[0],
+          shiftType: fieldErrors.shiftType?.[0],
+          startTime: fieldErrors.startTime?.[0],
+          endTime: fieldErrors.endTime?.[0],
         },
       };
     }
@@ -542,14 +472,8 @@ export async function editEventAction(
         title: parsed.data.title,
         description: parsed.data.description ?? null,
         newDate: newDateRaw ? toDate(newDateRaw) : undefined,
-        startTime:
-          "startTime" in parsed.data
-            ? (toOptionalString(parsed.data.startTime) ?? null)
-            : null,
-        endTime:
-          "endTime" in parsed.data
-            ? (toOptionalString(parsed.data.endTime) ?? null)
-            : null,
+        startTime: toOptionalString(parsed.data.startTime) ?? null,
+        endTime: toOptionalString(parsed.data.endTime) ?? null,
       });
 
       if (!result.success) {
@@ -589,15 +513,9 @@ export async function editEventAction(
       endDate: parsed.data.endDate ? toDate(parsed.data.endDate) : undefined,
       frequencyUnit: parsed.data.frequencyUnit,
       frequencyInterval: parsed.data.frequencyInterval,
-      shiftType: "shiftType" in parsed.data ? parsed.data.shiftType : undefined,
-      startTime:
-        "startTime" in parsed.data
-          ? (toOptionalString(parsed.data.startTime) ?? null)
-          : null,
-      endTime:
-        "endTime" in parsed.data
-          ? (toOptionalString(parsed.data.endTime) ?? null)
-          : null,
+      shiftType: toOptionalString(parsed.data.shiftType) ?? null,
+      startTime: toOptionalString(parsed.data.startTime) ?? null,
+      endTime: toOptionalString(parsed.data.endTime) ?? null,
     });
 
     if (!result.success) {

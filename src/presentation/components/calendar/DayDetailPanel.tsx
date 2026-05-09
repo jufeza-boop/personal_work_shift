@@ -52,6 +52,7 @@ const MONTH_NAMES_FULL = [
 const CATEGORY_LABELS: Record<string, string> = {
   work: "Trabajo",
   studies: "Estudios",
+  vacations: "Vacaciones",
   other: "Otro",
 };
 

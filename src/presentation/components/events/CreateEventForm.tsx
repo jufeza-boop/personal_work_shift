@@ -8,7 +8,7 @@ import {
   type EventFormAction,
 } from "@/presentation/components/events/types";
 
-type EventTab = "punctual" | "recurring-work" | "recurring-other";
+type EventTab = "punctual" | "recurring";
 
 interface CreateEventFormProps {
   action: EventFormAction;
@@ -18,8 +18,15 @@ interface CreateEventFormProps {
 
 const TABS: { label: string; value: EventTab }[] = [
   { label: "Puntual", value: "punctual" },
-  { label: "Trabajo/Estudio", value: "recurring-work" },
-  { label: "Otro recurrente", value: "recurring-other" },
+  { label: "Recurrente", value: "recurring" },
+];
+
+const CATEGORY_OPTIONS: { label: string; value: string }[] = [
+  { label: "Sin categoría", value: "" },
+  { label: "Trabajo", value: "work" },
+  { label: "Estudios", value: "studies" },
+  { label: "Vacaciones", value: "vacations" },
+  { label: "Otro", value: "other" },
 ];
 
 const SHIFT_TYPE_OPTIONS: { label: string; value: string }[] = [
@@ -55,10 +62,18 @@ export function CreateEventForm({
 
   const [activeTab, setActiveTab] = useState<EventTab>("punctual");
   const [startDateValue, setStartDateValue] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [formState, formAction] = useActionState(
     action,
     EMPTY_EVENT_FORM_STATE,
   );
+
+  const needsShiftType =
+    selectedCategory === "work" || selectedCategory === "studies";
+  const hasTimeFields =
+    selectedCategory === "" ||
+    selectedCategory === "vacations" ||
+    selectedCategory === "other";
 
   return (
     <section className="rounded-3xl border border-stone-200 bg-white/80 p-6 shadow-sm">
@@ -76,6 +91,7 @@ export function CreateEventForm({
             onClick={() => {
               setActiveTab(tab.value);
               setStartDateValue("");
+              setSelectedCategory("");
             }}
             type="button"
           >
@@ -108,7 +124,69 @@ export function CreateEventForm({
           ) : null}
         </div>
 
-        {/* Punctual fields */}
+        {/* Category selector — visible in both tabs */}
+        <div className="space-y-1">
+          <label
+            className="text-sm font-medium text-slate-800"
+            htmlFor={categoryId}
+          >
+            Categoría {activeTab === "recurring" ? "" : "(opcional)"}
+          </label>
+          <select
+            className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm"
+            id={categoryId}
+            name="category"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+          >
+            {activeTab === "punctual" ? (
+              CATEGORY_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))
+            ) : (
+              CATEGORY_OPTIONS.filter((opt) => opt.value !== "").map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))
+            )}
+          </select>
+          {formState.errors?.category ? (
+            <p className="text-sm text-red-600">{formState.errors.category}</p>
+          ) : null}
+        </div>
+
+        {/* Shift type — only when work or studies */}
+        {needsShiftType ? (
+          <div className="space-y-1">
+            <label
+              className="text-sm font-medium text-slate-800"
+              htmlFor={shiftTypeId}
+            >
+              Tipo de turno
+            </label>
+            <select
+              className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm"
+              id={shiftTypeId}
+              name="shiftType"
+            >
+              {SHIFT_TYPE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            {formState.errors?.shiftType ? (
+              <p className="text-sm text-red-600">
+                {formState.errors.shiftType}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+
+        {/* Punctual-specific fields */}
         {activeTab === "punctual" ? (
           <>
             <div className="space-y-1">
@@ -129,196 +207,54 @@ export function CreateEventForm({
               ) : null}
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label
-                  className="text-sm font-medium text-slate-800"
-                  htmlFor={startTimeId}
-                >
-                  Hora inicio (opcional)
-                </label>
-                <input
-                  className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm"
-                  id={startTimeId}
-                  name="startTime"
-                  type="time"
-                />
-                {formState.errors?.startTime ? (
-                  <p className="text-sm text-red-600">
-                    {formState.errors.startTime}
-                  </p>
-                ) : null}
-              </div>
+            {hasTimeFields ? (
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label
+                    className="text-sm font-medium text-slate-800"
+                    htmlFor={startTimeId}
+                  >
+                    Hora inicio (opcional)
+                  </label>
+                  <input
+                    className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm"
+                    id={startTimeId}
+                    name="startTime"
+                    type="time"
+                  />
+                  {formState.errors?.startTime ? (
+                    <p className="text-sm text-red-600">
+                      {formState.errors.startTime}
+                    </p>
+                  ) : null}
+                </div>
 
-              <div className="space-y-1">
-                <label
-                  className="text-sm font-medium text-slate-800"
-                  htmlFor={endTimeId}
-                >
-                  Hora fin (opcional)
-                </label>
-                <input
-                  className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm"
-                  id={endTimeId}
-                  name="endTime"
-                  type="time"
-                />
-                {formState.errors?.endTime ? (
-                  <p className="text-sm text-red-600">
-                    {formState.errors.endTime}
-                  </p>
-                ) : null}
+                <div className="space-y-1">
+                  <label
+                    className="text-sm font-medium text-slate-800"
+                    htmlFor={endTimeId}
+                  >
+                    Hora fin (opcional)
+                  </label>
+                  <input
+                    className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm"
+                    id={endTimeId}
+                    name="endTime"
+                    type="time"
+                  />
+                  {formState.errors?.endTime ? (
+                    <p className="text-sm text-red-600">
+                      {formState.errors.endTime}
+                    </p>
+                  ) : null}
+                </div>
               </div>
-            </div>
+            ) : null}
           </>
         ) : null}
 
-        {/* Recurring work/studies fields */}
-        {activeTab === "recurring-work" ? (
-          <>
-            <div className="space-y-1">
-              <label
-                className="text-sm font-medium text-slate-800"
-                htmlFor={categoryId}
-              >
-                Categoría
-              </label>
-              <select
-                className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm"
-                id={categoryId}
-                name="category"
-              >
-                <option value="work">Trabajo</option>
-                <option value="studies">Estudios</option>
-              </select>
-              {formState.errors?.category ? (
-                <p className="text-sm text-red-600">
-                  {formState.errors.category}
-                </p>
-              ) : null}
-            </div>
-
-            <div className="space-y-1">
-              <label
-                className="text-sm font-medium text-slate-800"
-                htmlFor={startDateId}
-              >
-                Fecha de inicio
-              </label>
-              <input
-                className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm"
-                id={startDateId}
-                name="startDate"
-                type="date"
-                onChange={(e) => setStartDateValue(e.target.value)}
-              />
-              {formState.errors?.startDate ? (
-                <p className="text-sm text-red-600">
-                  {formState.errors.startDate}
-                </p>
-              ) : null}
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label
-                  className="text-sm font-medium text-slate-800"
-                  htmlFor={frequencyUnitId}
-                >
-                  Frecuencia
-                </label>
-                <select
-                  className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm"
-                  id={frequencyUnitId}
-                  name="frequencyUnit"
-                >
-                  {FREQUENCY_UNIT_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-                {formState.errors?.frequencyUnit ? (
-                  <p className="text-sm text-red-600">
-                    {formState.errors.frequencyUnit}
-                  </p>
-                ) : null}
-              </div>
-
-              <div className="space-y-1">
-                <label
-                  className="text-sm font-medium text-slate-800"
-                  htmlFor={frequencyIntervalId}
-                >
-                  Intervalo
-                </label>
-                <input
-                  className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm"
-                  defaultValue="1"
-                  id={frequencyIntervalId}
-                  min="1"
-                  max="365"
-                  name="frequencyInterval"
-                  type="number"
-                />
-                {formState.errors?.frequencyInterval ? (
-                  <p className="text-sm text-red-600">
-                    {formState.errors.frequencyInterval}
-                  </p>
-                ) : null}
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label
-                className="text-sm font-medium text-slate-800"
-                htmlFor={shiftTypeId}
-              >
-                Tipo de turno
-              </label>
-              <select
-                className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm"
-                id={shiftTypeId}
-                name="shiftType"
-              >
-                {SHIFT_TYPE_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-              {formState.errors?.shiftType ? (
-                <p className="text-sm text-red-600">
-                  {formState.errors.shiftType}
-                </p>
-              ) : null}
-            </div>
-
-            <div className="space-y-1">
-              <label
-                className="text-sm font-medium text-slate-800"
-                htmlFor={endDateId}
-              >
-                Fecha de fin (opcional)
-              </label>
-              <input
-                className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm"
-                id={endDateId}
-                name="endDate"
-                type="date"
-                min={startDateValue || undefined}
-              />
-              {formState.errors?.endDate ? (
-                <p className="text-sm text-red-600">
-                  {formState.errors.endDate}
-                </p>
-              ) : null}
-            </div>
-          </>
-        ) : null}
-
-        {/* Recurring other fields */}
-        {activeTab === "recurring-other" ? (
+        {/* Recurring-specific fields */}
+        {activeTab === "recurring" ? (
           <>
             <div className="space-y-1">
               <label
@@ -391,47 +327,49 @@ export function CreateEventForm({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label
-                  className="text-sm font-medium text-slate-800"
-                  htmlFor={startTimeId}
-                >
-                  Hora inicio (opcional)
-                </label>
-                <input
-                  className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm"
-                  id={startTimeId}
-                  name="startTime"
-                  type="time"
-                />
-                {formState.errors?.startTime ? (
-                  <p className="text-sm text-red-600">
-                    {formState.errors.startTime}
-                  </p>
-                ) : null}
-              </div>
+            {hasTimeFields ? (
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label
+                    className="text-sm font-medium text-slate-800"
+                    htmlFor={startTimeId}
+                  >
+                    Hora inicio (opcional)
+                  </label>
+                  <input
+                    className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm"
+                    id={startTimeId}
+                    name="startTime"
+                    type="time"
+                  />
+                  {formState.errors?.startTime ? (
+                    <p className="text-sm text-red-600">
+                      {formState.errors.startTime}
+                    </p>
+                  ) : null}
+                </div>
 
-              <div className="space-y-1">
-                <label
-                  className="text-sm font-medium text-slate-800"
-                  htmlFor={endTimeId}
-                >
-                  Hora fin (opcional)
-                </label>
-                <input
-                  className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm"
-                  id={endTimeId}
-                  name="endTime"
-                  type="time"
-                />
-                {formState.errors?.endTime ? (
-                  <p className="text-sm text-red-600">
-                    {formState.errors.endTime}
-                  </p>
-                ) : null}
+                <div className="space-y-1">
+                  <label
+                    className="text-sm font-medium text-slate-800"
+                    htmlFor={endTimeId}
+                  >
+                    Hora fin (opcional)
+                  </label>
+                  <input
+                    className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm"
+                    id={endTimeId}
+                    name="endTime"
+                    type="time"
+                  />
+                  {formState.errors?.endTime ? (
+                    <p className="text-sm text-red-600">
+                      {formState.errors.endTime}
+                    </p>
+                  ) : null}
+                </div>
               </div>
-            </div>
+            ) : null}
 
             <div className="space-y-1">
               <label

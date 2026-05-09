@@ -50,6 +50,8 @@ export default async function EditEventPage({
             date: event.date.toISOString().slice(0, 10),
             startTime: event.startTime ?? undefined,
             endTime: event.endTime ?? undefined,
+            category: event.category ?? undefined,
+            shiftType: event.shiftType?.value ?? undefined,
           }}
           redirectTo={redirectTo}
         />
@@ -58,41 +60,13 @@ export default async function EditEventPage({
   }
 
   const recurring = event as RecurringEvent;
-  const eventSubType: "recurring-work" | "recurring-other" =
-    recurring.category === "work" || recurring.category === "studies"
-      ? "recurring-work"
-      : "recurring-other";
-
-  if (eventSubType === "recurring-work") {
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-8">
-        <EditEventForm
-          action={editEventAction}
-          eventId={event.id}
-          eventType="recurring-work"
-          defaults={{
-            title: event.title,
-            description: event.description ?? undefined,
-            startDate: recurring.startDate.toISOString().slice(0, 10),
-            endDate: recurring.endDate?.toISOString().slice(0, 10) ?? undefined,
-            frequencyUnit: recurring.frequency.unit,
-            frequencyInterval: recurring.frequency.interval,
-            shiftType: recurring.shiftType?.value ?? undefined,
-          }}
-          redirectTo={redirectTo}
-          occurrenceDate={occurrenceDate}
-          hasExceptions={hasExceptions}
-        />
-      </div>
-    );
-  }
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
       <EditEventForm
         action={editEventAction}
         eventId={event.id}
-        eventType="recurring-other"
+        eventType="recurring"
         defaults={{
           title: event.title,
           description: event.description ?? undefined,
@@ -100,6 +74,8 @@ export default async function EditEventPage({
           endDate: recurring.endDate?.toISOString().slice(0, 10) ?? undefined,
           frequencyUnit: recurring.frequency.unit,
           frequencyInterval: recurring.frequency.interval,
+          category: recurring.category,
+          shiftType: recurring.shiftType?.value ?? undefined,
           startTime: recurring.startTime ?? undefined,
           endTime: recurring.endTime ?? undefined,
         }}
@@ -110,3 +86,4 @@ export default async function EditEventPage({
     </div>
   );
 }
+

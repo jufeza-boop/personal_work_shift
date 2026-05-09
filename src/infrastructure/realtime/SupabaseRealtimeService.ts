@@ -27,6 +27,8 @@ function mapEventRowToSerialized(row: EventRow): SerializedEvent {
       startTime: normalizeTime(row.start_time),
       title: row.title,
       type: "punctual",
+      category: row.category ?? null,
+      shiftType: row.shift_type ?? null,
     };
   }
 

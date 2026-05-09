@@ -30,6 +30,37 @@ describe("serializeEvent", () => {
     expect(result.id).toBe("evt-1");
     expect(result.date).toBe("2026-06-15");
     expect(result.createdBy).toBe("user-1");
+    expect(result.category).toBeNull();
+    expect(result.shiftType).toBeNull();
+  });
+
+  it("serializes a PunctualEvent with category and shiftType", () => {
+    const event = new PunctualEvent({
+      ...BASE_PROPS,
+      date: new Date("2026-06-15"),
+      category: "work",
+      shiftType: ShiftType.create("morning"),
+    });
+    const result = serializeEvent(event);
+
+    expect(result.type).toBe("punctual");
+    if (result.type !== "punctual") return;
+    expect(result.category).toBe("work");
+    expect(result.shiftType).toBe("morning");
+  });
+
+  it("serializes a PunctualEvent with vacations category", () => {
+    const event = new PunctualEvent({
+      ...BASE_PROPS,
+      date: new Date("2026-08-01"),
+      category: "vacations",
+    });
+    const result = serializeEvent(event);
+
+    expect(result.type).toBe("punctual");
+    if (result.type !== "punctual") return;
+    expect(result.category).toBe("vacations");
+    expect(result.shiftType).toBeNull();
   });
 
   it("serializes a RecurringEvent to a plain object", () => {
@@ -71,6 +102,8 @@ describe("getOccurrencesForMonth", () => {
         date: "2026-04-10",
         startTime: null,
         endTime: null,
+        category: null,
+        shiftType: null,
       },
     ];
 
@@ -94,6 +127,8 @@ describe("getOccurrencesForMonth", () => {
         date: "2026-05-01",
         startTime: null,
         endTime: null,
+        category: null,
+        shiftType: null,
       },
     ];
 
@@ -346,6 +381,54 @@ describe("getOccurrencesForMonth", () => {
 
     expect(result[0]?.shiftType).toBeNull();
     expect(result[0]?.category).toBe("other");
+  });
+
+  it("returns category and shiftType for punctual events with work category", () => {
+    const events = [
+      {
+        type: "punctual" as const,
+        id: "e1",
+        familyId: "f1",
+        createdBy: "u1",
+        title: "Extra shift",
+        description: null,
+        date: "2026-04-10",
+        startTime: null,
+        endTime: null,
+        category: "work" as const,
+        shiftType: "morning" as const,
+      },
+    ];
+
+    const result = getOccurrencesForMonth(events, 2026, 4);
+
+    expect(result).toHaveLength(1);
+    expect(result[0]?.category).toBe("work");
+    expect(result[0]?.shiftType).toBe("morning");
+  });
+
+  it("returns category=vacations for punctual vacations events", () => {
+    const events = [
+      {
+        type: "punctual" as const,
+        id: "e1",
+        familyId: "f1",
+        createdBy: "u1",
+        title: "Beach day",
+        description: null,
+        date: "2026-04-15",
+        startTime: null,
+        endTime: null,
+        category: "vacations" as const,
+        shiftType: null,
+      },
+    ];
+
+    const result = getOccurrencesForMonth(events, 2026, 4);
+
+    expect(result).toHaveLength(1);
+    expect(result[0]?.category).toBe("vacations");
+    expect(result[0]?.shiftType).toBeNull();
   });
 });
 

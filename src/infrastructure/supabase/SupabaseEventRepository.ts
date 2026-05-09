@@ -40,6 +40,8 @@ function mapEvent(row: EventRow): Event {
       startTime: normalizeTime(row.start_time),
       title: row.title,
       updatedAt: new Date(row.updated_at),
+      category: row.category ?? null,
+      shiftType: row.shift_type ? ShiftType.create(row.shift_type) : null,
     });
   }
 
@@ -78,6 +80,8 @@ function toRow(event: Event): Database["public"]["Tables"]["events"]["Insert"] {
       start_time: event.startTime,
       title: event.title,
       updated_at: event.updatedAt.toISOString(),
+      category: event.category ?? null,
+      shift_type: event.shiftType?.value ?? null,
     };
   }
 

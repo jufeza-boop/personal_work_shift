@@ -54,20 +54,28 @@ export function DayCell({
 }: DayCellProps) {
   const memberMap = new Map(members.map((m) => [m.userId, m]));
 
-  // Shift occurrences: recurring work/studies events — fill the entire day cell
+  // Shift occurrences: work/studies events with shift type — fill the entire day cell
   const shiftOccurrences = occurrences.filter(
     (o) =>
-      o.type === "recurring" &&
       (o.category === "work" || o.category === "studies") &&
       o.shiftType !== null,
   );
 
-  // Punctual events: shown as palette-colored text labels
-  const punctualOccurrences = occurrences.filter((o) => o.type === "punctual");
+  // Punctual events without shift: shown as palette-colored text labels
+  const punctualOccurrences = occurrences.filter(
+    (o) =>
+      o.type === "punctual" &&
+      !(
+        (o.category === "work" || o.category === "studies") &&
+        o.shiftType !== null
+      ),
+  );
 
-  // Other recurring events: shown as colored text labels
+  // Other/vacations recurring events: shown as colored text labels
   const otherOccurrences = occurrences.filter(
-    (o) => o.type === "recurring" && o.category === "other",
+    (o) =>
+      o.type === "recurring" &&
+      (o.category === "other" || o.category === "vacations"),
   );
 
   // Resolve one hex color per shift occurrence

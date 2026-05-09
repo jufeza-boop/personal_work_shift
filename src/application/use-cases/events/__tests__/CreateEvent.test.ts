@@ -90,6 +90,61 @@ describe("CreateEvent", () => {
         expect(event.endTime).toBe("11:30");
       }
     });
+
+    it("creates a punctual work event with category and shiftType", async () => {
+      const eventRepository = createEventRepository();
+      const familyRepository = createFamilyRepository();
+
+      vi.mocked(familyRepository.findById).mockResolvedValue(
+        makeFamilyWithMember("user-1"),
+      );
+
+      const useCase = new CreateEvent(eventRepository, familyRepository);
+      const result = await useCase.execute({
+        createdBy: "user-1",
+        date: new Date("2025-06-01T00:00:00.000Z"),
+        eventType: "punctual",
+        familyId: "family-1",
+        title: "Extra shift",
+        category: "work",
+        shiftType: "morning",
+      });
+
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      const event = result.data.event;
+      if (event.type === "punctual") {
+        expect(event.category).toBe("work");
+        expect(event.shiftType?.value).toBe("morning");
+      }
+    });
+
+    it("creates a punctual vacations event without shiftType", async () => {
+      const eventRepository = createEventRepository();
+      const familyRepository = createFamilyRepository();
+
+      vi.mocked(familyRepository.findById).mockResolvedValue(
+        makeFamilyWithMember("user-1"),
+      );
+
+      const useCase = new CreateEvent(eventRepository, familyRepository);
+      const result = await useCase.execute({
+        createdBy: "user-1",
+        date: new Date("2025-08-01T00:00:00.000Z"),
+        eventType: "punctual",
+        familyId: "family-1",
+        title: "Beach day",
+        category: "vacations",
+      });
+
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      const event = result.data.event;
+      if (event.type === "punctual") {
+        expect(event.category).toBe("vacations");
+        expect(event.shiftType).toBeNull();
+      }
+    });
   });
 
   describe("recurring work/studies event", () => {
@@ -249,6 +304,35 @@ describe("CreateEvent", () => {
       if (event.type === "recurring") {
         expect(event.startTime).toBe("18:00");
         expect(event.endTime).toBe("20:00");
+      }
+    });
+
+    it("creates a recurring vacations event", async () => {
+      const eventRepository = createEventRepository();
+      const familyRepository = createFamilyRepository();
+
+      vi.mocked(familyRepository.findById).mockResolvedValue(
+        makeFamilyWithMember("user-1"),
+      );
+
+      const useCase = new CreateEvent(eventRepository, familyRepository);
+      const result = await useCase.execute({
+        category: "vacations",
+        createdBy: "user-1",
+        eventType: "recurring",
+        familyId: "family-1",
+        frequencyInterval: 1,
+        frequencyUnit: "annual",
+        startDate: new Date("2025-07-01T00:00:00.000Z"),
+        title: "Summer vacation",
+      });
+
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      const event = result.data.event;
+      if (event.type === "recurring") {
+        expect(event.category).toBe("vacations");
+        expect(event.shiftType).toBeNull();
       }
     });
   });

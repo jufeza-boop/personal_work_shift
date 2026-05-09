@@ -14,43 +14,49 @@ interface EditPunctualEventDefaults {
   date: string;
   startTime?: string;
   endTime?: string;
-}
-
-interface EditRecurringWorkEventDefaults {
-  title: string;
-  description?: string;
-  startDate: string;
-  endDate?: string;
-  frequencyUnit: string;
-  frequencyInterval: number;
+  category?: string;
   shiftType?: string;
 }
 
-interface EditRecurringOtherEventDefaults {
+interface EditRecurringEventDefaults {
   title: string;
   description?: string;
   startDate: string;
   endDate?: string;
   frequencyUnit: string;
   frequencyInterval: number;
+  category?: string;
+  shiftType?: string;
   startTime?: string;
   endTime?: string;
 }
 
+/** @deprecated Use EditRecurringEventDefaults */
+type EditRecurringWorkEventDefaults = EditRecurringEventDefaults;
+/** @deprecated Use EditRecurringEventDefaults */
+type EditRecurringOtherEventDefaults = EditRecurringEventDefaults;
+
 type EditEventDefaults =
   | EditPunctualEventDefaults
-  | EditRecurringWorkEventDefaults
-  | EditRecurringOtherEventDefaults;
+  | EditRecurringEventDefaults;
 
 interface EditEventFormProps {
   action: EventFormAction;
   eventId: string;
-  eventType: "punctual" | "recurring-work" | "recurring-other";
+  eventType: "punctual" | "recurring";
   defaults: EditEventDefaults;
   redirectTo: string;
   occurrenceDate?: string;
   hasExceptions?: boolean;
 }
+
+const CATEGORY_OPTIONS: { label: string; value: string }[] = [
+  { label: "Sin categoría", value: "" },
+  { label: "Trabajo", value: "work" },
+  { label: "Estudios", value: "studies" },
+  { label: "Vacaciones", value: "vacations" },
+  { label: "Otro", value: "other" },
+];
 
 export function EditEventForm({
   action,
@@ -68,11 +74,14 @@ export function EditEventForm({
   const formRef = useRef<HTMLFormElement>(null);
   const confirmedRef = useRef(false);
 
-  const isRecurring =
-    eventType === "recurring-work" || eventType === "recurring-other";
+  const isRecurring = eventType === "recurring";
 
   const recurringDefaults = isRecurring
-    ? (defaults as EditRecurringWorkEventDefaults)
+    ? (defaults as EditRecurringEventDefaults)
+    : null;
+
+  const punctualDefaults = !isRecurring
+    ? (defaults as EditPunctualEventDefaults)
     : null;
 
   const [startDate, setStartDate] = useState(
@@ -84,6 +93,19 @@ export function EditEventForm({
   const [frequencyInterval, setFrequencyInterval] = useState(
     recurringDefaults?.frequencyInterval ?? 1,
   );
+
+  const initialCategory = isRecurring
+    ? (recurringDefaults?.category ?? "")
+    : (punctualDefaults?.category ?? "");
+
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
+
+  const needsShiftType =
+    selectedCategory === "work" || selectedCategory === "studies";
+  const hasTimeFields =
+    selectedCategory === "" ||
+    selectedCategory === "vacations" ||
+    selectedCategory === "other";
 
   const willLoseExceptions =
     hasExceptions === true &&
@@ -233,197 +255,259 @@ export function EditEventForm({
                 id="date"
                 name="date"
                 type="date"
-                defaultValue={(defaults as EditPunctualEventDefaults).date}
+                defaultValue={punctualDefaults?.date ?? ""}
                 className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
               />
               {state.errors?.date && (
                 <p className="text-xs text-red-500">{state.errors.date}</p>
               )}
             </div>
-            <div className="space-y-1">
-              <label
-                htmlFor="startTime"
-                className="text-sm font-medium text-slate-700"
-              >
-                Hora de inicio (opcional)
-              </label>
-              <input
-                id="startTime"
-                name="startTime"
-                type="time"
-                defaultValue={
-                  (defaults as EditPunctualEventDefaults).startTime ?? ""
-                }
-                className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
-              />
-            </div>
-            <div className="space-y-1">
-              <label
-                htmlFor="endTime"
-                className="text-sm font-medium text-slate-700"
-              >
-                Hora de fin (opcional)
-              </label>
-              <input
-                id="endTime"
-                name="endTime"
-                type="time"
-                defaultValue={
-                  (defaults as EditPunctualEventDefaults).endTime ?? ""
-                }
-                className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
-              />
-            </div>
-          </>
-        )}
 
-        {(eventType === "recurring-work" || eventType === "recurring-other") &&
-          scope === "all" && (
-            <>
+            <div className="space-y-1">
+              <label
+                htmlFor="category"
+                className="text-sm font-medium text-slate-700"
+              >
+                Categoría (opcional)
+              </label>
+              <select
+                id="category"
+                name="category"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
+              >
+                {CATEGORY_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+              {state.errors?.category && (
+                <p className="text-xs text-red-500">{state.errors.category}</p>
+              )}
+            </div>
+
+            {needsShiftType && (
               <div className="space-y-1">
                 <label
-                  htmlFor="startDate"
+                  htmlFor="shiftType"
                   className="text-sm font-medium text-slate-700"
                 >
-                  Fecha de inicio
+                  Tipo de turno
                 </label>
-                <input
-                  id="startDate"
-                  name="startDate"
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
+                <select
+                  id="shiftType"
+                  name="shiftType"
+                  defaultValue={punctualDefaults?.shiftType ?? ""}
                   className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
-                />
-                {state.errors?.startDate && (
+                >
+                  <option value="morning">Mañana</option>
+                  <option value="day">Día</option>
+                  <option value="afternoon">Tarde</option>
+                  <option value="night">Noche</option>
+                </select>
+                {state.errors?.shiftType && (
                   <p className="text-xs text-red-500">
-                    {state.errors.startDate}
+                    {state.errors.shiftType}
                   </p>
                 )}
               </div>
-              <div className="space-y-1">
-                <label
-                  htmlFor="endDate"
-                  className="text-sm font-medium text-slate-700"
-                >
-                  Fecha de fin (opcional)
-                </label>
-                <input
-                  id="endDate"
-                  name="endDate"
-                  type="date"
-                  defaultValue={
-                    (defaults as EditRecurringWorkEventDefaults).endDate ?? ""
-                  }
-                  min={startDate || undefined}
-                  className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
-                />
-              </div>
-              <div className="space-y-1">
-                <label
-                  htmlFor="frequencyUnit"
-                  className="text-sm font-medium text-slate-700"
-                >
-                  Frecuencia
-                </label>
-                <select
-                  id="frequencyUnit"
-                  name="frequencyUnit"
-                  value={frequencyUnit}
-                  onChange={(e) => setFrequencyUnit(e.target.value)}
-                  className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
-                >
-                  <option value="daily">Diario</option>
-                  <option value="weekly">Semanal</option>
-                  <option value="annual">Anual</option>
-                </select>
-              </div>
-              <div className="space-y-1">
-                <label
-                  htmlFor="frequencyInterval"
-                  className="text-sm font-medium text-slate-700"
-                >
-                  Intervalo
-                </label>
-                <input
-                  id="frequencyInterval"
-                  name="frequencyInterval"
-                  type="number"
-                  min={1}
-                  max={365}
-                  value={frequencyInterval}
-                  onChange={(e) => setFrequencyInterval(Number(e.target.value))}
-                  className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
-                />
-              </div>
+            )}
 
-              {eventType === "recurring-work" && (
+            {hasTimeFields && (
+              <>
                 <div className="space-y-1">
                   <label
-                    htmlFor="shiftType"
+                    htmlFor="startTime"
                     className="text-sm font-medium text-slate-700"
                   >
-                    Tipo de turno
+                    Hora de inicio (opcional)
                   </label>
-                  <select
-                    id="shiftType"
-                    name="shiftType"
-                    defaultValue={
-                      (defaults as EditRecurringWorkEventDefaults).shiftType ??
-                      ""
-                    }
+                  <input
+                    id="startTime"
+                    name="startTime"
+                    type="time"
+                    defaultValue={punctualDefaults?.startTime ?? ""}
                     className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
-                  >
-                    <option value="morning">Mañana</option>
-                    <option value="day">Día</option>
-                    <option value="afternoon">Tarde</option>
-                    <option value="night">Noche</option>
-                  </select>
+                  />
                 </div>
-              )}
+                <div className="space-y-1">
+                  <label
+                    htmlFor="endTime"
+                    className="text-sm font-medium text-slate-700"
+                  >
+                    Hora de fin (opcional)
+                  </label>
+                  <input
+                    id="endTime"
+                    name="endTime"
+                    type="time"
+                    defaultValue={punctualDefaults?.endTime ?? ""}
+                    className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
+                  />
+                </div>
+              </>
+            )}
+          </>
+        )}
 
-              {eventType === "recurring-other" && (
-                <>
-                  <div className="space-y-1">
-                    <label
-                      htmlFor="startTime"
-                      className="text-sm font-medium text-slate-700"
-                    >
-                      Hora de inicio (opcional)
-                    </label>
-                    <input
-                      id="startTime"
-                      name="startTime"
-                      type="time"
-                      defaultValue={
-                        (defaults as EditRecurringOtherEventDefaults)
-                          .startTime ?? ""
-                      }
-                      className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label
-                      htmlFor="endTime"
-                      className="text-sm font-medium text-slate-700"
-                    >
-                      Hora de fin (opcional)
-                    </label>
-                    <input
-                      id="endTime"
-                      name="endTime"
-                      type="time"
-                      defaultValue={
-                        (defaults as EditRecurringOtherEventDefaults).endTime ??
-                        ""
-                      }
-                      className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
-                    />
-                  </div>
-                </>
+        {isRecurring && scope === "all" && (
+          <>
+            <div className="space-y-1">
+              <label
+                htmlFor="startDate"
+                className="text-sm font-medium text-slate-700"
+              >
+                Fecha de inicio
+              </label>
+              <input
+                id="startDate"
+                name="startDate"
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
+              />
+              {state.errors?.startDate && (
+                <p className="text-xs text-red-500">
+                  {state.errors.startDate}
+                </p>
               )}
-            </>
-          )}
+            </div>
+            <div className="space-y-1">
+              <label
+                htmlFor="endDate"
+                className="text-sm font-medium text-slate-700"
+              >
+                Fecha de fin (opcional)
+              </label>
+              <input
+                id="endDate"
+                name="endDate"
+                type="date"
+                defaultValue={recurringDefaults?.endDate ?? ""}
+                min={startDate || undefined}
+                className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
+              />
+            </div>
+            <div className="space-y-1">
+              <label
+                htmlFor="frequencyUnit"
+                className="text-sm font-medium text-slate-700"
+              >
+                Frecuencia
+              </label>
+              <select
+                id="frequencyUnit"
+                name="frequencyUnit"
+                value={frequencyUnit}
+                onChange={(e) => setFrequencyUnit(e.target.value)}
+                className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
+              >
+                <option value="daily">Diario</option>
+                <option value="weekly">Semanal</option>
+                <option value="annual">Anual</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label
+                htmlFor="frequencyInterval"
+                className="text-sm font-medium text-slate-700"
+              >
+                Intervalo
+              </label>
+              <input
+                id="frequencyInterval"
+                name="frequencyInterval"
+                type="number"
+                min={1}
+                max={365}
+                value={frequencyInterval}
+                onChange={(e) => setFrequencyInterval(Number(e.target.value))}
+                className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
+              />
+            </div>
+            <div className="space-y-1">
+              <label
+                htmlFor="category"
+                className="text-sm font-medium text-slate-700"
+              >
+                Categoría
+              </label>
+              <select
+                id="category"
+                name="category"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
+              >
+                {CATEGORY_OPTIONS.filter((opt) => opt.value !== "").map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {needsShiftType && (
+              <div className="space-y-1">
+                <label
+                  htmlFor="shiftType"
+                  className="text-sm font-medium text-slate-700"
+                >
+                  Tipo de turno
+                </label>
+                <select
+                  id="shiftType"
+                  name="shiftType"
+                  defaultValue={recurringDefaults?.shiftType ?? ""}
+                  className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
+                >
+                  <option value="morning">Mañana</option>
+                  <option value="day">Día</option>
+                  <option value="afternoon">Tarde</option>
+                  <option value="night">Noche</option>
+                </select>
+              </div>
+            )}
+
+            {hasTimeFields && (
+              <>
+                <div className="space-y-1">
+                  <label
+                    htmlFor="startTime"
+                    className="text-sm font-medium text-slate-700"
+                  >
+                    Hora de inicio (opcional)
+                  </label>
+                  <input
+                    id="startTime"
+                    name="startTime"
+                    type="time"
+                    defaultValue={recurringDefaults?.startTime ?? ""}
+                    className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label
+                    htmlFor="endTime"
+                    className="text-sm font-medium text-slate-700"
+                  >
+                    Hora de fin (opcional)
+                  </label>
+                  <input
+                    id="endTime"
+                    name="endTime"
+                    type="time"
+                    defaultValue={recurringDefaults?.endTime ?? ""}
+                    className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
+                  />
+                </div>
+              </>
+            )}
+          </>
+        )}
 
         {isRecurring && scope === "single" && (
           <>
@@ -546,3 +630,5 @@ export function EditEventForm({
     </section>
   );
 }
+
+export type { EditPunctualEventDefaults, EditRecurringEventDefaults, EditRecurringWorkEventDefaults, EditRecurringOtherEventDefaults };

@@ -12,7 +12,7 @@ export interface Database {
       event_frequency_unit: "daily" | "weekly" | "annual";
       event_type: "punctual" | "recurring";
       family_member_role: "owner" | "member" | "delegated";
-      recurring_event_category: "work" | "studies" | "other";
+      recurring_event_category: "work" | "studies" | "vacations" | "other";
       shift_type: "morning" | "day" | "afternoon" | "night";
     };
     Tables: {

@@ -3,6 +3,7 @@ import { EventException } from "@/domain/entities/EventException";
 import type { EventExceptionOverrideData } from "@/domain/entities/EventException";
 import { PunctualEvent } from "@/domain/entities/PunctualEvent";
 import { RecurringEvent } from "@/domain/entities/RecurringEvent";
+import type { EventCategory } from "@/domain/entities/RecurringEvent";
 import { ValidationError } from "@/domain/errors/DomainError";
 import type { IEventRepository } from "@/domain/repositories/IEventRepository";
 import { EventFrequency } from "@/domain/value-objects/EventFrequency";
@@ -20,6 +21,7 @@ export type EditEventInput =
       endDate?: Date | null;
       frequencyUnit?: "daily" | "weekly" | "annual";
       frequencyInterval?: number;
+      category?: EventCategory | null;
       shiftType?: string | null;
       startTime?: string | null;
       endTime?: string | null;
@@ -90,6 +92,16 @@ export class EditEvent {
                 : punctual.startTime,
             endTime:
               input.endTime !== undefined ? input.endTime : punctual.endTime,
+            category:
+              input.category !== undefined
+                ? input.category
+                : punctual.category,
+            shiftType:
+              input.shiftType !== undefined
+                ? input.shiftType
+                  ? ShiftType.create(input.shiftType)
+                  : null
+                : punctual.shiftType,
             createdAt: event.createdAt,
             updatedAt: new Date(),
           });
