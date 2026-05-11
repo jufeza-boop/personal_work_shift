@@ -592,7 +592,6 @@ export function EditEventForm({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <dialog
             open
-            role="dialog"
             aria-labelledby="confirm-dialog-title"
             className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"
           >

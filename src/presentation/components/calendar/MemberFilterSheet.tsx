@@ -49,7 +49,6 @@ export function MemberFilterSheet({
         aria-label="Filtrar miembros"
         aria-modal="true"
         open={isOpen}
-        aria-hidden={!isOpen}
         className={`fixed inset-x-0 bottom-0 z-50 flex flex-col rounded-t-2xl bg-white shadow-2xl transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-y-0" : "pointer-events-none translate-y-full"
         }`}
