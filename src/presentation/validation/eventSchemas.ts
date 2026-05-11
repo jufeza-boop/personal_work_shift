@@ -25,12 +25,18 @@ function isShiftTypeAbsent(data: { category?: string; shiftType?: string }) {
 
 const SHIFT_TYPE_REQUIRED_REFINEMENT = {
   fn: isShiftTypeValid,
-  opts: { message: "Selecciona un tipo de turno.", path: ["shiftType"] as string[] },
+  opts: {
+    message: "Selecciona un tipo de turno.",
+    path: ["shiftType"] as string[],
+  },
 };
 
 const SHIFT_TYPE_PROHIBITED_REFINEMENT = {
   fn: isShiftTypeAbsent,
-  opts: { message: "Esta categoría no admite tipo de turno.", path: ["shiftType"] as string[] },
+  opts: {
+    message: "Esta categoría no admite tipo de turno.",
+    path: ["shiftType"] as string[],
+  },
 };
 
 export const createPunctualEventSchema = z
@@ -51,8 +57,14 @@ export const createPunctualEventSchema = z
     category: z.enum(CATEGORIES).optional(),
     shiftType: z.enum(SHIFT_TYPES).optional().or(z.literal("")),
   })
-  .refine(SHIFT_TYPE_REQUIRED_REFINEMENT.fn, SHIFT_TYPE_REQUIRED_REFINEMENT.opts)
-  .refine(SHIFT_TYPE_PROHIBITED_REFINEMENT.fn, SHIFT_TYPE_PROHIBITED_REFINEMENT.opts);
+  .refine(
+    SHIFT_TYPE_REQUIRED_REFINEMENT.fn,
+    SHIFT_TYPE_REQUIRED_REFINEMENT.opts,
+  )
+  .refine(
+    SHIFT_TYPE_PROHIBITED_REFINEMENT.fn,
+    SHIFT_TYPE_PROHIBITED_REFINEMENT.opts,
+  );
 
 export const createRecurringEventSchema = z
   .object({
@@ -67,7 +79,11 @@ export const createRecurringEventSchema = z
       .regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/)
       .optional()
       .or(z.literal("")),
-    frequencyInterval: z.coerce.number().int().min(1).max(MAX_FREQUENCY_INTERVAL),
+    frequencyInterval: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(MAX_FREQUENCY_INTERVAL),
     frequencyUnit: z.enum(FREQUENCY_UNITS),
     startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha inválida."),
     startTime: z
@@ -79,8 +95,14 @@ export const createRecurringEventSchema = z
     category: z.enum(CATEGORIES, { message: "Selecciona una categoría." }),
     shiftType: z.enum(SHIFT_TYPES).optional().or(z.literal("")),
   })
-  .refine(SHIFT_TYPE_REQUIRED_REFINEMENT.fn, SHIFT_TYPE_REQUIRED_REFINEMENT.opts)
-  .refine(SHIFT_TYPE_PROHIBITED_REFINEMENT.fn, SHIFT_TYPE_PROHIBITED_REFINEMENT.opts);
+  .refine(
+    SHIFT_TYPE_REQUIRED_REFINEMENT.fn,
+    SHIFT_TYPE_REQUIRED_REFINEMENT.opts,
+  )
+  .refine(
+    SHIFT_TYPE_PROHIBITED_REFINEMENT.fn,
+    SHIFT_TYPE_PROHIBITED_REFINEMENT.opts,
+  );
 
 // Keep old schema names as aliases for backward compatibility during transition
 /** @deprecated Use createRecurringEventSchema */
@@ -132,8 +154,14 @@ export const editPunctualEventSchema = editEventBaseSchema
     category: z.enum(CATEGORIES).optional().or(z.literal("")),
     shiftType: z.enum(SHIFT_TYPES).optional().or(z.literal("")),
   })
-  .refine(SHIFT_TYPE_REQUIRED_REFINEMENT.fn, SHIFT_TYPE_REQUIRED_REFINEMENT.opts)
-  .refine(SHIFT_TYPE_PROHIBITED_REFINEMENT.fn, SHIFT_TYPE_PROHIBITED_REFINEMENT.opts);
+  .refine(
+    SHIFT_TYPE_REQUIRED_REFINEMENT.fn,
+    SHIFT_TYPE_REQUIRED_REFINEMENT.opts,
+  )
+  .refine(
+    SHIFT_TYPE_PROHIBITED_REFINEMENT.fn,
+    SHIFT_TYPE_PROHIBITED_REFINEMENT.opts,
+  );
 
 export const editRecurringEventSchema = editEventBaseSchema.extend({
   title: z.string().trim().min(1, "El título es obligatorio.").max(200),
@@ -150,7 +178,10 @@ export const editRecurringEventSchema = editEventBaseSchema.extend({
   frequencyUnit: z.enum(["daily", "weekly", "annual"]).optional(),
   frequencyInterval: z.coerce.number().int().min(1).max(365).optional(),
   category: z.enum(CATEGORIES).optional(),
-  shiftType: z.enum(["morning", "day", "afternoon", "night"]).optional().or(z.literal("")),
+  shiftType: z
+    .enum(["morning", "day", "afternoon", "night"])
+    .optional()
+    .or(z.literal("")),
   startTime: z
     .string()
     .regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/)
@@ -168,4 +199,3 @@ export const editRecurringEventSchema = editEventBaseSchema.extend({
 export const editRecurringWorkEventSchema = editRecurringEventSchema;
 /** @deprecated Use editRecurringEventSchema */
 export const editRecurringOtherEventSchema = editRecurringEventSchema;
-

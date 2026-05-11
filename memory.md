@@ -44,8 +44,6 @@
   - Test seed still works with `npx supabase db reset`
   - Consider E2E tests for new punctual event creation with category/shift flow
 
-
-
 - **What was done**:
   - `CreateEventForm.tsx`: Added `startDateValue` state; both recurring-work and recurring-other tabs now set `min={startDateValue}` on their end-date inputs and track `onChange` on start-date. State resets when switching tabs.
   - `EditEventForm.tsx`: Existing `startDate` state now passed as `min` to the end-date input.
@@ -59,7 +57,9 @@
 - **Tests added**: 10 new tests across `EditEventForm.test.tsx`, `DayCreateEventForm.test.tsx`, and `DayDetailPanel.test.tsx`. Updated one existing test whose expected edit-link href changed.
 
 ---
+
 =======
+
 ### 2026-05-08 - Supabase Email Confirmation Temporarily Disabled
 
 - **What was done**:
@@ -69,7 +69,7 @@
   - Deferred paid SMTP setup to avoid infrastructure cost during current project stage.
 - **Next steps**:
   - Re-enable email confirmation once a dedicated SMTP provider is configured.
->>>>>>> main
+    > > > > > > > main
 
 ### 2026-04-29 - Touch Swipe Navigation (CalendarGrid)
 

@@ -36,9 +36,7 @@ type EditRecurringWorkEventDefaults = EditRecurringEventDefaults;
 /** @deprecated Use EditRecurringEventDefaults */
 type EditRecurringOtherEventDefaults = EditRecurringEventDefaults;
 
-type EditEventDefaults =
-  | EditPunctualEventDefaults
-  | EditRecurringEventDefaults;
+type EditEventDefaults = EditPunctualEventDefaults | EditRecurringEventDefaults;
 
 interface EditEventFormProps {
   action: EventFormAction;
@@ -374,9 +372,7 @@ export function EditEventForm({
                 className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
               />
               {state.errors?.startDate && (
-                <p className="text-xs text-red-500">
-                  {state.errors.startDate}
-                </p>
+                <p className="text-xs text-red-500">{state.errors.startDate}</p>
               )}
             </div>
             <div className="space-y-1">
@@ -635,4 +631,9 @@ export function EditEventForm({
   );
 }
 
-export type { EditPunctualEventDefaults, EditRecurringEventDefaults, EditRecurringWorkEventDefaults, EditRecurringOtherEventDefaults };
+export type {
+  EditPunctualEventDefaults,
+  EditRecurringEventDefaults,
+  EditRecurringWorkEventDefaults,
+  EditRecurringOtherEventDefaults,
+};

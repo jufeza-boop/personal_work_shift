@@ -5,9 +5,11 @@ import { DeleteAccount } from "@/application/use-cases/auth/DeleteAccount";
 import { LoginUser } from "@/application/use-cases/auth/LoginUser";
 import { LogoutUser } from "@/application/use-cases/auth/LogoutUser";
 import { RegisterUser } from "@/application/use-cases/auth/RegisterUser";
-import { createServerAuthDependencies } from "@/infrastructure/auth/runtime";
-import { getAuthenticatedUser } from "@/infrastructure/auth/runtime";
-import { isMockAuthEnabled } from "@/infrastructure/auth/runtime";
+import {
+  getAuthenticatedUser,
+  isMockAuthEnabled,
+  createServerAuthDependencies,
+} from "@/infrastructure/auth/runtime";
 import { authRateLimiter } from "@/infrastructure/security/authRateLimiter";
 import { getClientIp } from "@/infrastructure/security/getClientIp";
 import {
@@ -195,8 +197,8 @@ export async function requestPasswordResetAction(
   void _previousState;
 
   const email = formData.get("email")?.toString().trim().toLowerCase() ?? "";
-
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!email || email.length > 254 || !emailRegex.test(email)) {
     return {
       errors: { email: "Introduce un correo electrónico válido." },
       success: false,

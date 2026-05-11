@@ -83,4 +83,3 @@ describe("RecurringEvent", () => {
     ).toThrow("Recurring other/vacations events cannot define a shift type");
   });
 });
-

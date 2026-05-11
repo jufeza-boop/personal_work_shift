@@ -98,11 +98,13 @@ export function DayCell({
 
   // Vacation stripe: use lightest palette tone of the first vacation member.
   // Only fills the cell background when no shift events are present.
-  const firstVacationColor = vacationOccurrences.length > 0
-    ? getVacationColor(
-        memberMap.get(vacationOccurrences[0]!.createdBy)?.colorPaletteName ?? null,
-      ) ?? "#E0F2FE"
-    : null;
+  const firstVacationColor =
+    vacationOccurrences.length > 0
+      ? (getVacationColor(
+          memberMap.get(vacationOccurrences[0]!.createdBy)?.colorPaletteName ??
+            null,
+        ) ?? "#E0F2FE")
+      : null;
   const hasVacationFill = firstVacationColor !== null && !hasShiftBg;
   const vacationStripeBg = hasVacationFill
     ? `repeating-linear-gradient(45deg, ${firstVacationColor} 0px, ${firstVacationColor} 6px, #ffffff 6px, #ffffff 12px)`

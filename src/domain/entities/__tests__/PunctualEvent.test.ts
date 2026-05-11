@@ -167,4 +167,3 @@ describe("PunctualEvent", () => {
     ).toThrow("Punctual event shift type requires a category");
   });
 });
-

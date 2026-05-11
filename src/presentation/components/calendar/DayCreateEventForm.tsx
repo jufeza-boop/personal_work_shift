@@ -188,19 +188,17 @@ export function DayCreateEventForm({
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
           >
-            {activeTab === "punctual" ? (
-              CATEGORY_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))
-            ) : (
-              CATEGORY_OPTIONS_REQUIRED.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))
-            )}
+            {activeTab === "punctual"
+              ? CATEGORY_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))
+              : CATEGORY_OPTIONS_REQUIRED.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
           </select>
           {formState.errors?.category && (
             <p className="text-xs text-red-600">{formState.errors.category}</p>
@@ -360,4 +358,3 @@ export function DayCreateEventForm({
     </div>
   );
 }
-

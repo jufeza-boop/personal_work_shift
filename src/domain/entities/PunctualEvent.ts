@@ -35,19 +35,13 @@ export class PunctualEvent extends Event {
     const category = props.category ?? null;
     const shiftType = props.shiftType ?? null;
 
-    if (
-      (category === "work" || category === "studies") &&
-      !shiftType
-    ) {
+    if ((category === "work" || category === "studies") && !shiftType) {
       throw new ValidationError(
         "Punctual work or studies events require a shift type",
       );
     }
 
-    if (
-      (category === "other" || category === "vacations") &&
-      shiftType
-    ) {
+    if ((category === "other" || category === "vacations") && shiftType) {
       throw new ValidationError(
         "Punctual other/vacations events cannot define a shift type",
       );

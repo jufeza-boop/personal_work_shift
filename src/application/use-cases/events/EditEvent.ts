@@ -93,9 +93,7 @@ export class EditEvent {
             endTime:
               input.endTime !== undefined ? input.endTime : punctual.endTime,
             category:
-              input.category !== undefined
-                ? input.category
-                : punctual.category,
+              input.category !== undefined ? input.category : punctual.category,
             shiftType:
               input.shiftType !== undefined
                 ? input.shiftType
