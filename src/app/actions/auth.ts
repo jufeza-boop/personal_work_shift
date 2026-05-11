@@ -19,6 +19,8 @@ import {
 import {
   loginSchema,
   registerSchema,
+  PASSWORD_POLICY_REGEX,
+  PASSWORD_POLICY_MESSAGE,
 } from "@/presentation/validation/authSchemas";
 import { sanitizeRedirectPath } from "@/shared/auth/routeProtection";
 
@@ -83,8 +85,7 @@ export async function registerAction(
     if (result.error.code === "WEAK_PASSWORD") {
       return {
         errors: {
-          password:
-            "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.",
+          password: PASSWORD_POLICY_MESSAGE,
         },
         success: false,
       };
@@ -270,13 +271,12 @@ export async function updatePasswordAction(
   const password = formData.get("password")?.toString() ?? "";
   const confirmPassword = formData.get("confirmPassword")?.toString() ?? "";
 
-  const passwordPolicy = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+  const passwordPolicy = PASSWORD_POLICY_REGEX;
 
   if (!passwordPolicy.test(password)) {
     return {
       errors: {
-        password:
-          "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.",
+        password: PASSWORD_POLICY_MESSAGE,
       },
       success: false,
     };
@@ -304,8 +304,7 @@ export async function updatePasswordAction(
     if (result.error.code === "WEAK_PASSWORD") {
       return {
         errors: {
-          password:
-            "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.",
+          password: PASSWORD_POLICY_MESSAGE,
         },
         success: false,
       };

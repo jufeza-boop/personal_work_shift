@@ -6,8 +6,9 @@ import { CreateEvent } from "@/application/use-cases/events/CreateEvent";
 import { DeleteEvent } from "@/application/use-cases/events/DeleteEvent";
 import { EditEvent } from "@/application/use-cases/events/EditEvent";
 import type { EventChangeType } from "@/application/use-cases/push/SendEventNotification";
-import { getAuthenticatedUser } from "@/infrastructure/auth/runtime";
-import { createServerEventDependencies } from "@/infrastructure/events/runtime";
+import {
+  createServerEventDependencies,
+} from "@/infrastructure/events/runtime";
 import { createServerPushDependencies } from "@/infrastructure/push/runtime";
 import { notifyFamilyOnEventChange } from "@/application/services/notifyFamilyOnEventChange";
 import {
@@ -21,6 +22,7 @@ import {
   editRecurringEventSchema,
 } from "@/presentation/validation/eventSchemas";
 import { sanitizeRedirectPath } from "@/shared/auth/routeProtection";
+import { requireAuthenticatedUser } from "@/shared/auth/requireAuthenticatedUser";
 
 /**
  * Thin wrapper that resolves server-side dependencies and delegates to the
@@ -56,16 +58,6 @@ async function dispatchFamilyNotification(
       error,
     );
   }
-}
-
-async function requireAuthenticatedUser(redirectTo: string) {
-  const user = await getAuthenticatedUser();
-
-  if (!user) {
-    redirect(`/login?redirectTo=${encodeURIComponent(redirectTo)}`);
-  }
-
-  return user;
 }
 
 /**

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type {
   CalendarOccurrence,
   SerializedEvent,
@@ -41,27 +41,33 @@ export function useCalendarEvents({
     new Set(),
   );
 
-  const navigate = (delta: number) => {
-    const date = new Date(Date.UTC(year, month - 1 + delta, 1));
-    setYear(date.getUTCFullYear());
-    setMonth(date.getUTCMonth() + 1);
-  };
+  const navigate = useCallback(
+    (delta: number) => {
+      const date = new Date(Date.UTC(year, month - 1 + delta, 1));
+      setYear(date.getUTCFullYear());
+      setMonth(date.getUTCMonth() + 1);
+    },
+    [year, month],
+  );
 
-  const toggleMember = (userId: string) => {
-    setHiddenMemberIds((prev) => {
-      const visibleCount = members.filter((m) => !prev.has(m.userId)).length;
+  const toggleMember = useCallback(
+    (userId: string) => {
+      setHiddenMemberIds((prev) => {
+        const visibleCount = members.filter((m) => !prev.has(m.userId)).length;
 
-      const next = new Set(prev);
-      if (next.has(userId)) {
-        next.delete(userId);
-      } else {
-        // At least one member must remain visible
-        if (visibleCount <= 1) return prev;
-        next.add(userId);
-      }
-      return next;
-    });
-  };
+        const next = new Set(prev);
+        if (next.has(userId)) {
+          next.delete(userId);
+        } else {
+          // At least one member must remain visible
+          if (visibleCount <= 1) return prev;
+          next.add(userId);
+        }
+        return next;
+      });
+    },
+    [members],
+  );
 
   const visibleMembers = members.filter((m) => !hiddenMemberIds.has(m.userId));
 

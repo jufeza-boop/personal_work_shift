@@ -89,6 +89,9 @@ export interface CalendarOccurrence {
 // Helpers
 // ---------------------------------------------------------------------------
 
+/** Milliseconds in one calendar day (UTC). */
+const MS_PER_DAY = 86_400_000;
+
 /** Returns the UTC calendar date as YYYY-MM-DD. */
 function toDateString(date: Date): string {
   return date.toISOString().slice(0, 10);
@@ -135,10 +138,10 @@ function getRecurringDatesInRange(
 
   if (diff > 0) {
     if (frequencyUnit === "daily") {
-      const steps = Math.floor(diff / (frequencyInterval * 86_400_000));
+      const steps = Math.floor(diff / (frequencyInterval * MS_PER_DAY));
       current.setUTCDate(current.getUTCDate() + steps * frequencyInterval);
     } else if (frequencyUnit === "weekly") {
-      const steps = Math.floor(diff / (frequencyInterval * 7 * 86_400_000));
+      const steps = Math.floor(diff / (frequencyInterval * 7 * MS_PER_DAY));
       current.setUTCDate(current.getUTCDate() + steps * frequencyInterval * 7);
     } else {
       // annual

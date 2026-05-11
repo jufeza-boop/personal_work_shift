@@ -15,7 +15,6 @@ import { RenameDelegatedUser } from "@/application/use-cases/family/RenameDelega
 import { RenameFamily } from "@/application/use-cases/family/RenameFamily";
 import { SelectPalette } from "@/application/use-cases/family/SelectPalette";
 import { SwitchFamily } from "@/application/use-cases/family/SwitchFamily";
-import { getAuthenticatedUser } from "@/infrastructure/auth/runtime";
 import { createServerFamilyDependencies } from "@/infrastructure/family/runtime";
 import {
   EMPTY_FAMILY_FORM_STATE,
@@ -29,6 +28,7 @@ import {
   selectPaletteSchema,
 } from "@/presentation/validation/familySchemas";
 import { sanitizeRedirectPath } from "@/shared/auth/routeProtection";
+import { requireAuthenticatedUser } from "@/shared/auth/requireAuthenticatedUser";
 import { ACTIVE_FAMILY_COOKIE } from "@/shared/family/activeFamily";
 
 function toFieldErrors(
@@ -42,22 +42,15 @@ function toFieldErrors(
   };
 }
 
-async function requireAuthenticatedUser(redirectTo: string) {
-  const user = await getAuthenticatedUser();
-
-  if (!user) {
-    redirect(`/login?redirectTo=${encodeURIComponent(redirectTo)}`);
-  }
-
-  return user;
-}
+/** 30 days in seconds — used as the cookie max-age for the active family selection. */
+const ACTIVE_FAMILY_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
 
 async function persistActiveFamily(familyId: string): Promise<void> {
   const cookieStore = await cookies();
 
   cookieStore.set(ACTIVE_FAMILY_COOKIE, familyId, {
     httpOnly: true,
-    maxAge: 60 * 60 * 24 * 30,
+    maxAge: ACTIVE_FAMILY_COOKIE_MAX_AGE_SECONDS,
     path: "/",
     sameSite: "lax",
   });
