@@ -4,8 +4,10 @@ import {
   updateDisplayNameAction,
   updateProfilePasswordAction,
 } from "@/app/actions/profile";
-import { getAuthenticatedUser } from "@/infrastructure/auth/runtime";
-import { createServerAuthDependencies } from "@/infrastructure/auth/runtime";
+import {
+  getAuthenticatedUser,
+  createServerAuthDependencies,
+} from "@/infrastructure/auth/runtime";
 import { ProfilePageClient } from "@/presentation/components/profile/ProfilePageClient";
 
 export default async function ProfilePage() {

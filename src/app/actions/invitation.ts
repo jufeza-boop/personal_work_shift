@@ -25,10 +25,9 @@ async function requireUser(redirectPath: string) {
 }
 
 export async function createInvitationAction(
-  previousState: InvitationFormState = EMPTY,
+  _previousState: InvitationFormState = EMPTY,
   formData: FormData,
 ): Promise<InvitationFormState> {
-  void previousState;
 
   const familyId = formData.get("familyId")?.toString() ?? "";
   const redirectTo = sanitizeRedirectPath(
@@ -69,10 +68,9 @@ export async function createInvitationAction(
 }
 
 export async function cancelInvitationAction(
-  previousState: InvitationFormState = EMPTY,
+  _previousState: InvitationFormState = EMPTY,
   formData: FormData,
 ): Promise<InvitationFormState> {
-  void previousState;
 
   const invitationId = formData.get("invitationId")?.toString() ?? "";
   const redirectTo = sanitizeRedirectPath(
@@ -111,10 +109,9 @@ export async function cancelInvitationAction(
 }
 
 export async function acceptInvitationAction(
-  previousState: InvitationFormState = EMPTY,
+  _previousState: InvitationFormState = EMPTY,
   formData: FormData,
 ): Promise<InvitationFormState> {
-  void previousState;
 
   const parsed = acceptInvitationSchema.safeParse({
     colorPalette: formData.get("colorPalette"),

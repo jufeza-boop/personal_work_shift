@@ -1,7 +1,5 @@
-import type { ShiftTypeValue } from "@/domain/value-objects/ShiftType";
-import type { ColorPaletteName } from "@/domain/value-objects/ColorPalette";
-import { ColorPalette } from "@/domain/value-objects/ColorPalette";
-import { ShiftType, SHIFT_TYPE_VALUES } from "@/domain/value-objects/ShiftType";
+import { ColorPalette, type ColorPaletteName } from "@/domain/value-objects/ColorPalette";
+import { ShiftType, SHIFT_TYPE_VALUES, type ShiftTypeValue } from "@/domain/value-objects/ShiftType";
 
 export type PaletteToneMap = Record<ShiftTypeValue, string>;
 

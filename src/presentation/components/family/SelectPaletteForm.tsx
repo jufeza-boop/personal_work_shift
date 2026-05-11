@@ -2,8 +2,10 @@
 
 import { useState, useActionState } from "react";
 import type { ColorPaletteName } from "@/domain/value-objects/ColorPalette";
-import { ColorPalettePicker } from "@/presentation/components/family/ColorPalettePicker";
-import type { PaletteOption } from "@/presentation/components/family/ColorPalettePicker";
+import {
+  ColorPalettePicker,
+  type PaletteOption,
+} from "@/presentation/components/family/ColorPalettePicker";
 import { SubmitButton } from "@/presentation/components/ui/SubmitButton";
 import {
   EMPTY_FAMILY_FORM_STATE,

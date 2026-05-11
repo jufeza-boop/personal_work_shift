@@ -7,8 +7,10 @@ import {
   verifyOtpAction,
   updatePasswordAction,
 } from "@/app/actions/auth";
-import type { AuthFormState } from "@/presentation/components/auth/types";
-import { EMPTY_AUTH_FORM_STATE } from "@/presentation/components/auth/types";
+import {
+  EMPTY_AUTH_FORM_STATE,
+  type AuthFormState,
+} from "@/presentation/components/auth/types";
 import {
   Card,
   CardContent,

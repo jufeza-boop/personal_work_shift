@@ -125,11 +125,10 @@ function toOptionalString(value: string | undefined | ""): string | undefined {
 }
 
 export async function createEventAction(
-  previousState: EventFormState = EMPTY_EVENT_FORM_STATE,
+  _previousState: EventFormState = EMPTY_EVENT_FORM_STATE,
   formData: FormData,
 ): Promise<EventFormState> {
   // Part of the useActionState API contract, but unused because success redirects.
-  void previousState;
 
   const eventType = formData.get("eventType")?.toString();
   const familyId = formData.get("familyId")?.toString();
@@ -313,10 +312,9 @@ export async function createEventAction(
 }
 
 export async function editEventAction(
-  previousState: EventFormState = EMPTY_EVENT_FORM_STATE,
+  _previousState: EventFormState = EMPTY_EVENT_FORM_STATE,
   formData: FormData,
 ): Promise<EventFormState> {
-  void previousState;
 
   const eventId = formData.get("eventId")?.toString();
   const scope = formData.get("scope")?.toString() as
@@ -535,10 +533,9 @@ export async function editEventAction(
 }
 
 export async function deleteEventAction(
-  previousState: EventFormState = EMPTY_EVENT_FORM_STATE,
+  _previousState: EventFormState = EMPTY_EVENT_FORM_STATE,
   formData: FormData,
 ): Promise<EventFormState> {
-  void previousState;
 
   const eventId = formData.get("eventId")?.toString();
   const scope = formData.get("scope")?.toString() as

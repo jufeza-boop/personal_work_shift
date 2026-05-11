@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useActionState, useId } from "react";
-import type { ColorPaletteName } from "@/domain/value-objects/ColorPalette";
-import { ColorPalette } from "@/domain/value-objects/ColorPalette";
-import { ColorPalettePicker } from "@/presentation/components/family/ColorPalettePicker";
-import type { PaletteOption } from "@/presentation/components/family/ColorPalettePicker";
+import { ColorPalette, type ColorPaletteName } from "@/domain/value-objects/ColorPalette";
+import {
+  ColorPalettePicker,
+  type PaletteOption,
+} from "@/presentation/components/family/ColorPalettePicker";
 import { SubmitButton } from "@/presentation/components/ui/SubmitButton";
 import {
   EMPTY_FAMILY_FORM_STATE,

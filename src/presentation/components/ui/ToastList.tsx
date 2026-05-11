@@ -18,9 +18,8 @@ export function ToastList({ toasts, onRemove }: ToastListProps) {
       className="fixed right-6 bottom-6 z-50 flex flex-col gap-2"
     >
       {toasts.map((toast) => (
-        <div
+        <output
           key={toast.id}
-          role="status"
           className={`flex items-center gap-3 rounded-2xl border px-4 py-3 shadow-lg transition-all ${
             toast.type === "success"
               ? "border-emerald-200 bg-emerald-50 text-emerald-800"
@@ -41,7 +40,7 @@ export function ToastList({ toasts, onRemove }: ToastListProps) {
           >
             ×
           </button>
-        </div>
+        </output>
       ))}
     </div>
   );

@@ -39,7 +39,6 @@ export async function registerAction(
   formData: FormData,
 ): Promise<AuthFormState> {
   // Required by the useActionState server action signature.
-  void _previousState;
 
   if (!isMockAuthEnabled()) {
     const clientIp = await getClientIp();
@@ -105,7 +104,6 @@ export async function loginAction(
   formData: FormData,
 ): Promise<AuthFormState> {
   // Required by the useActionState server action signature.
-  void _previousState;
 
   if (!isMockAuthEnabled()) {
     const clientIp = await getClientIp();
@@ -195,7 +193,6 @@ export async function requestPasswordResetAction(
   _previousState: AuthFormState = EMPTY_AUTH_FORM_STATE,
   formData: FormData,
 ): Promise<AuthFormState> {
-  void _previousState;
 
   const email = formData.get("email")?.toString().trim().toLowerCase() ?? "";
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -230,7 +227,6 @@ export async function verifyOtpAction(
   _previousState: AuthFormState = EMPTY_AUTH_FORM_STATE,
   formData: FormData,
 ): Promise<AuthFormState> {
-  void _previousState;
 
   const email = formData.get("email")?.toString().trim().toLowerCase() ?? "";
   const token = formData.get("token")?.toString().trim() ?? "";
@@ -266,7 +262,6 @@ export async function updatePasswordAction(
   _previousState: AuthFormState = EMPTY_AUTH_FORM_STATE,
   formData: FormData,
 ): Promise<AuthFormState> {
-  void _previousState;
 
   const password = formData.get("password")?.toString() ?? "";
   const confirmPassword = formData.get("confirmPassword")?.toString() ?? "";

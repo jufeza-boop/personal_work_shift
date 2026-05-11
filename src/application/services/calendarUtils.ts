@@ -1,13 +1,10 @@
 import type { Event } from "@/domain/entities/Event";
 import type { EventException } from "@/domain/entities/EventException";
 import { PunctualEvent } from "@/domain/entities/PunctualEvent";
-import type { EventCategory } from "@/domain/entities/RecurringEvent";
-import { RecurringEvent } from "@/domain/entities/RecurringEvent";
-import type { ColorPaletteName } from "@/domain/value-objects/ColorPalette";
-import { ColorPalette } from "@/domain/value-objects/ColorPalette";
+import { RecurringEvent, type EventCategory } from "@/domain/entities/RecurringEvent";
+import { ColorPalette, type ColorPaletteName } from "@/domain/value-objects/ColorPalette";
 import type { EventFrequencyUnit } from "@/domain/value-objects/EventFrequency";
-import type { ShiftTypeValue } from "@/domain/value-objects/ShiftType";
-import { ShiftType } from "@/domain/value-objects/ShiftType";
+import { ShiftType, type ShiftTypeValue } from "@/domain/value-objects/ShiftType";
 
 // ---------------------------------------------------------------------------
 // Serialized types (safe to pass from Server Components to Client Components)

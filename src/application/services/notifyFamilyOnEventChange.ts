@@ -1,5 +1,7 @@
-import { SendEventNotification } from "@/application/use-cases/push/SendEventNotification";
-import type { EventChangeType } from "@/application/use-cases/push/SendEventNotification";
+import {
+  SendEventNotification,
+  type EventChangeType,
+} from "@/application/use-cases/push/SendEventNotification";
 import type { IFamilyRepository } from "@/domain/repositories/IFamilyRepository";
 import type { IPushNotificationService } from "@/application/services/IPushNotificationService";
 import type { IPushSubscriptionRepository } from "@/domain/repositories/IPushSubscriptionRepository";

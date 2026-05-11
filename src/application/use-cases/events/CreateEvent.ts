@@ -1,9 +1,13 @@
 import { randomUUID } from "node:crypto";
-import { PunctualEvent } from "@/domain/entities/PunctualEvent";
-import { RecurringEvent } from "@/domain/entities/RecurringEvent";
-import type { PunctualEvent as PunctualEventType } from "@/domain/entities/PunctualEvent";
-import type { RecurringEvent as RecurringEventType } from "@/domain/entities/RecurringEvent";
-import type { EventCategory } from "@/domain/entities/RecurringEvent";
+import {
+  PunctualEvent,
+  type PunctualEvent as PunctualEventType,
+} from "@/domain/entities/PunctualEvent";
+import {
+  RecurringEvent,
+  type RecurringEvent as RecurringEventType,
+  type EventCategory,
+} from "@/domain/entities/RecurringEvent";
 import { ValidationError } from "@/domain/errors/DomainError";
 import type { IEventRepository } from "@/domain/repositories/IEventRepository";
 import type { IFamilyRepository } from "@/domain/repositories/IFamilyRepository";
