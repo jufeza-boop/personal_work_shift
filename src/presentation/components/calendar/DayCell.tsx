@@ -114,7 +114,8 @@ export function DayCell({
 
   const buttonBgStyle = ((): CSSProperties => {
     if (gradientBg !== null) return { background: gradientBg };
-    if (firstShiftColor !== undefined) return { backgroundColor: firstShiftColor };
+    if (firstShiftColor !== undefined)
+      return { backgroundColor: firstShiftColor };
     if (vacationStripeBg !== null) return { background: vacationStripeBg };
     return {};
   })();

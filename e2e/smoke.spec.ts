@@ -76,7 +76,6 @@ test("create a punctual event and see it in the calendar", async ({ page }) => {
   // Wait for the grid to be fully rendered before interacting
   await expect(page.getByTestId("calendar-grid")).toBeVisible();
 
-  
   // Click day 15 (first match avoids picking a day from a sibling month)
   await page.getByRole("button", { name: "15" }).first().click();
 

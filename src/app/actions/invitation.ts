@@ -28,7 +28,6 @@ export async function createInvitationAction(
   _previousState: InvitationFormState = EMPTY,
   formData: FormData,
 ): Promise<InvitationFormState> {
-
   const familyId = formData.get("familyId")?.toString() ?? "";
   const redirectTo = sanitizeRedirectPath(
     formData.get("redirectTo")?.toString(),
@@ -71,7 +70,6 @@ export async function cancelInvitationAction(
   _previousState: InvitationFormState = EMPTY,
   formData: FormData,
 ): Promise<InvitationFormState> {
-
   const invitationId = formData.get("invitationId")?.toString() ?? "";
   const redirectTo = sanitizeRedirectPath(
     formData.get("redirectTo")?.toString(),
@@ -112,7 +110,6 @@ export async function acceptInvitationAction(
   _previousState: InvitationFormState = EMPTY,
   formData: FormData,
 ): Promise<InvitationFormState> {
-
   const parsed = acceptInvitationSchema.safeParse({
     colorPalette: formData.get("colorPalette")?.toString(),
     token: formData.get("token")?.toString(),

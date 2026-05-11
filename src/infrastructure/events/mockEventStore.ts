@@ -14,7 +14,10 @@ import {
   type EventExceptionOverrideData,
 } from "@/domain/entities/EventException";
 import { PunctualEvent } from "@/domain/entities/PunctualEvent";
-import { RecurringEvent, type EventCategory } from "@/domain/entities/RecurringEvent";
+import {
+  RecurringEvent,
+  type EventCategory,
+} from "@/domain/entities/RecurringEvent";
 import { EventFrequency } from "@/domain/value-objects/EventFrequency";
 import { ShiftType } from "@/domain/value-objects/ShiftType";
 

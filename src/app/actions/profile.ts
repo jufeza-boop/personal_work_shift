@@ -17,7 +17,6 @@ export async function updateDisplayNameAction(
   _previousState: ProfileFormState = EMPTY_PROFILE_FORM_STATE,
   formData: FormData,
 ): Promise<ProfileFormState> {
-
   const currentUser = await getAuthenticatedUser();
 
   if (!currentUser) {
@@ -69,7 +68,6 @@ export async function updateProfilePasswordAction(
   _previousState: ProfileFormState = EMPTY_PROFILE_FORM_STATE,
   formData: FormData,
 ): Promise<ProfileFormState> {
-
   const parsed = updateProfilePasswordSchema.safeParse({
     confirmPassword: formData.get("confirmPassword"),
     newPassword: formData.get("newPassword"),

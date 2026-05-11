@@ -1,7 +1,10 @@
 "use client";
 
 import { useState, useActionState, useId } from "react";
-import { ColorPalette, type ColorPaletteName } from "@/domain/value-objects/ColorPalette";
+import {
+  ColorPalette,
+  type ColorPaletteName,
+} from "@/domain/value-objects/ColorPalette";
 import {
   ColorPalettePicker,
   type PaletteOption,

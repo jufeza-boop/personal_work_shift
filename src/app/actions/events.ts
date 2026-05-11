@@ -315,7 +315,6 @@ export async function editEventAction(
   _previousState: EventFormState = EMPTY_EVENT_FORM_STATE,
   formData: FormData,
 ): Promise<EventFormState> {
-
   const eventId = formData.get("eventId")?.toString();
   const scope = formData.get("scope")?.toString() as
     | "all"
@@ -536,7 +535,6 @@ export async function deleteEventAction(
   _previousState: EventFormState = EMPTY_EVENT_FORM_STATE,
   formData: FormData,
 ): Promise<EventFormState> {
-
   const eventId = formData.get("eventId")?.toString();
   const scope = formData.get("scope")?.toString() as
     | "all"

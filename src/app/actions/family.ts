@@ -367,7 +367,6 @@ export async function createDelegatedUserAction(
   _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
   formData: FormData,
 ): Promise<FamilyFormState> {
-
   const parsed = createDelegatedUserSchema.safeParse({
     displayName: formData.get("displayName"),
   });
@@ -413,7 +412,6 @@ export async function removeDelegatedUserAction(
   _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
   formData: FormData,
 ): Promise<FamilyFormState> {
-
   const delegatedUserId = formData.get("delegatedUserId")?.toString();
   const redirectTo = sanitizeRedirectPath(
     formData.get("redirectTo")?.toString(),
@@ -464,7 +462,6 @@ export async function removeFamilyMemberAction(
   _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
   formData: FormData,
 ): Promise<FamilyFormState> {
-
   const familyId = formData.get("familyId")?.toString();
   const memberUserId = formData.get("memberUserId")?.toString();
 
@@ -515,7 +512,6 @@ export async function leaveFamilyAction(
   _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
   formData: FormData,
 ): Promise<FamilyFormState> {
-
   const familyId = formData.get("familyId")?.toString();
 
   if (!familyId) {
@@ -563,7 +559,6 @@ export async function addDelegatedUserToFamilyAction(
   _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
   formData: FormData,
 ): Promise<FamilyFormState> {
-
   const familyId = formData.get("familyId")?.toString();
   const delegatedUserId = formData.get("delegatedUserId")?.toString();
 
@@ -617,7 +612,6 @@ export async function renameDelegatedUserAction(
   _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
   formData: FormData,
 ): Promise<FamilyFormState> {
-
   const delegatedUserId = formData.get("delegatedUserId")?.toString();
   const redirectTo = sanitizeRedirectPath(
     formData.get("redirectTo")?.toString(),
@@ -679,7 +673,6 @@ export async function assignDelegatedMemberPaletteAction(
   _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
   formData: FormData,
 ): Promise<FamilyFormState> {
-
   const familyId = formData.get("familyId")?.toString();
   const targetUserId = formData.get("targetUserId")?.toString();
 

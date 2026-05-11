@@ -193,7 +193,6 @@ export async function requestPasswordResetAction(
   _previousState: AuthFormState = EMPTY_AUTH_FORM_STATE,
   formData: FormData,
 ): Promise<AuthFormState> {
-
   const email = formData.get("email")?.toString().trim().toLowerCase() ?? "";
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   if (!email || email.length > 254 || !emailRegex.test(email)) {
@@ -227,7 +226,6 @@ export async function verifyOtpAction(
   _previousState: AuthFormState = EMPTY_AUTH_FORM_STATE,
   formData: FormData,
 ): Promise<AuthFormState> {
-
   const email = formData.get("email")?.toString().trim().toLowerCase() ?? "";
   const token = formData.get("token")?.toString().trim() ?? "";
 
@@ -262,7 +260,6 @@ export async function updatePasswordAction(
   _previousState: AuthFormState = EMPTY_AUTH_FORM_STATE,
   formData: FormData,
 ): Promise<AuthFormState> {
-
   const password = formData.get("password")?.toString() ?? "";
   const confirmPassword = formData.get("confirmPassword")?.toString() ?? "";
 

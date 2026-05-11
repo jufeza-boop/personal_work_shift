@@ -4,7 +4,10 @@ import {
   type EventExceptionOverrideData,
 } from "@/domain/entities/EventException";
 import { PunctualEvent } from "@/domain/entities/PunctualEvent";
-import { RecurringEvent, type EventCategory } from "@/domain/entities/RecurringEvent";
+import {
+  RecurringEvent,
+  type EventCategory,
+} from "@/domain/entities/RecurringEvent";
 import { ValidationError } from "@/domain/errors/DomainError";
 import type { IEventRepository } from "@/domain/repositories/IEventRepository";
 import { EventFrequency } from "@/domain/value-objects/EventFrequency";
