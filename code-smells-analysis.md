@@ -4,7 +4,7 @@
 
 - **Fecha:** 2026-05-11
 - **Scope:** `src/`
-- **Criterios:** Martin Fowler (*Refactoring: Improving the Design of Existing Code*) + React antipatterns
+- **Criterios:** Martin Fowler (_Refactoring: Improving the Design of Existing Code_) + React antipatterns
 - **Herramientas:** Inspección manual + ESLint (eslint-config-next/core-web-vitals + eslint-config-next/typescript)
 
 > **Nota sobre SonarJS:** El proyecto no tiene `eslint-plugin-sonarjs` instalado. La detección automatizada se realizó con el conjunto de reglas actualmente configurado (`eslint-config-next`, `@typescript-eslint`). Los resultados de ESLint se indican al final de esta sección.
@@ -31,6 +31,7 @@ El linter detectó únicamente una variable no usada en un archivo de test. El a
 **Severidad:** 🔴 Alta
 
 **Ubicación:**
+
 - `src/presentation/components/calendar/DayDetailPanel.tsx:81-373`
 - `src/presentation/components/events/EventList.tsx:24-193`
 
@@ -67,6 +68,7 @@ El diálogo de confirmación de eliminación está completamente duplicado: la i
 **Severidad:** 🟡 Media
 
 **Ubicación:**
+
 - `src/app/actions/events.ts:61-69`
 - `src/app/actions/family.ts:45-53`
 
@@ -105,6 +107,7 @@ async function requireAuthenticatedUser(redirectTo: string) {
 **Severidad:** 🟡 Media
 
 **Ubicación:**
+
 - `src/presentation/components/calendar/CalendarGrid.tsx:27-40`
 - `src/presentation/components/calendar/DayDetailPanel.tsx:37-50`
 
@@ -113,14 +116,34 @@ async function requireAuthenticatedUser(redirectTo: string) {
 ```typescript
 // CalendarGrid.tsx — nombres abreviados
 const MONTH_NAMES = [
-  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre",
 ] as const;
 
 // DayDetailPanel.tsx — nombres en minúscula para uso en oraciones
 const MONTH_NAMES_FULL = [
-  "enero", "febrero", "marzo", "abril", "mayo", "junio",
-  "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre",
+  "enero",
+  "febrero",
+  "marzo",
+  "abril",
+  "mayo",
+  "junio",
+  "julio",
+  "agosto",
+  "septiembre",
+  "octubre",
+  "noviembre",
+  "diciembre",
 ] as const;
 ```
 
@@ -142,7 +165,10 @@ const MONTH_NAMES_FULL = [
 
 ```typescript
 // Aparece ≥ 6 veces en el mismo archivo:
-z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/).optional().or(z.literal(""))
+z.string()
+  .regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/)
+  .optional()
+  .or(z.literal(""));
 ```
 
 **Problema:** El patrón regex para validar el formato `HH:MM` y su combinación `.optional().or(z.literal(""))` están inlineados en cada campo de hora sin extraerse a una constante o helper.
@@ -170,6 +196,7 @@ endTime: TIME_FIELD_SCHEMA,
 **Severidad:** 🟡 Media
 
 **Ubicación:**
+
 - `src/app/actions/auth.ts:273`
 - `src/app/actions/auth.ts:304` (como mensaje de error duplicado también en línea 87)
 - `src/presentation/validation/authSchemas.ts` (lógica relacionada)
@@ -181,7 +208,7 @@ endTime: TIME_FIELD_SCHEMA,
 const passwordPolicy = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
 // El mensaje de error idéntico aparece en 3 lugares:
-"La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número."
+("La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.");
 ```
 
 **Problema:** La regex de política de contraseñas se define inline en `updatePasswordAction` en vez de reutilizar el schema Zod de `authSchemas.ts` que ya valida lo mismo. El mensaje de error también está hardcodeado en múltiples lugares.
@@ -309,6 +336,7 @@ export const editRecurringOtherEventSchema = editRecurringEventSchema;
 **Severidad:** 🟡 Media
 
 **Ubicación:**
+
 - `src/app/actions/family.ts:60` — expiración de cookie
 - `src/application/services/calendarUtils.ts:138-139, 141` — milisegundos en cálculos
 - `src/app/(dashboard)/calendar/page.tsx:41-42` — rango de años válidos
@@ -423,6 +451,7 @@ import { Users } from "lucide-react";
 **Severidad:** ⚠ Baja
 
 **Ubicación:**
+
 - `src/app/actions/events.ts:626-646` (función `buildErrorMessage`)
 - `src/application/use-cases/events/CreateEvent.ts:52-57`
 - `src/application/use-cases/events/EditEvent.ts:44-51`
@@ -467,20 +496,20 @@ export type EventErrorCode = keyof typeof EVENT_ERROR_CODES;
 
 ## Resumen Ejecutivo
 
-| # | Smell | Tipo | Severidad | Archivo(s) |
-|---|-------|------|-----------|------------|
-| 1 | Delete Dialog duplicado | Duplicate Code | 🔴 Alta | DayDetailPanel, EventList |
-| 2 | `requireAuthenticatedUser` duplicada | Duplicate Code | 🟡 Media | events.ts, family.ts |
-| 3 | Arrays `MONTH_NAMES` duplicados | Duplicate Code | 🟡 Media | CalendarGrid, DayDetailPanel |
-| 4 | Regex de hora inlinada 6+ veces | Duplicate Code | 🟡 Media | eventSchemas.ts |
-| 5 | Regex de contraseña duplicada | Duplicate Code | 🟡 Media | auth.ts |
-| 6 | `createEventAction` / `editEventAction` muy largas | Long Method | 🟡 Media | events.ts |
-| 7 | `CalendarGrid` con 8 responsabilidades | Large Component | 🔴 Alta | CalendarGrid.tsx |
-| 8 | Exports deprecated no eliminados | Dead Code | ⚠ Baja | eventSchemas.ts |
-| 9 | Números mágicos en lógica de negocio | Magic Numbers | 🟡 Media | family.ts, calendarUtils.ts |
-| 10 | `navigate`/`toggleMember` sin `useCallback` | React antipattern | 🟡 Media | useCalendarEvents.ts |
-| 11 | SVG inline en vez de componente de icono | React antipattern | ⚠ Baja | CalendarGrid.tsx |
-| 12 | Error codes como string literals dispersos | Primitive Obsession | ⚠ Baja | events.ts, use-cases/ |
+| #   | Smell                                              | Tipo                | Severidad | Archivo(s)                   |
+| --- | -------------------------------------------------- | ------------------- | --------- | ---------------------------- |
+| 1   | Delete Dialog duplicado                            | Duplicate Code      | 🔴 Alta   | DayDetailPanel, EventList    |
+| 2   | `requireAuthenticatedUser` duplicada               | Duplicate Code      | 🟡 Media  | events.ts, family.ts         |
+| 3   | Arrays `MONTH_NAMES` duplicados                    | Duplicate Code      | 🟡 Media  | CalendarGrid, DayDetailPanel |
+| 4   | Regex de hora inlinada 6+ veces                    | Duplicate Code      | 🟡 Media  | eventSchemas.ts              |
+| 5   | Regex de contraseña duplicada                      | Duplicate Code      | 🟡 Media  | auth.ts                      |
+| 6   | `createEventAction` / `editEventAction` muy largas | Long Method         | 🟡 Media  | events.ts                    |
+| 7   | `CalendarGrid` con 8 responsabilidades             | Large Component     | 🔴 Alta   | CalendarGrid.tsx             |
+| 8   | Exports deprecated no eliminados                   | Dead Code           | ⚠ Baja    | eventSchemas.ts              |
+| 9   | Números mágicos en lógica de negocio               | Magic Numbers       | 🟡 Media  | family.ts, calendarUtils.ts  |
+| 10  | `navigate`/`toggleMember` sin `useCallback`        | React antipattern   | 🟡 Media  | useCalendarEvents.ts         |
+| 11  | SVG inline en vez de componente de icono           | React antipattern   | ⚠ Baja    | CalendarGrid.tsx             |
+| 12  | Error codes como string literals dispersos         | Primitive Obsession | ⚠ Baja    | events.ts, use-cases/        |
 
 ### Prioridades de Refactoring
 

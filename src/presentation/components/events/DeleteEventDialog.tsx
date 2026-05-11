@@ -105,8 +105,9 @@ export function DeleteEventDialog({
             </fieldset>
           )}
 
-          {dialog.eventType === "recurring" && dialog.scope === "single" && (
-            occurrenceDate !== undefined ? (
+          {dialog.eventType === "recurring" &&
+            dialog.scope === "single" &&
+            (occurrenceDate !== undefined ? (
               <input
                 type="hidden"
                 name="occurrenceDate"
@@ -128,8 +129,7 @@ export function DeleteEventDialog({
                   className="block w-full rounded-md border border-stone-300 px-3 py-2 text-sm"
                 />
               </div>
-            )
-          )}
+            ))}
 
           <div className="flex justify-end gap-2">
             <button

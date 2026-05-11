@@ -41,7 +41,9 @@ export default async function CalendarPage({
   const paramYear = Number(resolvedSearchParams.year);
   const paramMonth = Number(resolvedSearchParams.month);
   const initialYear =
-    Number.isInteger(paramYear) && paramYear >= CALENDAR_MIN_YEAR && paramYear <= CALENDAR_MAX_YEAR
+    Number.isInteger(paramYear) &&
+    paramYear >= CALENDAR_MIN_YEAR &&
+    paramYear <= CALENDAR_MAX_YEAR
       ? paramYear
       : now.getUTCFullYear();
   const initialMonth =

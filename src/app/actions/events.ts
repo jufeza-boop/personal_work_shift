@@ -6,9 +6,7 @@ import { CreateEvent } from "@/application/use-cases/events/CreateEvent";
 import { DeleteEvent } from "@/application/use-cases/events/DeleteEvent";
 import { EditEvent } from "@/application/use-cases/events/EditEvent";
 import type { EventChangeType } from "@/application/use-cases/push/SendEventNotification";
-import {
-  createServerEventDependencies,
-} from "@/infrastructure/events/runtime";
+import { createServerEventDependencies } from "@/infrastructure/events/runtime";
 import { createServerPushDependencies } from "@/infrastructure/push/runtime";
 import { notifyFamilyOnEventChange } from "@/application/services/notifyFamilyOnEventChange";
 import {
