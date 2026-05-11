@@ -136,7 +136,7 @@ const MONTH_NAMES_FULL = [
 
 **Severidad:** 🟡 Media
 
-**Ubicación:** `src/presentation/validation/eventSchemas.ts` (líneas 46, 54, 79, 89, 148, 152, 183, 186, 188...)
+**Ubicación:** `src/presentation/validation/eventSchemas.ts` — 8 ocurrencias exactas en líneas 46, 54, 79, 89, 148, 152, 183, 186, 188 y 191
 
 **Código:**
 
@@ -404,7 +404,7 @@ const toggleMember = useCallback((userId: string) => {
 </svg>
 ```
 
-**Problema:** El icono de "Filtrar miembros" está codificado como SVG inline de 3 líneas con un path de +100 caracteres. El proyecto ya tiene `lucide-react` como dependencia, que incluye iconos equivalentes (`Users`, `Filter`).
+**Problema:** El icono de "Filtrar miembros" está codificado como SVG inline de 8 líneas con un path de +100 caracteres. El proyecto ya tiene `lucide-react` como dependencia, que incluye iconos equivalentes (`Users`, `Filter`).
 
 **Impacto:** El SVG inline añade ruido visual en el JSX, dificulta búsquedas/reemplazos de iconos y no se beneficia del tree-shaking ni de la consistencia estilística del sistema de iconos.
 
