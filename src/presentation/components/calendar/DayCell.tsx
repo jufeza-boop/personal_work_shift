@@ -112,14 +112,25 @@ export function DayCell({
 
   const hasCellFill = hasShiftBg || hasVacationFill;
 
-  const buttonBgStyle: CSSProperties =
-    gradientBg !== null
-      ? { background: gradientBg }
-      : firstShiftColor !== undefined
-        ? { backgroundColor: firstShiftColor }
-        : vacationStripeBg !== null
-          ? { background: vacationStripeBg }
-          : {};
+  const buttonBgStyle = ((): CSSProperties => {
+    if (gradientBg !== null) return { background: gradientBg };
+    if (firstShiftColor !== undefined)
+      return { backgroundColor: firstShiftColor };
+    if (vacationStripeBg !== null) return { background: vacationStripeBg };
+    return {};
+  })();
+
+  const cellBgClass = !hasCellFill
+    ? isToday
+      ? "bg-blue-50"
+      : "bg-white hover:bg-stone-50"
+    : "";
+
+  const ringClass = isSelected
+    ? "ring-2 ring-blue-500 ring-inset"
+    : isToday
+      ? "ring-1 ring-blue-300"
+      : "";
 
   return (
     <button
@@ -129,16 +140,8 @@ export function DayCell({
       aria-pressed={isSelected}
       className={[
         "flex min-h-[5.5rem] cursor-pointer flex-col gap-0.5 overflow-hidden rounded-lg p-1 text-left text-xs transition-colors sm:min-h-[6.5rem]",
-        !hasCellFill
-          ? isToday
-            ? "bg-blue-50"
-            : "bg-white hover:bg-stone-50"
-          : "",
-        isSelected
-          ? "ring-2 ring-blue-500 ring-inset"
-          : isToday
-            ? "ring-1 ring-blue-300"
-            : "",
+        cellBgClass,
+        ringClass,
       ]
         .filter(Boolean)
         .join(" ")}

@@ -107,16 +107,13 @@ export class MockAuthAdapter implements IAuthService {
     };
   }
 
-  async resetPasswordForEmail(email: string) {
+  async resetPasswordForEmail(_email: string) {
     // In mock mode always succeeds
-    void email;
 
     return { data: undefined, success: true as const };
   }
 
-  async verifyOtp(email: string, token: string) {
-    void email;
-
+  async verifyOtp(_email: string, token: string) {
     if (token !== "000000") {
       return {
         error: { code: "INVALID_OTP" as const, message: "OTP is invalid" },
@@ -127,9 +124,7 @@ export class MockAuthAdapter implements IAuthService {
     return { data: undefined, success: true as const };
   }
 
-  async updatePassword(newPassword: string) {
-    void newPassword;
-
+  async updatePassword(_newPassword: string) {
     return { data: undefined, success: true as const };
   }
 }

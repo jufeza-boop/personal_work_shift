@@ -9,6 +9,9 @@ import type { SerializedMember } from "@/application/services/calendarUtils";
 import { createServerEventDependencies } from "@/infrastructure/events/runtime";
 import { CalendarGrid } from "@/presentation/components/calendar/CalendarGrid";
 
+const CALENDAR_MIN_YEAR = 2000;
+const CALENDAR_MAX_YEAR = 2100;
+
 interface CalendarPageProps {
   searchParams?: Promise<{ year?: string; month?: string }>;
 }
@@ -38,7 +41,9 @@ export default async function CalendarPage({
   const paramYear = Number(resolvedSearchParams.year);
   const paramMonth = Number(resolvedSearchParams.month);
   const initialYear =
-    Number.isInteger(paramYear) && paramYear >= 2000 && paramYear <= 2100
+    Number.isInteger(paramYear) &&
+    paramYear >= CALENDAR_MIN_YEAR &&
+    paramYear <= CALENDAR_MAX_YEAR
       ? paramYear
       : now.getUTCFullYear();
   const initialMonth =

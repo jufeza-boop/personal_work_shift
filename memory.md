@@ -120,6 +120,38 @@
 - **Pattern**: Used `vi.hoisted()` to avoid Temporal Dead Zone issues when mock
   variables need to be referenced inside `vi.mock` factories.
 
+---
+
+## 2026-05-11 - SonarQube Code Smell Fixes
+
+### What was done
+
+- **S3863** (duplicate imports): Consolidated 17 files where the same module was imported twice (one value + one type import) into a single import statement using `import { A, type B }` syntax.
+- **S7764** (globalThis): Replaced `global.ResizeObserver` in `setup.ts` and `window.location.origin` in `GoogleLoginButton.tsx` with `globalThis.*` equivalents.
+- **S3735** (void operator): Removed `void previousState;` pattern from server actions (family.ts, events.ts, invitation.ts, auth.ts, profile.ts) by renaming params to `_previousState`. Renamed mock params in `MockAuthAdapter.ts` with `_` prefix.
+- **S6759** (Readonly props): Added `Readonly<>` to component prop destructuring in `ProfilePageClient`, `MemberFilterSheet`, `DayCreateEventForm`, `AcceptInvitationForm`.
+- **S6819** (semantic HTML): Replaced `<div role="dialog">` with `<dialog>` in DangerZone, MemberFilterSheet, EditEventForm. Replaced `<div role="status">` with `<output>` in OfflineBanner, NotificationBell, ToastList. Kept `<span role="status">` for Spinner (semantic `<output>` is wrong for loading spinners).
+- **S6551** (FormData stringification): Added `?.toString()` coercion to Zod safeParse inputs in auth.ts and invitation.ts.
+- **S3358** (nested ternaries): Extracted `buttonBgStyle` in DayCell.tsx to an IIFE for clarity.
+
+### Decisions
+
+- S1788 (default params at end): Server action functions MUST have `_previousState = EMPTY_STATE` as the FIRST param for Next.js `useActionState` compatibility — these are intentional framework-required violations, not fixable.
+- For `<dialog>` in EditEventForm, removed the redundant `role="dialog"` attribute (implicit on `<dialog>`) and updated the test's `.closest('[role="dialog"]')` selector to `.closest('dialog')`.
+- For `<dialog>` in MemberFilterSheet (CSS-transition-based), used `open={isOpen}` for semantic correctness without `aria-hidden` (conflicting).
+- `<output>` element has implicit ARIA role="status", so `getByRole("status")` queries still work in tests.
+
+### Tests
+
+- All 559 tests pass before and after changes.
+- Updated EditEventForm.test.tsx selector from `.closest('[role="dialog"]')` to `.closest('dialog')`.
+
+### Next steps
+
+- Phase 3 (High Complexity): Consider extracting pure functions from CreateEventForm.tsx and EditEvent.ts if SonarQube S3776 alerts persist.
+
+---
+
 ### 2026-04-09 - Project Kickoff
 
 - Documentation created: architecture, security, user stories

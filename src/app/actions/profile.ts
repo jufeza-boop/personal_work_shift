@@ -1,8 +1,10 @@
 "use server";
 
 import { UpdateProfile } from "@/application/use-cases/auth/UpdateProfile";
-import { createServerAuthDependencies } from "@/infrastructure/auth/runtime";
-import { getAuthenticatedUser } from "@/infrastructure/auth/runtime";
+import {
+  getAuthenticatedUser,
+  createServerAuthDependencies,
+} from "@/infrastructure/auth/runtime";
 import {
   updateDisplayNameSchema,
   updateProfilePasswordSchema,
@@ -15,8 +17,6 @@ export async function updateDisplayNameAction(
   _previousState: ProfileFormState = EMPTY_PROFILE_FORM_STATE,
   formData: FormData,
 ): Promise<ProfileFormState> {
-  void _previousState;
-
   const currentUser = await getAuthenticatedUser();
 
   if (!currentUser) {
@@ -68,8 +68,6 @@ export async function updateProfilePasswordAction(
   _previousState: ProfileFormState = EMPTY_PROFILE_FORM_STATE,
   formData: FormData,
 ): Promise<ProfileFormState> {
-  void _previousState;
-
   const parsed = updateProfilePasswordSchema.safeParse({
     confirmPassword: formData.get("confirmPassword"),
     newPassword: formData.get("newPassword"),

@@ -56,7 +56,7 @@ export function DayCreateEventForm({
   delegatedUsers = [],
   redirectTo = "/calendar",
   onCancel,
-}: DayCreateEventFormProps) {
+}: Readonly<DayCreateEventFormProps>) {
   const titleId = useId();
   const endDateId = useId();
   const startTimeId = useId();

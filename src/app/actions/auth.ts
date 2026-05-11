@@ -19,6 +19,8 @@ import {
 import {
   loginSchema,
   registerSchema,
+  PASSWORD_POLICY_REGEX,
+  PASSWORD_POLICY_MESSAGE,
 } from "@/presentation/validation/authSchemas";
 import { sanitizeRedirectPath } from "@/shared/auth/routeProtection";
 
@@ -37,7 +39,6 @@ export async function registerAction(
   formData: FormData,
 ): Promise<AuthFormState> {
   // Required by the useActionState server action signature.
-  void _previousState;
 
   if (!isMockAuthEnabled()) {
     const clientIp = await getClientIp();
@@ -54,9 +55,9 @@ export async function registerAction(
   }
 
   const parsed = registerSchema.safeParse({
-    displayName: formData.get("displayName"),
-    email: formData.get("email"),
-    password: formData.get("password"),
+    displayName: formData.get("displayName")?.toString(),
+    email: formData.get("email")?.toString(),
+    password: formData.get("password")?.toString(),
   });
 
   if (!parsed.success) {
@@ -83,8 +84,7 @@ export async function registerAction(
     if (result.error.code === "WEAK_PASSWORD") {
       return {
         errors: {
-          password:
-            "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.",
+          password: PASSWORD_POLICY_MESSAGE,
         },
         success: false,
       };
@@ -104,7 +104,6 @@ export async function loginAction(
   formData: FormData,
 ): Promise<AuthFormState> {
   // Required by the useActionState server action signature.
-  void _previousState;
 
   if (!isMockAuthEnabled()) {
     const clientIp = await getClientIp();
@@ -121,8 +120,8 @@ export async function loginAction(
   }
 
   const parsed = loginSchema.safeParse({
-    email: formData.get("email"),
-    password: formData.get("password"),
+    email: formData.get("email")?.toString(),
+    password: formData.get("password")?.toString(),
   });
 
   if (!parsed.success) {
@@ -194,8 +193,6 @@ export async function requestPasswordResetAction(
   _previousState: AuthFormState = EMPTY_AUTH_FORM_STATE,
   formData: FormData,
 ): Promise<AuthFormState> {
-  void _previousState;
-
   const email = formData.get("email")?.toString().trim().toLowerCase() ?? "";
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   if (!email || email.length > 254 || !emailRegex.test(email)) {
@@ -229,8 +226,6 @@ export async function verifyOtpAction(
   _previousState: AuthFormState = EMPTY_AUTH_FORM_STATE,
   formData: FormData,
 ): Promise<AuthFormState> {
-  void _previousState;
-
   const email = formData.get("email")?.toString().trim().toLowerCase() ?? "";
   const token = formData.get("token")?.toString().trim() ?? "";
 
@@ -265,18 +260,15 @@ export async function updatePasswordAction(
   _previousState: AuthFormState = EMPTY_AUTH_FORM_STATE,
   formData: FormData,
 ): Promise<AuthFormState> {
-  void _previousState;
-
   const password = formData.get("password")?.toString() ?? "";
   const confirmPassword = formData.get("confirmPassword")?.toString() ?? "";
 
-  const passwordPolicy = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+  const passwordPolicy = PASSWORD_POLICY_REGEX;
 
   if (!passwordPolicy.test(password)) {
     return {
       errors: {
-        password:
-          "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.",
+        password: PASSWORD_POLICY_MESSAGE,
       },
       success: false,
     };
@@ -304,8 +296,7 @@ export async function updatePasswordAction(
     if (result.error.code === "WEAK_PASSWORD") {
       return {
         errors: {
-          password:
-            "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.",
+          password: PASSWORD_POLICY_MESSAGE,
         },
         success: false,
       };

@@ -15,7 +15,6 @@ import { RenameDelegatedUser } from "@/application/use-cases/family/RenameDelega
 import { RenameFamily } from "@/application/use-cases/family/RenameFamily";
 import { SelectPalette } from "@/application/use-cases/family/SelectPalette";
 import { SwitchFamily } from "@/application/use-cases/family/SwitchFamily";
-import { getAuthenticatedUser } from "@/infrastructure/auth/runtime";
 import { createServerFamilyDependencies } from "@/infrastructure/family/runtime";
 import {
   EMPTY_FAMILY_FORM_STATE,
@@ -29,6 +28,7 @@ import {
   selectPaletteSchema,
 } from "@/presentation/validation/familySchemas";
 import { sanitizeRedirectPath } from "@/shared/auth/routeProtection";
+import { requireAuthenticatedUser } from "@/shared/auth/requireAuthenticatedUser";
 import { ACTIVE_FAMILY_COOKIE } from "@/shared/family/activeFamily";
 
 function toFieldErrors(
@@ -42,33 +42,25 @@ function toFieldErrors(
   };
 }
 
-async function requireAuthenticatedUser(redirectTo: string) {
-  const user = await getAuthenticatedUser();
-
-  if (!user) {
-    redirect(`/login?redirectTo=${encodeURIComponent(redirectTo)}`);
-  }
-
-  return user;
-}
+/** 30 days in seconds — used as the cookie max-age for the active family selection. */
+const ACTIVE_FAMILY_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
 
 async function persistActiveFamily(familyId: string): Promise<void> {
   const cookieStore = await cookies();
 
   cookieStore.set(ACTIVE_FAMILY_COOKIE, familyId, {
     httpOnly: true,
-    maxAge: 60 * 60 * 24 * 30,
+    maxAge: ACTIVE_FAMILY_COOKIE_MAX_AGE_SECONDS,
     path: "/",
     sameSite: "lax",
   });
 }
 
 export async function createFamilyAction(
-  previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
   formData: FormData,
 ): Promise<FamilyFormState> {
   // Part of the useActionState API contract, but unused because success redirects.
-  void previousState;
 
   const parsed = createFamilySchema.safeParse({
     name: formData.get("name"),
@@ -118,11 +110,10 @@ export async function createFamilyAction(
 }
 
 export async function addFamilyMemberAction(
-  previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
   formData: FormData,
 ): Promise<FamilyFormState> {
   // Part of the useActionState API contract, but unused because success redirects.
-  void previousState;
 
   const familyId = formData.get("familyId")?.toString();
 
@@ -199,11 +190,10 @@ export async function addFamilyMemberAction(
 }
 
 export async function renameFamilyAction(
-  previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
   formData: FormData,
 ): Promise<FamilyFormState> {
   // Part of the useActionState API contract, but unused because success redirects.
-  void previousState;
 
   const familyId = formData.get("familyId")?.toString();
 
@@ -284,11 +274,10 @@ export async function switchFamilyAction(formData: FormData): Promise<void> {
 }
 
 export async function selectPaletteAction(
-  previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
   formData: FormData,
 ): Promise<FamilyFormState> {
   // Part of the useActionState API contract, but unused because success redirects.
-  void previousState;
 
   const familyId = formData.get("familyId")?.toString();
 
@@ -375,11 +364,9 @@ export async function deleteFamilyAction(formData: FormData): Promise<void> {
 }
 
 export async function createDelegatedUserAction(
-  previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
   formData: FormData,
 ): Promise<FamilyFormState> {
-  void previousState;
-
   const parsed = createDelegatedUserSchema.safeParse({
     displayName: formData.get("displayName"),
   });
@@ -422,11 +409,9 @@ export async function createDelegatedUserAction(
 }
 
 export async function removeDelegatedUserAction(
-  previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
   formData: FormData,
 ): Promise<FamilyFormState> {
-  void previousState;
-
   const delegatedUserId = formData.get("delegatedUserId")?.toString();
   const redirectTo = sanitizeRedirectPath(
     formData.get("redirectTo")?.toString(),
@@ -474,11 +459,9 @@ export async function removeDelegatedUserAction(
 }
 
 export async function removeFamilyMemberAction(
-  previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
   formData: FormData,
 ): Promise<FamilyFormState> {
-  void previousState;
-
   const familyId = formData.get("familyId")?.toString();
   const memberUserId = formData.get("memberUserId")?.toString();
 
@@ -526,11 +509,9 @@ export async function removeFamilyMemberAction(
 }
 
 export async function leaveFamilyAction(
-  previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
   formData: FormData,
 ): Promise<FamilyFormState> {
-  void previousState;
-
   const familyId = formData.get("familyId")?.toString();
 
   if (!familyId) {
@@ -575,11 +556,9 @@ export async function leaveFamilyAction(
 }
 
 export async function addDelegatedUserToFamilyAction(
-  previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
   formData: FormData,
 ): Promise<FamilyFormState> {
-  void previousState;
-
   const familyId = formData.get("familyId")?.toString();
   const delegatedUserId = formData.get("delegatedUserId")?.toString();
 
@@ -630,11 +609,9 @@ export async function addDelegatedUserToFamilyAction(
 }
 
 export async function renameDelegatedUserAction(
-  previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
   formData: FormData,
 ): Promise<FamilyFormState> {
-  void previousState;
-
   const delegatedUserId = formData.get("delegatedUserId")?.toString();
   const redirectTo = sanitizeRedirectPath(
     formData.get("redirectTo")?.toString(),
@@ -693,11 +670,9 @@ export async function renameDelegatedUserAction(
 }
 
 export async function assignDelegatedMemberPaletteAction(
-  previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
   formData: FormData,
 ): Promise<FamilyFormState> {
-  void previousState;
-
   const familyId = formData.get("familyId")?.toString();
   const targetUserId = formData.get("targetUserId")?.toString();
 

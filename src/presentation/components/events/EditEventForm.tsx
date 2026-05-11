@@ -589,13 +589,12 @@ export function EditEventForm({
       </form>
 
       {showConfirmDialog && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="confirm-dialog-title"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-        >
-          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <dialog
+            open
+            aria-labelledby="confirm-dialog-title"
+            className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"
+          >
             <h3
               id="confirm-dialog-title"
               className="mb-3 text-base font-semibold text-slate-900"
@@ -624,7 +623,7 @@ export function EditEventForm({
                 Sí, eliminar y guardar
               </button>
             </div>
-          </div>
+          </dialog>
         </div>
       )}
     </section>

@@ -452,7 +452,7 @@ describe("EditEventForm", () => {
       // Find the "Cancelar" button inside the dialog
       const cancelButton = screen
         .getAllByRole("button", { name: /cancelar/i })
-        .find((btn) => btn.closest('[role="dialog"]'));
+        .find((btn) => btn.closest("dialog"));
       await user.click(cancelButton!);
 
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();

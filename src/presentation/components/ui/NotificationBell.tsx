@@ -58,13 +58,12 @@ export function NotificationBell() {
       </button>
 
       {statusMessage && (
-        <div
+        <output
           aria-live="polite"
           className="absolute top-full right-0 z-50 mt-2 rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-xs whitespace-nowrap text-slate-700 shadow-md"
-          role="status"
         >
           {statusMessage}
-        </div>
+        </output>
       )}
     </div>
   );

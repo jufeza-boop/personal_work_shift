@@ -27,7 +27,7 @@ export function ProfilePageClient({
   updateDisplayNameAction,
   updatePasswordAction,
   deleteAccountAction: deleteAction,
-}: ProfilePageClientProps) {
+}: Readonly<ProfilePageClientProps>) {
   const { addToast, removeToast, toasts } = useToast();
 
   const handleSuccess = useCallback(

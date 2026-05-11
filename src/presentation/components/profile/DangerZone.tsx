@@ -56,13 +56,12 @@ export function DangerZone({ deleteAccountAction }: DangerZoneProps) {
       </section>
 
       {dialogOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="danger-zone-dialog-title"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-        >
-          <div className="w-full max-w-sm rounded-2xl border border-stone-200 bg-white p-6 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <dialog
+            open
+            aria-labelledby="danger-zone-dialog-title"
+            className="w-full max-w-sm rounded-2xl border border-stone-200 bg-white p-6 shadow-xl"
+          >
             <h2
               id="danger-zone-dialog-title"
               className="text-lg font-semibold text-slate-900"
@@ -109,7 +108,7 @@ export function DangerZone({ deleteAccountAction }: DangerZoneProps) {
                 )}
               </button>
             </div>
-          </div>
+          </dialog>
         </div>
       )}
     </>

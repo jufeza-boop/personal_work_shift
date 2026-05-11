@@ -2,8 +2,10 @@
 
 import { useActionState, useState, useId } from "react";
 import type { ColorPaletteName } from "@/domain/value-objects/ColorPalette";
-import { ColorPalettePicker } from "@/presentation/components/family/ColorPalettePicker";
-import type { PaletteOption } from "@/presentation/components/family/ColorPalettePicker";
+import {
+  ColorPalettePicker,
+  type PaletteOption,
+} from "@/presentation/components/family/ColorPalettePicker";
 import { SubmitButton } from "@/presentation/components/ui/SubmitButton";
 import {
   EMPTY_INVITATION_FORM_STATE,
@@ -25,7 +27,7 @@ export function AcceptInvitationForm({
   familyName,
   paletteOptions,
   token,
-}: AcceptInvitationFormProps) {
+}: Readonly<AcceptInvitationFormProps>) {
   const colorPickerId = useId();
   const [selectedPalette, setSelectedPalette] = useState<
     ColorPaletteName | undefined
