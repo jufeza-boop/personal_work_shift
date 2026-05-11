@@ -76,13 +76,7 @@ test("create a punctual event and see it in the calendar", async ({ page }) => {
   // Wait for the grid to be fully rendered before interacting
   await expect(page.getByTestId("calendar-grid")).toBeVisible();
 
-  // Close the member filter sheet if it is open (its aria-modal would block
-  // queries outside the dialog and its backdrop would intercept clicks)
-  const applyBtn = page.getByRole("button", { name: "Aplicar" });
-  if (await applyBtn.isVisible()) {
-    await applyBtn.click();
-  }
-
+  
   // Click day 15 (first match avoids picking a day from a sibling month)
   await page.getByRole("button", { name: "15" }).first().click();
 
