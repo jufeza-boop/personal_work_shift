@@ -47,7 +47,7 @@ export function NotificationBell() {
         aria-pressed={isSubscribed}
         className="flex h-8 w-8 items-center justify-center rounded-full text-slate-600 transition-colors hover:bg-stone-100 hover:text-slate-900 disabled:opacity-50"
         disabled={isLoading}
-        onClick={() => void handleClick()}
+        onClick={handleClick}
         type="button"
       >
         {isSubscribed ? (

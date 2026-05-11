@@ -52,7 +52,7 @@ export function DayCell({
   occurrences,
   members,
   onSelect,
-}: DayCellProps) {
+}: Readonly<DayCellProps>) {
   const memberMap = new Map(members.map((m) => [m.userId, m]));
 
   // Shift occurrences: work/studies events with shift type — fill the entire day cell

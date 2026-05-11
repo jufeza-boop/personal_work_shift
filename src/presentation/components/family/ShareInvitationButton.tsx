@@ -11,7 +11,7 @@ const TELEGRAM_BASE = "https://t.me/share/url?url=";
 export function ShareInvitationButton({
   familyName,
   url,
-}: ShareInvitationButtonProps) {
+}: Readonly<ShareInvitationButtonProps>) {
   const text = encodeURIComponent(
     `¡Te invito a unirte a la familia "${familyName}" en Personal Work Shift! Usa este enlace para aceptar la invitación:`,
   );

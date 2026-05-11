@@ -39,7 +39,7 @@ export class CancelInvitation {
 
     const family = await this.familyRepository.findById(invitation.familyId);
 
-    if (!family || family.createdBy !== input.requestedBy) {
+    if (family?.createdBy !== input.requestedBy) {
       return {
         error: {
           code: "FORBIDDEN",

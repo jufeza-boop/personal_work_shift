@@ -12,7 +12,7 @@ interface ProfileLayoutProps {
   children: React.ReactNode;
 }
 
-export default async function ProfileLayout({ children }: ProfileLayoutProps) {
+export default async function ProfileLayout({ children }: Readonly<ProfileLayoutProps>) {
   const user = await getAuthenticatedUser();
 
   if (!user) {
