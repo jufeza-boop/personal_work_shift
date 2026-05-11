@@ -146,13 +146,13 @@ export async function createEventAction(
 
   if (eventType === "punctual") {
     const parsed = createPunctualEventSchema.safeParse({
-      date: formData.get("date"),
-      description: formData.get("description"),
-      endTime: formData.get("endTime") ?? undefined,
-      startTime: formData.get("startTime") ?? undefined,
-      title: formData.get("title"),
-      category: formData.get("category") || undefined,
-      shiftType: formData.get("shiftType") || undefined,
+      date: formData.get("date")?.toString(),
+      description: formData.get("description")?.toString(),
+      endTime: formData.get("endTime")?.toString() ?? undefined,
+      startTime: formData.get("startTime")?.toString() ?? undefined,
+      title: formData.get("title")?.toString(),
+      category: formData.get("category")?.toString() || undefined,
+      shiftType: formData.get("shiftType")?.toString() || undefined,
     });
 
     if (!parsed.success) {
@@ -223,16 +223,16 @@ export async function createEventAction(
 
   if (eventType === "recurring") {
     const parsed = createRecurringEventSchema.safeParse({
-      category: formData.get("category"),
-      description: formData.get("description"),
-      endDate: formData.get("endDate"),
-      endTime: formData.get("endTime") ?? undefined,
-      frequencyInterval: formData.get("frequencyInterval"),
-      frequencyUnit: formData.get("frequencyUnit"),
-      shiftType: formData.get("shiftType") || undefined,
-      startDate: formData.get("startDate"),
-      startTime: formData.get("startTime") ?? undefined,
-      title: formData.get("title"),
+      category: formData.get("category")?.toString(),
+      description: formData.get("description")?.toString(),
+      endDate: formData.get("endDate")?.toString(),
+      endTime: formData.get("endTime")?.toString() ?? undefined,
+      frequencyInterval: formData.get("frequencyInterval")?.toString(),
+      frequencyUnit: formData.get("frequencyUnit")?.toString(),
+      shiftType: formData.get("shiftType")?.toString() || undefined,
+      startDate: formData.get("startDate")?.toString(),
+      startTime: formData.get("startTime")?.toString() ?? undefined,
+      title: formData.get("title")?.toString(),
     });
 
     if (!parsed.success) {
@@ -348,13 +348,13 @@ export async function editEventAction(
       eventId,
       scope,
       occurrenceDate: occurrenceDateRaw,
-      title: formData.get("title"),
-      description: formData.get("description"),
-      date: formData.get("date"),
-      startTime: formData.get("startTime") ?? undefined,
-      endTime: formData.get("endTime") ?? undefined,
-      category: formData.get("category") || undefined,
-      shiftType: formData.get("shiftType") || undefined,
+      title: formData.get("title")?.toString(),
+      description: formData.get("description")?.toString(),
+      date: formData.get("date")?.toString(),
+      startTime: formData.get("startTime")?.toString() ?? undefined,
+      endTime: formData.get("endTime")?.toString() ?? undefined,
+      category: formData.get("category")?.toString() || undefined,
+      shiftType: formData.get("shiftType")?.toString() || undefined,
     });
 
     if (!parsed.success) {
@@ -413,16 +413,16 @@ export async function editEventAction(
       scope,
       occurrenceDate: occurrenceDateRaw ?? undefined,
       newDate: formData.get("newDate")?.toString() ?? undefined,
-      title: formData.get("title"),
-      description: formData.get("description"),
-      startDate: formData.get("startDate") ?? undefined,
-      endDate: formData.get("endDate") ?? undefined,
-      frequencyUnit: formData.get("frequencyUnit") ?? undefined,
-      frequencyInterval: formData.get("frequencyInterval") ?? undefined,
-      category: formData.get("category") || undefined,
-      shiftType: formData.get("shiftType") || undefined,
-      startTime: formData.get("startTime") || undefined,
-      endTime: formData.get("endTime") || undefined,
+      title: formData.get("title")?.toString(),
+      description: formData.get("description")?.toString(),
+      startDate: formData.get("startDate")?.toString() ?? undefined,
+      endDate: formData.get("endDate")?.toString() ?? undefined,
+      frequencyUnit: formData.get("frequencyUnit")?.toString() ?? undefined,
+      frequencyInterval: formData.get("frequencyInterval")?.toString() ?? undefined,
+      category: formData.get("category")?.toString() || undefined,
+      shiftType: formData.get("shiftType")?.toString() || undefined,
+      startTime: formData.get("startTime")?.toString() || undefined,
+      endTime: formData.get("endTime")?.toString() || undefined,
     });
 
     if (!parsed.success) {
