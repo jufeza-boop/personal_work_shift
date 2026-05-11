@@ -114,8 +114,8 @@ export async function acceptInvitationAction(
 ): Promise<InvitationFormState> {
 
   const parsed = acceptInvitationSchema.safeParse({
-    colorPalette: formData.get("colorPalette"),
-    token: formData.get("token"),
+    colorPalette: formData.get("colorPalette")?.toString(),
+    token: formData.get("token")?.toString(),
   });
 
   if (!parsed.success) {

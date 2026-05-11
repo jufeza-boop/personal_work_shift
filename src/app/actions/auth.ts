@@ -55,9 +55,9 @@ export async function registerAction(
   }
 
   const parsed = registerSchema.safeParse({
-    displayName: formData.get("displayName"),
-    email: formData.get("email"),
-    password: formData.get("password"),
+    displayName: formData.get("displayName")?.toString(),
+    email: formData.get("email")?.toString(),
+    password: formData.get("password")?.toString(),
   });
 
   if (!parsed.success) {
@@ -120,8 +120,8 @@ export async function loginAction(
   }
 
   const parsed = loginSchema.safeParse({
-    email: formData.get("email"),
-    password: formData.get("password"),
+    email: formData.get("email")?.toString(),
+    password: formData.get("password")?.toString(),
   });
 
   if (!parsed.success) {
