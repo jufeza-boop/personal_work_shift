@@ -3,6 +3,7 @@ import {
   EventException,
   type EventExceptionOverrideData,
 } from "@/domain/entities/EventException";
+import { type Event } from "@/domain/entities/Event";
 import { PunctualEvent } from "@/domain/entities/PunctualEvent";
 import {
   RecurringEvent,
@@ -175,10 +176,10 @@ export class EditEvent {
   }
 
   private async editAllScope(
-    event: Awaited<ReturnType<IEventRepository["findById"]>>,
+    event: Event,
     input: Extract<EditEventInput, { scope: "all" }>,
   ): Promise<EditEventResult> {
-    if (event!.type === "punctual") {
+    if (event.type === "punctual") {
       const updated = buildUpdatedPunctual(event as PunctualEvent, input);
       await this.eventRepository.save(updated);
     } else {
@@ -189,10 +190,10 @@ export class EditEvent {
   }
 
   private async editSingleScope(
-    event: Awaited<ReturnType<IEventRepository["findById"]>>,
+    event: Event,
     input: Extract<EditEventInput, { scope: "single" }>,
   ): Promise<EditEventResult> {
-    if (event!.type === "punctual") {
+    if (event.type === "punctual") {
       return {
         success: false,
         error: {
@@ -205,7 +206,7 @@ export class EditEvent {
     const overrideData = buildExceptionOverride(input);
     const exception = new EventException({
       id: randomUUID(),
-      eventId: event!.id,
+      eventId: event.id,
       exceptionDate: input.occurrenceDate,
       isDeleted: false,
       overrideData:

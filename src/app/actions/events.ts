@@ -502,7 +502,7 @@ async function handleEditRecurringAll(
     description?: string;
     startDate?: string;
     endDate?: string;
-    frequencyUnit?: string;
+    frequencyUnit?: "daily" | "weekly" | "annual";
     frequencyInterval?: number;
     category?: string;
     shiftType?: string;
@@ -523,7 +523,7 @@ async function handleEditRecurringAll(
     description: parsedData.description ?? null,
     startDate: parsedData.startDate ? toDate(parsedData.startDate) : undefined,
     endDate: parsedData.endDate ? toDate(parsedData.endDate) : undefined,
-    frequencyUnit: parsedData.frequencyUnit as "daily" | "weekly" | "annual" | undefined,
+    frequencyUnit: parsedData.frequencyUnit,
     frequencyInterval: parsedData.frequencyInterval,
     category: parsedData.category ?? undefined,
     shiftType: toOptionalString(parsedData.shiftType) ?? null,
