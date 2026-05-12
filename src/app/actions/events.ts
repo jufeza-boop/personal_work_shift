@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { CreateEvent } from "@/application/use-cases/events/CreateEvent";
 import { DeleteEvent } from "@/application/use-cases/events/DeleteEvent";
 import { EditEvent } from "@/application/use-cases/events/EditEvent";
+import type { EventCategory } from "@/domain/entities/RecurringEvent";
 import type { EventChangeType } from "@/application/use-cases/push/SendEventNotification";
 import { createServerEventDependencies } from "@/infrastructure/events/runtime";
 import { createServerPushDependencies } from "@/infrastructure/push/runtime";
@@ -504,7 +505,7 @@ async function handleEditRecurringAll(
     endDate?: string;
     frequencyUnit?: "daily" | "weekly" | "annual";
     frequencyInterval?: number;
-    category?: string;
+    category?: EventCategory;
     shiftType?: string;
     startTime?: string;
     endTime?: string;
