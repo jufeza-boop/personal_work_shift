@@ -287,7 +287,7 @@ async function createRecurringEvent(
 
 // ─── Edit-event branch helpers ────────────────────────────────────────────────
 
-type EventLike = { familyId: string; createdBy: string; title: string } | null;
+type EventSummary = { familyId: string; createdBy: string; title: string } | null;
 
 async function handleEditPunctual(
   formData: FormData,
@@ -296,7 +296,7 @@ async function handleEditPunctual(
   occurrenceDateRaw: string | undefined,
   redirectTo: string,
   actorId: string,
-  event: EventLike,
+  event: EventSummary,
   requestedBy: string,
 ): Promise<EventFormState | never> {
   const { eventRepository } = await createServerEventDependencies();
@@ -369,7 +369,7 @@ async function handleEditRecurring(
   occurrenceDateRaw: string | undefined,
   redirectTo: string,
   actorId: string,
-  event: EventLike,
+  event: EventSummary,
   requestedBy: string,
 ): Promise<EventFormState | never> {
   const { eventRepository } = await createServerEventDependencies();
@@ -443,7 +443,7 @@ async function handleEditRecurringSingle(
   occurrenceDateRaw: string | undefined,
   redirectTo: string,
   actorId: string,
-  event: EventLike,
+  event: EventSummary,
   requestedBy: string,
   parsedData: {
     title: string;
@@ -495,7 +495,7 @@ async function handleEditRecurringAll(
   eventId: string,
   redirectTo: string,
   actorId: string,
-  event: EventLike,
+  event: EventSummary,
   requestedBy: string,
   parsedData: {
     title: string;
