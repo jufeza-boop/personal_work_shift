@@ -62,15 +62,16 @@ export function DayCell({
       o.shiftType !== null,
   );
 
-  // Vacation recurring events: fill the cell with a diagonal stripe pattern
+  // Vacation events (both punctual and recurring): fill the cell with a diagonal stripe pattern
   const vacationOccurrences = occurrences.filter(
-    (o) => o.type === "recurring" && o.category === "vacations",
+    (o) => o.category === "vacations",
   );
 
-  // Punctual events without shift: shown as palette-colored text labels
+  // Punctual events without shift and not vacation: shown as palette-colored text labels
   const punctualOccurrences = occurrences.filter(
     (o) =>
       o.type === "punctual" &&
+      o.category !== "vacations" &&
       !(
         (o.category === "work" || o.category === "studies") &&
         o.shiftType !== null
@@ -169,7 +170,7 @@ export function DayCell({
         </span>
       ))}
 
-      {/* Vacation recurring events: fill cell with diagonal stripes and show title */}
+      {/* Vacation events (punctual and recurring): fill cell with diagonal stripes and show title */}
       {hasVacationFill &&
         vacationOccurrences.map((occ) => (
           <span
