@@ -56,6 +56,87 @@ export type EditEventResult =
       };
     };
 
+// ─── Pure helpers for building updated domain objects ─────────────────────────
+
+function resolveShiftType(
+  inputShiftType: string | null | undefined,
+  existingShiftType: ReturnType<typeof ShiftType.create> | null,
+): ReturnType<typeof ShiftType.create> | null {
+  if (inputShiftType === undefined) return existingShiftType;
+  return inputShiftType ? ShiftType.create(inputShiftType) : null;
+}
+
+function buildUpdatedPunctual(
+  event: PunctualEvent,
+  input: Extract<EditEventInput, { scope: "all" }>,
+): PunctualEvent {
+  return new PunctualEvent({
+    id: event.id,
+    familyId: event.familyId,
+    createdBy: event.createdBy,
+    title: input.title ?? event.title,
+    description:
+      input.description !== undefined ? input.description : event.description,
+    date: input.date ?? event.date,
+    startTime:
+      input.startTime !== undefined ? input.startTime : event.startTime,
+    endTime: input.endTime !== undefined ? input.endTime : event.endTime,
+    category:
+      input.category !== undefined ? input.category : event.category,
+    shiftType: resolveShiftType(input.shiftType, event.shiftType),
+    createdAt: event.createdAt,
+    updatedAt: new Date(),
+  });
+}
+
+function buildUpdatedRecurring(
+  event: RecurringEvent,
+  input: Extract<EditEventInput, { scope: "all" }>,
+): RecurringEvent {
+  const hasFrequencyChange =
+    input.frequencyUnit !== undefined || input.frequencyInterval !== undefined;
+
+  return new RecurringEvent({
+    id: event.id,
+    familyId: event.familyId,
+    createdBy: event.createdBy,
+    title: input.title ?? event.title,
+    description:
+      input.description !== undefined ? input.description : event.description,
+    category: input.category != null ? input.category : event.category,
+    startDate: input.startDate ?? event.startDate,
+    endDate: input.endDate !== undefined ? input.endDate : event.endDate,
+    frequency: hasFrequencyChange
+      ? EventFrequency.create(
+          input.frequencyUnit ?? event.frequency.unit,
+          input.frequencyInterval ?? event.frequency.interval,
+        )
+      : event.frequency,
+    shiftType: resolveShiftType(input.shiftType, event.shiftType),
+    startTime:
+      input.startTime !== undefined ? input.startTime : event.startTime,
+    endTime: input.endTime !== undefined ? input.endTime : event.endTime,
+    createdAt: event.createdAt,
+    updatedAt: new Date(),
+  });
+}
+
+function buildExceptionOverride(
+  input: Extract<EditEventInput, { scope: "single" }>,
+): EventExceptionOverrideData {
+  const overrideData: EventExceptionOverrideData = {};
+  if (input.title !== undefined) overrideData.title = input.title;
+  if (input.description !== undefined)
+    overrideData.description = input.description;
+  if (input.startTime !== undefined) overrideData.startTime = input.startTime;
+  if (input.endTime !== undefined) overrideData.endTime = input.endTime;
+  if (input.newDate !== undefined)
+    overrideData.newDate = input.newDate.toISOString().slice(0, 10);
+  return overrideData;
+}
+
+// ─── Use-case class ───────────────────────────────────────────────────────────
+
 export class EditEvent {
   constructor(private readonly eventRepository: IEventRepository) {}
 
@@ -78,112 +159,10 @@ export class EditEvent {
 
     try {
       if (input.scope === "all") {
-        if (event.type === "punctual") {
-          const punctual = event as PunctualEvent;
-          const updated = new PunctualEvent({
-            id: event.id,
-            familyId: event.familyId,
-            createdBy: event.createdBy,
-            title: input.title ?? event.title,
-            description:
-              input.description !== undefined
-                ? input.description
-                : event.description,
-            date: input.date ?? punctual.date,
-            startTime:
-              input.startTime !== undefined
-                ? input.startTime
-                : punctual.startTime,
-            endTime:
-              input.endTime !== undefined ? input.endTime : punctual.endTime,
-            category:
-              input.category !== undefined ? input.category : punctual.category,
-            shiftType:
-              input.shiftType !== undefined
-                ? input.shiftType
-                  ? ShiftType.create(input.shiftType)
-                  : null
-                : punctual.shiftType,
-            createdAt: event.createdAt,
-            updatedAt: new Date(),
-          });
-          await this.eventRepository.save(updated);
-        } else {
-          const recurring = event as RecurringEvent;
-          const updated = new RecurringEvent({
-            id: event.id,
-            familyId: event.familyId,
-            createdBy: event.createdBy,
-            title: input.title ?? event.title,
-            description:
-              input.description !== undefined
-                ? input.description
-                : event.description,
-            category:
-              input.category != null ? input.category : recurring.category,
-            startDate: input.startDate ?? recurring.startDate,
-            endDate:
-              input.endDate !== undefined ? input.endDate : recurring.endDate,
-            frequency:
-              input.frequencyUnit !== undefined ||
-              input.frequencyInterval !== undefined
-                ? EventFrequency.create(
-                    input.frequencyUnit ?? recurring.frequency.unit,
-                    input.frequencyInterval ?? recurring.frequency.interval,
-                  )
-                : recurring.frequency,
-            shiftType:
-              input.shiftType !== undefined
-                ? input.shiftType
-                  ? ShiftType.create(input.shiftType)
-                  : null
-                : recurring.shiftType,
-            startTime:
-              input.startTime !== undefined
-                ? input.startTime
-                : recurring.startTime,
-            endTime:
-              input.endTime !== undefined ? input.endTime : recurring.endTime,
-            createdAt: event.createdAt,
-            updatedAt: new Date(),
-          });
-          await this.eventRepository.save(updated);
-        }
-        return { success: true };
+        return await this.editAllScope(event, input);
       }
 
-      // scope === "single"
-      if (event.type === "punctual") {
-        return {
-          success: false,
-          error: {
-            code: "INVALID_SCOPE",
-            message: "Cannot edit a single occurrence of a punctual event",
-          },
-        };
-      }
-
-      const overrideData: EventExceptionOverrideData = {};
-      if (input.title !== undefined) overrideData.title = input.title;
-      if (input.description !== undefined)
-        overrideData.description = input.description;
-      if (input.startTime !== undefined)
-        overrideData.startTime = input.startTime;
-      if (input.endTime !== undefined) overrideData.endTime = input.endTime;
-      if (input.newDate !== undefined)
-        overrideData.newDate = input.newDate.toISOString().slice(0, 10);
-
-      const exception = new EventException({
-        id: randomUUID(),
-        eventId: event.id,
-        exceptionDate: input.occurrenceDate,
-        isDeleted: false,
-        overrideData:
-          Object.keys(overrideData).length > 0 ? overrideData : null,
-      });
-
-      await this.eventRepository.saveException(exception);
-      return { success: true };
+      return await this.editSingleScope(event, input);
     } catch (error) {
       if (error instanceof ValidationError) {
         return {
@@ -193,5 +172,47 @@ export class EditEvent {
       }
       throw error;
     }
+  }
+
+  private async editAllScope(
+    event: Awaited<ReturnType<IEventRepository["findById"]>>,
+    input: Extract<EditEventInput, { scope: "all" }>,
+  ): Promise<EditEventResult> {
+    if (event!.type === "punctual") {
+      const updated = buildUpdatedPunctual(event as PunctualEvent, input);
+      await this.eventRepository.save(updated);
+    } else {
+      const updated = buildUpdatedRecurring(event as RecurringEvent, input);
+      await this.eventRepository.save(updated);
+    }
+    return { success: true };
+  }
+
+  private async editSingleScope(
+    event: Awaited<ReturnType<IEventRepository["findById"]>>,
+    input: Extract<EditEventInput, { scope: "single" }>,
+  ): Promise<EditEventResult> {
+    if (event!.type === "punctual") {
+      return {
+        success: false,
+        error: {
+          code: "INVALID_SCOPE",
+          message: "Cannot edit a single occurrence of a punctual event",
+        },
+      };
+    }
+
+    const overrideData = buildExceptionOverride(input);
+    const exception = new EventException({
+      id: randomUUID(),
+      eventId: event!.id,
+      exceptionDate: input.occurrenceDate,
+      isDeleted: false,
+      overrideData:
+        Object.keys(overrideData).length > 0 ? overrideData : null,
+    });
+
+    await this.eventRepository.saveException(exception);
+    return { success: true };
   }
 }
