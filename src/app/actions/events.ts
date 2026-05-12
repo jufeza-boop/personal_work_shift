@@ -5,12 +5,12 @@ import { redirect } from "next/navigation";
 import { CreateEvent } from "@/application/use-cases/events/CreateEvent";
 import { DeleteEvent } from "@/application/use-cases/events/DeleteEvent";
 import { EditEvent } from "@/application/use-cases/events/EditEvent";
+import type { EventCategory } from "@/domain/entities/RecurringEvent";
 import type { EventChangeType } from "@/application/use-cases/push/SendEventNotification";
 import { createServerEventDependencies } from "@/infrastructure/events/runtime";
 import { createServerPushDependencies } from "@/infrastructure/push/runtime";
 import { notifyFamilyOnEventChange } from "@/application/services/notifyFamilyOnEventChange";
 import {
-  EMPTY_EVENT_FORM_STATE,
   type EventFormState,
 } from "@/presentation/components/events/types";
 import {
@@ -124,8 +124,439 @@ function toOptionalString(value: string | undefined | ""): string | undefined {
   return value;
 }
 
+// ─── Create-event branch helpers ─────────────────────────────────────────────
+
+async function createPunctualEvent(
+  formData: FormData,
+  familyId: string,
+  redirectTo: string,
+  targetUserId: string | undefined,
+): Promise<EventFormState | never> {
+  const parsed = createPunctualEventSchema.safeParse({
+    date: formData.get("date")?.toString(),
+    description: formData.get("description")?.toString(),
+    endTime: formData.get("endTime")?.toString() ?? undefined,
+    startTime: formData.get("startTime")?.toString() ?? undefined,
+    title: formData.get("title")?.toString(),
+    category: formData.get("category")?.toString() || undefined,
+    shiftType: formData.get("shiftType")?.toString() || undefined,
+  });
+
+  if (!parsed.success) {
+    const fieldErrors = parsed.error.flatten().fieldErrors;
+    return {
+      errors: {
+        date: fieldErrors.date?.[0],
+        description: fieldErrors.description?.[0],
+        endTime: fieldErrors.endTime?.[0],
+        startTime: fieldErrors.startTime?.[0],
+        title: fieldErrors.title?.[0],
+        category: fieldErrors.category?.[0],
+        shiftType: fieldErrors.shiftType?.[0],
+      },
+      success: false,
+    };
+  }
+
+  const user = await requireAuthenticatedUser(redirectTo);
+  const { eventRepository, familyRepository, userRepository } =
+    await createServerEventDependencies();
+  const createdBy = await resolveCreatedBy(user.id, targetUserId, () =>
+    userRepository.findDelegatedUsers(user.id),
+  );
+
+  if (!createdBy) {
+    return {
+      message: "No tienes permiso para crear eventos en nombre de ese usuario.",
+      success: false,
+    };
+  }
+
+  const useCase = new CreateEvent(eventRepository, familyRepository);
+  const result = await useCase.execute({
+    createdBy,
+    date: toDate(parsed.data.date),
+    description: parsed.data.description,
+    endTime: toOptionalString(parsed.data.endTime),
+    eventType: "punctual",
+    familyId,
+    startTime: toOptionalString(parsed.data.startTime),
+    title: parsed.data.title,
+    category: parsed.data.category,
+    shiftType: toOptionalString(parsed.data.shiftType),
+  });
+
+  if (!result.success) {
+    return { message: buildErrorMessage(result.error.code), success: false };
+  }
+
+  await dispatchFamilyNotification(
+    user.id,
+    familyId,
+    parsed.data.title,
+    "created",
+    parsed.data.date,
+  );
+
+  revalidatePath("/calendar");
+  redirect(redirectTo);
+}
+
+async function createRecurringEvent(
+  formData: FormData,
+  familyId: string,
+  redirectTo: string,
+  targetUserId: string | undefined,
+): Promise<EventFormState | never> {
+  const parsed = createRecurringEventSchema.safeParse({
+    category: formData.get("category")?.toString(),
+    description: formData.get("description")?.toString(),
+    endDate: formData.get("endDate")?.toString(),
+    endTime: formData.get("endTime")?.toString() ?? undefined,
+    frequencyInterval: formData.get("frequencyInterval")?.toString(),
+    frequencyUnit: formData.get("frequencyUnit")?.toString(),
+    shiftType: formData.get("shiftType")?.toString() || undefined,
+    startDate: formData.get("startDate")?.toString(),
+    startTime: formData.get("startTime")?.toString() ?? undefined,
+    title: formData.get("title")?.toString(),
+  });
+
+  if (!parsed.success) {
+    const fieldErrors = parsed.error.flatten().fieldErrors;
+    return {
+      errors: {
+        category: fieldErrors.category?.[0],
+        description: fieldErrors.description?.[0],
+        endDate: fieldErrors.endDate?.[0],
+        endTime: fieldErrors.endTime?.[0],
+        frequencyInterval: fieldErrors.frequencyInterval?.[0],
+        frequencyUnit: fieldErrors.frequencyUnit?.[0],
+        shiftType: fieldErrors.shiftType?.[0],
+        startDate: fieldErrors.startDate?.[0],
+        startTime: fieldErrors.startTime?.[0],
+        title: fieldErrors.title?.[0],
+      },
+      success: false,
+    };
+  }
+
+  const user = await requireAuthenticatedUser(redirectTo);
+  const { eventRepository, familyRepository, userRepository } =
+    await createServerEventDependencies();
+  const createdBy = await resolveCreatedBy(user.id, targetUserId, () =>
+    userRepository.findDelegatedUsers(user.id),
+  );
+
+  if (!createdBy) {
+    return {
+      message: "No tienes permiso para crear eventos en nombre de ese usuario.",
+      success: false,
+    };
+  }
+
+  const useCase = new CreateEvent(eventRepository, familyRepository);
+  const result = await useCase.execute({
+    category: parsed.data.category,
+    createdBy,
+    description: parsed.data.description,
+    endDate: toOptionalDate(parsed.data.endDate),
+    endTime: toOptionalString(parsed.data.endTime),
+    eventType: "recurring",
+    familyId,
+    frequencyInterval: parsed.data.frequencyInterval,
+    frequencyUnit: parsed.data.frequencyUnit,
+    shiftType: toOptionalString(parsed.data.shiftType),
+    startDate: toDate(parsed.data.startDate),
+    startTime: toOptionalString(parsed.data.startTime),
+    title: parsed.data.title,
+  });
+
+  if (!result.success) {
+    return { message: buildErrorMessage(result.error.code), success: false };
+  }
+
+  await dispatchFamilyNotification(
+    user.id,
+    familyId,
+    parsed.data.title,
+    "created",
+  );
+
+  revalidatePath("/calendar");
+  redirect(redirectTo);
+}
+
+// ─── Edit-event branch helpers ────────────────────────────────────────────────
+
+type EventSummary = { familyId: string; createdBy: string; title: string } | null;
+
+async function handleEditPunctual(
+  formData: FormData,
+  eventId: string,
+  scope: "all" | "single" | undefined,
+  occurrenceDateRaw: string | undefined,
+  redirectTo: string,
+  actorId: string,
+  event: EventSummary,
+  requestedBy: string,
+): Promise<EventFormState | never> {
+  const { eventRepository } = await createServerEventDependencies();
+  const useCase = new EditEvent(eventRepository);
+
+  const parsed = editPunctualEventSchema.safeParse({
+    eventId,
+    scope,
+    occurrenceDate: occurrenceDateRaw,
+    title: formData.get("title")?.toString(),
+    description: formData.get("description")?.toString(),
+    date: formData.get("date")?.toString(),
+    startTime: formData.get("startTime")?.toString() ?? undefined,
+    endTime: formData.get("endTime")?.toString() ?? undefined,
+    category: formData.get("category")?.toString() || undefined,
+    shiftType: formData.get("shiftType")?.toString() || undefined,
+  });
+
+  if (!parsed.success) {
+    const fieldErrors = parsed.error.flatten().fieldErrors;
+    return {
+      success: false,
+      errors: {
+        title: fieldErrors.title?.[0],
+        description: fieldErrors.description?.[0],
+        date: fieldErrors.date?.[0],
+        startTime: fieldErrors.startTime?.[0],
+        endTime: fieldErrors.endTime?.[0],
+        category: fieldErrors.category?.[0],
+        shiftType: fieldErrors.shiftType?.[0],
+      },
+    };
+  }
+
+  const result = await useCase.execute({
+    scope: "all",
+    eventId,
+    requestedBy,
+    title: parsed.data.title,
+    description: parsed.data.description ?? null,
+    date: toDate(parsed.data.date),
+    startTime: toOptionalString(parsed.data.startTime) ?? null,
+    endTime: toOptionalString(parsed.data.endTime) ?? null,
+    category: (parsed.data.category || undefined) ?? null,
+    shiftType: (parsed.data.shiftType || undefined) ?? null,
+  });
+
+  if (!result.success) {
+    return { success: false, message: buildErrorMessage(result.error.code) };
+  }
+
+  if (event?.familyId) {
+    await dispatchFamilyNotification(
+      actorId,
+      event.familyId,
+      parsed.data.title,
+      "updated",
+      parsed.data.date,
+    );
+  }
+
+  revalidatePath("/calendar");
+  redirect(redirectTo);
+}
+
+async function handleEditRecurring(
+  formData: FormData,
+  eventId: string,
+  scope: "all" | "single" | undefined,
+  occurrenceDateRaw: string | undefined,
+  redirectTo: string,
+  actorId: string,
+  event: EventSummary,
+  requestedBy: string,
+): Promise<EventFormState | never> {
+  const { eventRepository } = await createServerEventDependencies();
+  const useCase = new EditEvent(eventRepository);
+
+  const parsed = editRecurringEventSchema.safeParse({
+    eventId,
+    scope,
+    occurrenceDate: occurrenceDateRaw ?? undefined,
+    newDate: formData.get("newDate")?.toString() ?? undefined,
+    title: formData.get("title")?.toString(),
+    description: formData.get("description")?.toString(),
+    startDate: formData.get("startDate")?.toString() ?? undefined,
+    endDate: formData.get("endDate")?.toString() ?? undefined,
+    frequencyUnit: formData.get("frequencyUnit")?.toString() ?? undefined,
+    frequencyInterval: formData.get("frequencyInterval")?.toString() ?? undefined,
+    category: formData.get("category")?.toString() || undefined,
+    shiftType: formData.get("shiftType")?.toString() || undefined,
+    startTime: formData.get("startTime")?.toString() || undefined,
+    endTime: formData.get("endTime")?.toString() || undefined,
+  });
+
+  if (!parsed.success) {
+    const fieldErrors = parsed.error.flatten().fieldErrors;
+    return {
+      success: false,
+      errors: {
+        title: fieldErrors.title?.[0],
+        description: fieldErrors.description?.[0],
+        startDate: fieldErrors.startDate?.[0],
+        endDate: fieldErrors.endDate?.[0],
+        frequencyUnit: fieldErrors.frequencyUnit?.[0],
+        frequencyInterval: fieldErrors.frequencyInterval?.[0],
+        shiftType: fieldErrors.shiftType?.[0],
+        startTime: fieldErrors.startTime?.[0],
+        endTime: fieldErrors.endTime?.[0],
+      },
+    };
+  }
+
+  if (parsed.data.scope === "single") {
+    return handleEditRecurringSingle(
+      formData,
+      eventId,
+      occurrenceDateRaw,
+      redirectTo,
+      actorId,
+      event,
+      requestedBy,
+      parsed.data,
+      useCase,
+    );
+  }
+
+  return handleEditRecurringAll(
+    formData,
+    eventId,
+    redirectTo,
+    actorId,
+    event,
+    requestedBy,
+    parsed.data,
+    useCase,
+    eventRepository,
+  );
+}
+
+async function handleEditRecurringSingle(
+  _formData: FormData,
+  eventId: string,
+  occurrenceDateRaw: string | undefined,
+  redirectTo: string,
+  actorId: string,
+  event: EventSummary,
+  requestedBy: string,
+  parsedData: {
+    title: string;
+    description?: string;
+    newDate?: string;
+    startTime?: string;
+    endTime?: string;
+  },
+  useCase: EditEvent,
+): Promise<EventFormState | never> {
+  if (!occurrenceDateRaw) {
+    return { success: false, message: "Selecciona la fecha de la ocurrencia." };
+  }
+
+  const occurrenceDate = toDate(occurrenceDateRaw);
+  const newDateRaw = parsedData.newDate;
+  const result = await useCase.execute({
+    scope: "single",
+    eventId,
+    requestedBy,
+    occurrenceDate,
+    title: parsedData.title,
+    description: parsedData.description ?? null,
+    newDate: newDateRaw ? toDate(newDateRaw) : undefined,
+    startTime: toOptionalString(parsedData.startTime) ?? null,
+    endTime: toOptionalString(parsedData.endTime) ?? null,
+  });
+
+  if (!result.success) {
+    return { success: false, message: buildErrorMessage(result.error.code) };
+  }
+
+  if (event?.familyId) {
+    await dispatchFamilyNotification(
+      actorId,
+      event.familyId,
+      parsedData.title,
+      "updated",
+      occurrenceDateRaw,
+    );
+  }
+
+  revalidatePath("/calendar");
+  redirect(redirectTo);
+}
+
+async function handleEditRecurringAll(
+  formData: FormData,
+  eventId: string,
+  redirectTo: string,
+  actorId: string,
+  event: EventSummary,
+  requestedBy: string,
+  parsedData: {
+    title: string;
+    description?: string;
+    startDate?: string;
+    endDate?: string;
+    frequencyUnit?: "daily" | "weekly" | "annual";
+    frequencyInterval?: number;
+    category?: EventCategory;
+    shiftType?: string;
+    startTime?: string;
+    endTime?: string;
+  },
+  useCase: EditEvent,
+  eventRepository: Awaited<ReturnType<typeof createServerEventDependencies>>["eventRepository"],
+): Promise<EventFormState | never> {
+  const deleteExceptions =
+    formData.get("deleteExceptions")?.toString() === "true";
+
+  const result = await useCase.execute({
+    scope: "all",
+    eventId,
+    requestedBy,
+    title: parsedData.title,
+    description: parsedData.description ?? null,
+    startDate: parsedData.startDate ? toDate(parsedData.startDate) : undefined,
+    endDate: parsedData.endDate ? toDate(parsedData.endDate) : undefined,
+    frequencyUnit: parsedData.frequencyUnit,
+    frequencyInterval: parsedData.frequencyInterval,
+    category: parsedData.category ?? undefined,
+    shiftType: toOptionalString(parsedData.shiftType) ?? null,
+    startTime: toOptionalString(parsedData.startTime) ?? null,
+    endTime: toOptionalString(parsedData.endTime) ?? null,
+  });
+
+  if (!result.success) {
+    return { success: false, message: buildErrorMessage(result.error.code) };
+  }
+
+  if (deleteExceptions) {
+    await eventRepository.deleteExceptionsByEventId(eventId);
+  }
+
+  if (event?.familyId) {
+    await dispatchFamilyNotification(
+      actorId,
+      event.familyId,
+      parsedData.title,
+      "updated",
+    );
+  }
+
+  revalidatePath("/calendar");
+  redirect(redirectTo);
+}
+
+// ─── Exported server actions ──────────────────────────────────────────────────
+
 export async function createEventAction(
-  _previousState: EventFormState = EMPTY_EVENT_FORM_STATE,
+  _previousState: EventFormState,
   formData: FormData,
 ): Promise<EventFormState> {
   // Part of the useActionState API contract, but unused because success redirects.
@@ -138,181 +569,22 @@ export async function createEventAction(
   );
 
   if (!familyId) {
-    return {
-      message: "No se encontró la familia activa.",
-      success: false,
-    };
+    return { message: "No se encontró la familia activa.", success: false };
   }
 
   if (eventType === "punctual") {
-    const parsed = createPunctualEventSchema.safeParse({
-      date: formData.get("date"),
-      description: formData.get("description"),
-      endTime: formData.get("endTime") ?? undefined,
-      startTime: formData.get("startTime") ?? undefined,
-      title: formData.get("title"),
-      category: formData.get("category") || undefined,
-      shiftType: formData.get("shiftType") || undefined,
-    });
-
-    if (!parsed.success) {
-      const fieldErrors = parsed.error.flatten().fieldErrors;
-
-      return {
-        errors: {
-          date: fieldErrors.date?.[0],
-          description: fieldErrors.description?.[0],
-          endTime: fieldErrors.endTime?.[0],
-          startTime: fieldErrors.startTime?.[0],
-          title: fieldErrors.title?.[0],
-          category: fieldErrors.category?.[0],
-          shiftType: fieldErrors.shiftType?.[0],
-        },
-        success: false,
-      };
-    }
-
-    const user = await requireAuthenticatedUser(redirectTo);
-    const { eventRepository, familyRepository, userRepository } =
-      await createServerEventDependencies();
-    const createdBy = await resolveCreatedBy(user.id, targetUserId, () =>
-      userRepository.findDelegatedUsers(user.id),
-    );
-
-    if (!createdBy) {
-      return {
-        message:
-          "No tienes permiso para crear eventos en nombre de ese usuario.",
-        success: false,
-      };
-    }
-
-    const useCase = new CreateEvent(eventRepository, familyRepository);
-    const result = await useCase.execute({
-      createdBy,
-      date: toDate(parsed.data.date),
-      description: parsed.data.description,
-      endTime: toOptionalString(parsed.data.endTime),
-      eventType: "punctual",
-      familyId,
-      startTime: toOptionalString(parsed.data.startTime),
-      title: parsed.data.title,
-      category: parsed.data.category,
-      shiftType: toOptionalString(parsed.data.shiftType),
-    });
-
-    if (!result.success) {
-      return {
-        message: buildErrorMessage(result.error.code),
-        success: false,
-      };
-    }
-
-    const eventDate = parsed.data.date;
-    await dispatchFamilyNotification(
-      user.id,
-      familyId,
-      parsed.data.title,
-      "created",
-      eventDate,
-    );
-
-    revalidatePath("/calendar");
-    redirect(redirectTo);
+    return createPunctualEvent(formData, familyId, redirectTo, targetUserId);
   }
 
   if (eventType === "recurring") {
-    const parsed = createRecurringEventSchema.safeParse({
-      category: formData.get("category"),
-      description: formData.get("description"),
-      endDate: formData.get("endDate"),
-      endTime: formData.get("endTime") ?? undefined,
-      frequencyInterval: formData.get("frequencyInterval"),
-      frequencyUnit: formData.get("frequencyUnit"),
-      shiftType: formData.get("shiftType") || undefined,
-      startDate: formData.get("startDate"),
-      startTime: formData.get("startTime") ?? undefined,
-      title: formData.get("title"),
-    });
-
-    if (!parsed.success) {
-      const fieldErrors = parsed.error.flatten().fieldErrors;
-
-      return {
-        errors: {
-          category: fieldErrors.category?.[0],
-          description: fieldErrors.description?.[0],
-          endDate: fieldErrors.endDate?.[0],
-          endTime: fieldErrors.endTime?.[0],
-          frequencyInterval: fieldErrors.frequencyInterval?.[0],
-          frequencyUnit: fieldErrors.frequencyUnit?.[0],
-          shiftType: fieldErrors.shiftType?.[0],
-          startDate: fieldErrors.startDate?.[0],
-          startTime: fieldErrors.startTime?.[0],
-          title: fieldErrors.title?.[0],
-        },
-        success: false,
-      };
-    }
-
-    const user = await requireAuthenticatedUser(redirectTo);
-    const { eventRepository, familyRepository, userRepository } =
-      await createServerEventDependencies();
-    const createdBy = await resolveCreatedBy(user.id, targetUserId, () =>
-      userRepository.findDelegatedUsers(user.id),
-    );
-
-    if (!createdBy) {
-      return {
-        message:
-          "No tienes permiso para crear eventos en nombre de ese usuario.",
-        success: false,
-      };
-    }
-
-    const useCase = new CreateEvent(eventRepository, familyRepository);
-    const result = await useCase.execute({
-      category: parsed.data.category,
-      createdBy,
-      description: parsed.data.description,
-      endDate: toOptionalDate(parsed.data.endDate),
-      endTime: toOptionalString(parsed.data.endTime),
-      eventType: "recurring",
-      familyId,
-      frequencyInterval: parsed.data.frequencyInterval,
-      frequencyUnit: parsed.data.frequencyUnit,
-      shiftType: toOptionalString(parsed.data.shiftType),
-      startDate: toDate(parsed.data.startDate),
-      startTime: toOptionalString(parsed.data.startTime),
-      title: parsed.data.title,
-    });
-
-    if (!result.success) {
-      return {
-        message: buildErrorMessage(result.error.code),
-        success: false,
-      };
-    }
-
-    await dispatchFamilyNotification(
-      user.id,
-      familyId,
-      parsed.data.title,
-      "created",
-    );
-
-    revalidatePath("/calendar");
-    redirect(redirectTo);
+    return createRecurringEvent(formData, familyId, redirectTo, targetUserId);
   }
 
-  return {
-    message: "Tipo de evento no reconocido.",
-    success: false,
-  };
+  return { message: "Tipo de evento no reconocido.", success: false };
 }
 
 export async function editEventAction(
-  _previousState: EventFormState = EMPTY_EVENT_FORM_STATE,
+  _previousState: EventFormState,
   formData: FormData,
 ): Promise<EventFormState> {
   const eventId = formData.get("eventId")?.toString();
@@ -333,7 +605,6 @@ export async function editEventAction(
   const user = await requireAuthenticatedUser(redirectTo);
   const { eventRepository, userRepository } =
     await createServerEventDependencies();
-  const useCase = new EditEvent(eventRepository);
 
   // Resolve the effective requestedBy to support delegation.
   const event = await eventRepository.findById(eventId);
@@ -344,195 +615,36 @@ export async function editEventAction(
     : user.id;
 
   if (eventType === "punctual") {
-    const parsed = editPunctualEventSchema.safeParse({
+    return handleEditPunctual(
+      formData,
       eventId,
       scope,
-      occurrenceDate: occurrenceDateRaw,
-      title: formData.get("title"),
-      description: formData.get("description"),
-      date: formData.get("date"),
-      startTime: formData.get("startTime") ?? undefined,
-      endTime: formData.get("endTime") ?? undefined,
-      category: formData.get("category") || undefined,
-      shiftType: formData.get("shiftType") || undefined,
-    });
-
-    if (!parsed.success) {
-      const fieldErrors = parsed.error.flatten().fieldErrors;
-      return {
-        success: false,
-        errors: {
-          title: fieldErrors.title?.[0],
-          description: fieldErrors.description?.[0],
-          date: fieldErrors.date?.[0],
-          startTime: fieldErrors.startTime?.[0],
-          endTime: fieldErrors.endTime?.[0],
-          category: fieldErrors.category?.[0],
-          shiftType: fieldErrors.shiftType?.[0],
-        },
-      };
-    }
-
-    const categoryValue = parsed.data.category || undefined;
-    const shiftTypeValue = parsed.data.shiftType || undefined;
-
-    const result = await useCase.execute({
-      scope: "all",
-      eventId,
+      occurrenceDateRaw,
+      redirectTo,
+      user.id,
+      event,
       requestedBy,
-      title: parsed.data.title,
-      description: parsed.data.description ?? null,
-      date: toDate(parsed.data.date),
-      startTime: toOptionalString(parsed.data.startTime) ?? null,
-      endTime: toOptionalString(parsed.data.endTime) ?? null,
-      category: categoryValue ?? null,
-      shiftType: shiftTypeValue ?? null,
-    });
-
-    if (!result.success) {
-      return { success: false, message: buildErrorMessage(result.error.code) };
-    }
-
-    if (event?.familyId) {
-      await dispatchFamilyNotification(
-        user.id,
-        event.familyId,
-        parsed.data.title,
-        "updated",
-        parsed.data.date,
-      );
-    }
-
-    revalidatePath("/calendar");
-    redirect(redirectTo);
+    );
   }
 
   if (eventType === "recurring") {
-    const parsed = editRecurringEventSchema.safeParse({
+    return handleEditRecurring(
+      formData,
       eventId,
       scope,
-      occurrenceDate: occurrenceDateRaw ?? undefined,
-      newDate: formData.get("newDate")?.toString() ?? undefined,
-      title: formData.get("title"),
-      description: formData.get("description"),
-      startDate: formData.get("startDate") ?? undefined,
-      endDate: formData.get("endDate") ?? undefined,
-      frequencyUnit: formData.get("frequencyUnit") ?? undefined,
-      frequencyInterval: formData.get("frequencyInterval") ?? undefined,
-      category: formData.get("category") || undefined,
-      shiftType: formData.get("shiftType") || undefined,
-      startTime: formData.get("startTime") || undefined,
-      endTime: formData.get("endTime") || undefined,
-    });
-
-    if (!parsed.success) {
-      const fieldErrors = parsed.error.flatten().fieldErrors;
-      return {
-        success: false,
-        errors: {
-          title: fieldErrors.title?.[0],
-          description: fieldErrors.description?.[0],
-          startDate: fieldErrors.startDate?.[0],
-          endDate: fieldErrors.endDate?.[0],
-          frequencyUnit: fieldErrors.frequencyUnit?.[0],
-          frequencyInterval: fieldErrors.frequencyInterval?.[0],
-          shiftType: fieldErrors.shiftType?.[0],
-          startTime: fieldErrors.startTime?.[0],
-          endTime: fieldErrors.endTime?.[0],
-        },
-      };
-    }
-
-    if (parsed.data.scope === "single") {
-      if (!occurrenceDateRaw) {
-        return {
-          success: false,
-          message: "Selecciona la fecha de la ocurrencia.",
-        };
-      }
-      const occurrenceDate = toDate(occurrenceDateRaw);
-      const newDateRaw = formData.get("newDate")?.toString();
-      const result = await useCase.execute({
-        scope: "single",
-        eventId,
-        requestedBy,
-        occurrenceDate,
-        title: parsed.data.title,
-        description: parsed.data.description ?? null,
-        newDate: newDateRaw ? toDate(newDateRaw) : undefined,
-        startTime: toOptionalString(parsed.data.startTime) ?? null,
-        endTime: toOptionalString(parsed.data.endTime) ?? null,
-      });
-
-      if (!result.success) {
-        return {
-          success: false,
-          message: buildErrorMessage(result.error.code),
-        };
-      }
-
-      if (event?.familyId) {
-        await dispatchFamilyNotification(
-          user.id,
-          event.familyId,
-          parsed.data.title,
-          "updated",
-          occurrenceDateRaw,
-        );
-      }
-
-      revalidatePath("/calendar");
-      redirect(redirectTo);
-    }
-
-    // scope "all" for recurring
-    const deleteExceptions =
-      formData.get("deleteExceptions")?.toString() === "true";
-
-    const result = await useCase.execute({
-      scope: "all",
-      eventId,
+      occurrenceDateRaw,
+      redirectTo,
+      user.id,
+      event,
       requestedBy,
-      title: parsed.data.title,
-      description: parsed.data.description ?? null,
-      startDate: parsed.data.startDate
-        ? toDate(parsed.data.startDate)
-        : undefined,
-      endDate: parsed.data.endDate ? toDate(parsed.data.endDate) : undefined,
-      frequencyUnit: parsed.data.frequencyUnit,
-      frequencyInterval: parsed.data.frequencyInterval,
-      category: parsed.data.category ?? undefined,
-      shiftType: toOptionalString(parsed.data.shiftType) ?? null,
-      startTime: toOptionalString(parsed.data.startTime) ?? null,
-      endTime: toOptionalString(parsed.data.endTime) ?? null,
-    });
-
-    if (!result.success) {
-      return { success: false, message: buildErrorMessage(result.error.code) };
-    }
-
-    if (deleteExceptions) {
-      await eventRepository.deleteExceptionsByEventId(eventId);
-    }
-
-    if (event?.familyId) {
-      await dispatchFamilyNotification(
-        user.id,
-        event.familyId,
-        parsed.data.title,
-        "updated",
-      );
-    }
-
-    revalidatePath("/calendar");
-    redirect(redirectTo);
+    );
   }
 
   return { success: false, message: "Tipo de evento no reconocido." };
 }
 
 export async function deleteEventAction(
-  _previousState: EventFormState = EMPTY_EVENT_FORM_STATE,
+  _previousState: EventFormState,
   formData: FormData,
 ): Promise<EventFormState> {
   const eventId = formData.get("eventId")?.toString();

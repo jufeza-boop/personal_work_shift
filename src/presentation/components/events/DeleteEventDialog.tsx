@@ -24,6 +24,8 @@ interface DeleteEventDialogProps {
   occurrenceDate?: string;
 }
 
+type ReadonlyDeleteEventDialogProps = Readonly<DeleteEventDialogProps>;
+
 function DeleteSubmitButton() {
   const { pending } = useFormStatus();
   return (
@@ -52,7 +54,7 @@ export function DeleteEventDialog({
   onClose,
   onScopeChange,
   occurrenceDate,
-}: DeleteEventDialogProps) {
+}: ReadonlyDeleteEventDialogProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="w-full max-w-sm space-y-4 rounded-2xl bg-white p-6 shadow-xl">
@@ -86,7 +88,7 @@ export function DeleteEventDialog({
                     value="all"
                     checked={dialog.scope === "all"}
                     onChange={() => onScopeChange("all")}
-                  />
+                  />{" "}
                   Toda la serie
                 </label>
                 <label className="flex items-center gap-2 text-sm">
@@ -96,7 +98,7 @@ export function DeleteEventDialog({
                     value="single"
                     checked={dialog.scope === "single"}
                     onChange={() => onScopeChange("single")}
-                  />
+                  />{" "}
                   {occurrenceDate !== undefined
                     ? "Solo este día"
                     : "Una ocurrencia"}

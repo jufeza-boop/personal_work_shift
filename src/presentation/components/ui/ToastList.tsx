@@ -8,7 +8,7 @@ interface ToastListProps {
   toasts: Toast[];
 }
 
-export function ToastList({ toasts, onRemove }: ToastListProps) {
+export function ToastList({ toasts, onRemove }: Readonly<ToastListProps>) {
   if (toasts.length === 0) return null;
 
   return (

@@ -9,7 +9,7 @@ interface DashboardLayoutProps {
 
 export default async function DashboardLayout({
   children,
-}: DashboardLayoutProps) {
+}: Readonly<DashboardLayoutProps>) {
   const user = await getAuthenticatedUser();
 
   if (!user) {

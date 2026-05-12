@@ -9,7 +9,7 @@ interface UserMenuProps {
   logoutAction: () => Promise<void>;
 }
 
-export function UserMenu({ email, logoutAction }: UserMenuProps) {
+export function UserMenu({ email, logoutAction }: Readonly<UserMenuProps>) {
   const [open, setOpen] = useState(false);
   const initial = email.charAt(0).toUpperCase();
 

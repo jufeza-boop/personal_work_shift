@@ -153,7 +153,7 @@ export function InvitationList({
   familyId,
   invitations,
   siteUrl,
-}: InvitationListProps) {
+}: Readonly<InvitationListProps>) {
   if (invitations.length === 0) {
     return (
       <p className="text-sm text-slate-500">

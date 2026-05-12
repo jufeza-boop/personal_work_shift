@@ -18,7 +18,7 @@ interface ChangePasswordFormProps {
 export function ChangePasswordForm({
   action,
   onSuccess,
-}: ChangePasswordFormProps) {
+}: Readonly<ChangePasswordFormProps>) {
   const [state, formAction] = useActionState(action, EMPTY_PROFILE_FORM_STATE);
   const formRef = useRef<HTMLFormElement>(null);
   const prevSuccess = useRef(false);

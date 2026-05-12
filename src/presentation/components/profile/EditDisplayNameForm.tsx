@@ -20,7 +20,7 @@ export function EditDisplayNameForm({
   action,
   initialDisplayName,
   onSuccess,
-}: EditDisplayNameFormProps) {
+}: Readonly<EditDisplayNameFormProps>) {
   const [state, formAction] = useActionState(action, EMPTY_PROFILE_FORM_STATE);
   const prevSuccess = useRef(false);
 

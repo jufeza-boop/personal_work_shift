@@ -234,7 +234,7 @@ describe("useSwipeNavigation", () => {
   it("does nothing when ref.current is null", () => {
     const onSwipeLeft = vi.fn();
     const onSwipeRight = vi.fn();
-    const ref = { current: null } as React.RefObject<HTMLDivElement>;
+    const ref: React.RefObject<HTMLDivElement> = { current: null };
 
     expect(() =>
       renderHook(() => useSwipeNavigation({ ref, onSwipeLeft, onSwipeRight })),

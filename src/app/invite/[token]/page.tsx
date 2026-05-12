@@ -19,7 +19,7 @@ interface InvitePageProps {
   params: Promise<{ token: string }>;
 }
 
-export default async function InvitePage({ params }: InvitePageProps) {
+export default async function InvitePage({ params }: Readonly<InvitePageProps>) {
   const { token } = await params;
 
   const user = await getAuthenticatedUser();
@@ -124,12 +124,10 @@ export default async function InvitePage({ params }: InvitePageProps) {
   // Build palette options (no members yet filtered — family may have members)
   const paletteOptions: PaletteOption[] = ColorPalette.availablePalettes().map(
     (paletteName) => {
-      const takenByMember = family
-        ? family.members.some(
+      const takenByMember = family?.members.some(
             (m) =>
               m.colorPalette !== null && m.colorPalette.name === paletteName,
-          )
-        : false;
+          ) ?? false;
 
       return { disabled: takenByMember, name: paletteName };
     },

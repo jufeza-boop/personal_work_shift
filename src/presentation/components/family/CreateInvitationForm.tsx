@@ -23,7 +23,7 @@ export function CreateInvitationForm({
   familyId,
   familyName,
   redirectTo = "/calendar/settings",
-}: CreateInvitationFormProps) {
+}: Readonly<CreateInvitationFormProps>) {
   const [formState, formAction] = useActionState(
     action,
     EMPTY_INVITATION_FORM_STATE,

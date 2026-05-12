@@ -13,7 +13,7 @@ interface CalendarLayoutProps {
 
 export default async function CalendarLayout({
   children,
-}: CalendarLayoutProps) {
+}: Readonly<CalendarLayoutProps>) {
   const user = await getAuthenticatedUser();
 
   // Parent layout redirects unauthenticated users; guard here to satisfy types.

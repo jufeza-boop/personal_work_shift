@@ -19,7 +19,7 @@ export function CalendarAppHeader({
   activeFamilyName,
   families,
   userEmail,
-}: CalendarAppHeaderProps) {
+}: Readonly<CalendarAppHeaderProps>) {
   const serializedFamilies = families.map(({ id, name }) => ({ id, name }));
   const hasManyFamilies = serializedFamilies.length >= 2;
 

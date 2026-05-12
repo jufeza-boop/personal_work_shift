@@ -52,7 +52,7 @@ export function DayCell({
   occurrences,
   members,
   onSelect,
-}: DayCellProps) {
+}: Readonly<DayCellProps>) {
   const memberMap = new Map(members.map((m) => [m.userId, m]));
 
   // Shift occurrences: work/studies events with shift type — fill the entire day cell
@@ -120,11 +120,11 @@ export function DayCell({
     return {};
   })();
 
-  const cellBgClass = !hasCellFill
-    ? isToday
+  const cellBgClass = hasCellFill
+    ? ""
+    : isToday
       ? "bg-blue-50"
-      : "bg-white hover:bg-stone-50"
-    : "";
+      : "bg-white hover:bg-stone-50";
 
   const ringClass = isSelected
     ? "ring-2 ring-blue-500 ring-inset"
@@ -182,8 +182,9 @@ export function DayCell({
         ))}
 
       {/* Vacation events coexisting with shifts: small striped pill labels */}
-      {!hasVacationFill &&
-        vacationOccurrences.map((occ) => {
+      {hasVacationFill
+        ? null
+        : vacationOccurrences.map((occ) => {
           const member = memberMap.get(occ.createdBy);
           const vColor =
             getVacationColor(member?.colorPaletteName ?? null) ?? "#E0F2FE";

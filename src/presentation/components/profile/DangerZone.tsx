@@ -8,7 +8,7 @@ interface DangerZoneProps {
   deleteAccountAction: () => Promise<AuthFormState>;
 }
 
-export function DangerZone({ deleteAccountAction }: DangerZoneProps) {
+export function DangerZone({ deleteAccountAction }: Readonly<DangerZoneProps>) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -73,8 +73,7 @@ export function DangerZone({ deleteAccountAction }: DangerZoneProps) {
               <strong className="font-semibold text-red-700">
                 permanente e irreversible
               </strong>
-              . Se eliminarán todos tus turnos, familias y datos asociados. No
-              podrás recuperar tu cuenta.
+              {". Se eliminarán todos tus turnos, familias y datos asociados. No podrás recuperar tu cuenta."}
             </p>
 
             {error ? (
