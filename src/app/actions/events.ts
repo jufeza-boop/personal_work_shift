@@ -125,7 +125,7 @@ function toOptionalString(value: string | undefined | ""): string | undefined {
 }
 
 export async function createEventAction(
-  _previousState: EventFormState = EMPTY_EVENT_FORM_STATE,
+  _previousState: EventFormState,
   formData: FormData,
 ): Promise<EventFormState> {
   // Part of the useActionState API contract, but unused because success redirects.
@@ -312,7 +312,7 @@ export async function createEventAction(
 }
 
 export async function editEventAction(
-  _previousState: EventFormState = EMPTY_EVENT_FORM_STATE,
+  _previousState: EventFormState,
   formData: FormData,
 ): Promise<EventFormState> {
   const eventId = formData.get("eventId")?.toString();
@@ -532,7 +532,7 @@ export async function editEventAction(
 }
 
 export async function deleteEventAction(
-  _previousState: EventFormState = EMPTY_EVENT_FORM_STATE,
+  _previousState: EventFormState,
   formData: FormData,
 ): Promise<EventFormState> {
   const eventId = formData.get("eventId")?.toString();

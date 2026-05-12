@@ -82,9 +82,9 @@ export function EditEventForm({
     ? (defaults as EditRecurringEventDefaults)
     : null;
 
-  const punctualDefaults = !isRecurring
-    ? (defaults as EditPunctualEventDefaults)
-    : null;
+  const punctualDefaults = isRecurring
+    ? null
+    : (defaults as EditPunctualEventDefaults);
 
   const [startDate, setStartDate] = useState(
     recurringDefaults?.startDate ?? "",

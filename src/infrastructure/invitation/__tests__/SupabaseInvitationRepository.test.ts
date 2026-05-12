@@ -15,25 +15,22 @@ interface MockBuilder<T> {
   readonly maybeSingle: ReturnType<typeof vi.fn>;
   readonly select: ReturnType<typeof vi.fn>;
   readonly update: ReturnType<typeof vi.fn>;
-  then<TResult1 = QueryResponse<T>, TResult2 = never>(
-    onfulfilled?:
-      | ((value: QueryResponse<T>) => TResult1 | PromiseLike<TResult1>)
-      | null,
-    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
-  ): Promise<TResult1 | TResult2>;
 }
 
 function createBuilder<T>(response: QueryResponse<T>): MockBuilder<T> {
-  const builder: MockBuilder<T> = {
-    eq: vi.fn(() => builder),
+  const promise = Promise.resolve(response);
+  const builder = Object.assign(promise, {
+    eq: vi.fn(),
     insert: vi.fn(async () => response),
     maybeSingle: vi.fn(async () => response),
-    select: vi.fn(() => builder),
-    update: vi.fn(() => builder),
-    then(onfulfilled, onrejected) {
-      return Promise.resolve(response).then(onfulfilled, onrejected);
-    },
-  };
+    select: vi.fn(),
+    update: vi.fn(),
+  }) as unknown as MockBuilder<T>;
+
+  // Wire up chained methods to return the same builder
+  (builder.eq as ReturnType<typeof vi.fn>).mockReturnValue(builder);
+  (builder.select as ReturnType<typeof vi.fn>).mockReturnValue(builder);
+  (builder.update as ReturnType<typeof vi.fn>).mockReturnValue(builder);
 
   return builder;
 }

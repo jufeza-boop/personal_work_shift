@@ -25,7 +25,7 @@ async function requireUser(redirectPath: string) {
 }
 
 export async function createInvitationAction(
-  _previousState: InvitationFormState = EMPTY,
+  _previousState: InvitationFormState,
   formData: FormData,
 ): Promise<InvitationFormState> {
   const familyId = formData.get("familyId")?.toString() ?? "";
@@ -67,7 +67,7 @@ export async function createInvitationAction(
 }
 
 export async function cancelInvitationAction(
-  _previousState: InvitationFormState = EMPTY,
+  _previousState: InvitationFormState,
   formData: FormData,
 ): Promise<InvitationFormState> {
   const invitationId = formData.get("invitationId")?.toString() ?? "";
@@ -107,7 +107,7 @@ export async function cancelInvitationAction(
 }
 
 export async function acceptInvitationAction(
-  _previousState: InvitationFormState = EMPTY,
+  _previousState: InvitationFormState,
   formData: FormData,
 ): Promise<InvitationFormState> {
   const parsed = acceptInvitationSchema.safeParse({

@@ -14,7 +14,7 @@ import type { ProfileFormState } from "@/presentation/components/profile/profile
 const EMPTY_PROFILE_FORM_STATE: ProfileFormState = { success: false };
 
 export async function updateDisplayNameAction(
-  _previousState: ProfileFormState = EMPTY_PROFILE_FORM_STATE,
+  _previousState: ProfileFormState,
   formData: FormData,
 ): Promise<ProfileFormState> {
   const currentUser = await getAuthenticatedUser();
@@ -24,7 +24,7 @@ export async function updateDisplayNameAction(
   }
 
   const parsed = updateDisplayNameSchema.safeParse({
-    displayName: formData.get("displayName"),
+    displayName: formData.get("displayName")?.toString(),
   });
 
   if (!parsed.success) {
@@ -65,12 +65,12 @@ export async function updateDisplayNameAction(
 }
 
 export async function updateProfilePasswordAction(
-  _previousState: ProfileFormState = EMPTY_PROFILE_FORM_STATE,
+  _previousState: ProfileFormState,
   formData: FormData,
 ): Promise<ProfileFormState> {
   const parsed = updateProfilePasswordSchema.safeParse({
-    confirmPassword: formData.get("confirmPassword"),
-    newPassword: formData.get("newPassword"),
+    confirmPassword: formData.get("confirmPassword")?.toString(),
+    newPassword: formData.get("newPassword")?.toString(),
   });
 
   if (!parsed.success) {

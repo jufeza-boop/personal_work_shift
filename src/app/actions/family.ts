@@ -57,14 +57,14 @@ async function persistActiveFamily(familyId: string): Promise<void> {
 }
 
 export async function createFamilyAction(
-  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  _previousState: FamilyFormState,
   formData: FormData,
 ): Promise<FamilyFormState> {
   // Part of the useActionState API contract, but unused because success redirects.
 
   const parsed = createFamilySchema.safeParse({
-    name: formData.get("name"),
-    colorPalette: formData.get("colorPalette") || undefined,
+    name: formData.get("name")?.toString(),
+    colorPalette: formData.get("colorPalette")?.toString() || undefined,
   });
 
   if (!parsed.success) {
@@ -110,7 +110,7 @@ export async function createFamilyAction(
 }
 
 export async function addFamilyMemberAction(
-  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  _previousState: FamilyFormState,
   formData: FormData,
 ): Promise<FamilyFormState> {
   // Part of the useActionState API contract, but unused because success redirects.
@@ -125,8 +125,8 @@ export async function addFamilyMemberAction(
   }
 
   const parsed = inviteFamilyMemberSchema.safeParse({
-    colorPalette: formData.get("colorPalette"),
-    email: formData.get("email"),
+    colorPalette: formData.get("colorPalette")?.toString(),
+    email: formData.get("email")?.toString(),
   });
 
   if (!parsed.success) {
@@ -190,7 +190,7 @@ export async function addFamilyMemberAction(
 }
 
 export async function renameFamilyAction(
-  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  _previousState: FamilyFormState,
   formData: FormData,
 ): Promise<FamilyFormState> {
   // Part of the useActionState API contract, but unused because success redirects.
@@ -205,7 +205,7 @@ export async function renameFamilyAction(
   }
 
   const parsed = renameFamilySchema.safeParse({
-    name: formData.get("name"),
+    name: formData.get("name")?.toString(),
   });
 
   if (!parsed.success) {
@@ -274,7 +274,7 @@ export async function switchFamilyAction(formData: FormData): Promise<void> {
 }
 
 export async function selectPaletteAction(
-  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  _previousState: FamilyFormState,
   formData: FormData,
 ): Promise<FamilyFormState> {
   // Part of the useActionState API contract, but unused because success redirects.
@@ -289,7 +289,7 @@ export async function selectPaletteAction(
   }
 
   const parsed = selectPaletteSchema.safeParse({
-    colorPalette: formData.get("colorPalette"),
+    colorPalette: formData.get("colorPalette")?.toString(),
   });
 
   if (!parsed.success) {
@@ -364,11 +364,11 @@ export async function deleteFamilyAction(formData: FormData): Promise<void> {
 }
 
 export async function createDelegatedUserAction(
-  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  _previousState: FamilyFormState,
   formData: FormData,
 ): Promise<FamilyFormState> {
   const parsed = createDelegatedUserSchema.safeParse({
-    displayName: formData.get("displayName"),
+    displayName: formData.get("displayName")?.toString(),
   });
 
   if (!parsed.success) {
@@ -409,7 +409,7 @@ export async function createDelegatedUserAction(
 }
 
 export async function removeDelegatedUserAction(
-  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  _previousState: FamilyFormState,
   formData: FormData,
 ): Promise<FamilyFormState> {
   const delegatedUserId = formData.get("delegatedUserId")?.toString();
@@ -459,7 +459,7 @@ export async function removeDelegatedUserAction(
 }
 
 export async function removeFamilyMemberAction(
-  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  _previousState: FamilyFormState,
   formData: FormData,
 ): Promise<FamilyFormState> {
   const familyId = formData.get("familyId")?.toString();
@@ -509,7 +509,7 @@ export async function removeFamilyMemberAction(
 }
 
 export async function leaveFamilyAction(
-  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  _previousState: FamilyFormState,
   formData: FormData,
 ): Promise<FamilyFormState> {
   const familyId = formData.get("familyId")?.toString();
@@ -556,7 +556,7 @@ export async function leaveFamilyAction(
 }
 
 export async function addDelegatedUserToFamilyAction(
-  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  _previousState: FamilyFormState,
   formData: FormData,
 ): Promise<FamilyFormState> {
   const familyId = formData.get("familyId")?.toString();
@@ -609,7 +609,7 @@ export async function addDelegatedUserToFamilyAction(
 }
 
 export async function renameDelegatedUserAction(
-  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  _previousState: FamilyFormState,
   formData: FormData,
 ): Promise<FamilyFormState> {
   const delegatedUserId = formData.get("delegatedUserId")?.toString();
@@ -625,7 +625,7 @@ export async function renameDelegatedUserAction(
   }
 
   const parsed = createDelegatedUserSchema.safeParse({
-    displayName: formData.get("displayName"),
+    displayName: formData.get("displayName")?.toString(),
   });
 
   if (!parsed.success) {
@@ -670,7 +670,7 @@ export async function renameDelegatedUserAction(
 }
 
 export async function assignDelegatedMemberPaletteAction(
-  _previousState: FamilyFormState = EMPTY_FAMILY_FORM_STATE,
+  _previousState: FamilyFormState,
   formData: FormData,
 ): Promise<FamilyFormState> {
   const familyId = formData.get("familyId")?.toString();

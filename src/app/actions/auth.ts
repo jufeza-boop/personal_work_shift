@@ -35,7 +35,7 @@ function toFieldErrors(
 }
 
 export async function registerAction(
-  _previousState: AuthFormState = EMPTY_AUTH_FORM_STATE,
+  _previousState: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
   // Required by the useActionState server action signature.
@@ -100,7 +100,7 @@ export async function registerAction(
 }
 
 export async function loginAction(
-  _previousState: AuthFormState = EMPTY_AUTH_FORM_STATE,
+  _previousState: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
   // Required by the useActionState server action signature.
@@ -190,7 +190,7 @@ export async function deleteAccountAction(): Promise<AuthFormState> {
 }
 
 export async function requestPasswordResetAction(
-  _previousState: AuthFormState = EMPTY_AUTH_FORM_STATE,
+  _previousState: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
   const email = formData.get("email")?.toString().trim().toLowerCase() ?? "";
@@ -223,7 +223,7 @@ export async function requestPasswordResetAction(
 }
 
 export async function verifyOtpAction(
-  _previousState: AuthFormState = EMPTY_AUTH_FORM_STATE,
+  _previousState: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
   const email = formData.get("email")?.toString().trim().toLowerCase() ?? "";
@@ -257,7 +257,7 @@ export async function verifyOtpAction(
 }
 
 export async function updatePasswordAction(
-  _previousState: AuthFormState = EMPTY_AUTH_FORM_STATE,
+  _previousState: AuthFormState,
   formData: FormData,
 ): Promise<AuthFormState> {
   const password = formData.get("password")?.toString() ?? "";
