@@ -8,7 +8,7 @@ export interface UserProps {
   delegatedByUserId?: string | null;
 }
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_PATTERN = /^[^\s@]+@[^.\s@]+(?:\.[^.\s@]+)+$/;
 
 export class User {
   public readonly id: string;

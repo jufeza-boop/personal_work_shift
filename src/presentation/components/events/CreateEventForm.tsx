@@ -68,9 +68,7 @@ const FREQUENCY_UNIT_OPTIONS: { label: string; value: string }[] = [
 ];
 
 function FieldError({ message }: Readonly<{ message?: string }>) {
-  return message ? (
-    <p className="text-sm text-red-600">{message}</p>
-  ) : null;
+  return message ? <p className="text-sm text-red-600">{message}</p> : null;
 }
 
 function TimeFields({
@@ -81,7 +79,10 @@ function TimeFields({
   return (
     <div className="grid grid-cols-2 gap-3">
       <div className="space-y-1">
-        <label className="text-sm font-medium text-slate-800" htmlFor={startTimeId}>
+        <label
+          className="text-sm font-medium text-slate-800"
+          htmlFor={startTimeId}
+        >
           Hora inicio (opcional)
         </label>
         <input
@@ -93,7 +94,10 @@ function TimeFields({
         <FieldError message={formState.errors?.startTime} />
       </div>
       <div className="space-y-1">
-        <label className="text-sm font-medium text-slate-800" htmlFor={endTimeId}>
+        <label
+          className="text-sm font-medium text-slate-800"
+          htmlFor={endTimeId}
+        >
           Hora fin (opcional)
         </label>
         <input
@@ -165,7 +169,10 @@ function RecurringFields({
   return (
     <>
       <div className="space-y-1">
-        <label className="text-sm font-medium text-slate-800" htmlFor={startDateId}>
+        <label
+          className="text-sm font-medium text-slate-800"
+          htmlFor={startDateId}
+        >
           Fecha de inicio
         </label>
         <input
@@ -180,7 +187,10 @@ function RecurringFields({
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
-          <label className="text-sm font-medium text-slate-800" htmlFor={frequencyUnitId}>
+          <label
+            className="text-sm font-medium text-slate-800"
+            htmlFor={frequencyUnitId}
+          >
             Frecuencia
           </label>
           <select
@@ -197,7 +207,10 @@ function RecurringFields({
           <FieldError message={formState.errors?.frequencyUnit} />
         </div>
         <div className="space-y-1">
-          <label className="text-sm font-medium text-slate-800" htmlFor={frequencyIntervalId}>
+          <label
+            className="text-sm font-medium text-slate-800"
+            htmlFor={frequencyIntervalId}
+          >
             Intervalo
           </label>
           <input
@@ -222,7 +235,10 @@ function RecurringFields({
       ) : null}
 
       <div className="space-y-1">
-        <label className="text-sm font-medium text-slate-800" htmlFor={endDateId}>
+        <label
+          className="text-sm font-medium text-slate-800"
+          htmlFor={endDateId}
+        >
           Fecha de fin (opcional)
         </label>
         <input
@@ -299,7 +315,10 @@ export function CreateEventForm({
 
         {/* Title — always visible */}
         <div className="space-y-1">
-          <label className="text-sm font-medium text-slate-800" htmlFor={titleId}>
+          <label
+            className="text-sm font-medium text-slate-800"
+            htmlFor={titleId}
+          >
             Título
           </label>
           <input
@@ -313,7 +332,10 @@ export function CreateEventForm({
 
         {/* Category selector — visible in both tabs */}
         <div className="space-y-1">
-          <label className="text-sm font-medium text-slate-800" htmlFor={categoryId}>
+          <label
+            className="text-sm font-medium text-slate-800"
+            htmlFor={categoryId}
+          >
             Categoría {activeTab === "recurring" ? "" : "(opcional)"}
           </label>
           <select
@@ -341,7 +363,10 @@ export function CreateEventForm({
         {/* Shift type — only when work or studies */}
         {needsShiftType ? (
           <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-800" htmlFor={shiftTypeId}>
+            <label
+              className="text-sm font-medium text-slate-800"
+              htmlFor={shiftTypeId}
+            >
               Tipo de turno
             </label>
             <select
@@ -388,7 +413,10 @@ export function CreateEventForm({
 
         {/* Description — always visible */}
         <div className="space-y-1">
-          <label className="text-sm font-medium text-slate-800" htmlFor={descriptionId}>
+          <label
+            className="text-sm font-medium text-slate-800"
+            htmlFor={descriptionId}
+          >
             Descripción (opcional)
           </label>
           <textarea

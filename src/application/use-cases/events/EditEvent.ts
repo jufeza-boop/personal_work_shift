@@ -82,8 +82,7 @@ function buildUpdatedPunctual(
     startTime:
       input.startTime !== undefined ? input.startTime : event.startTime,
     endTime: input.endTime !== undefined ? input.endTime : event.endTime,
-    category:
-      input.category !== undefined ? input.category : event.category,
+    category: input.category !== undefined ? input.category : event.category,
     shiftType: resolveShiftType(input.shiftType, event.shiftType),
     createdAt: event.createdAt,
     updatedAt: new Date(),
@@ -209,8 +208,7 @@ export class EditEvent {
       eventId: event.id,
       exceptionDate: input.occurrenceDate,
       isDeleted: false,
-      overrideData:
-        Object.keys(overrideData).length > 0 ? overrideData : null,
+      overrideData: Object.keys(overrideData).length > 0 ? overrideData : null,
     });
 
     await this.eventRepository.saveException(exception);

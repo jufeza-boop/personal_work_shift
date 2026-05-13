@@ -186,21 +186,21 @@ export function DayCell({
       {hasVacationFill
         ? null
         : vacationOccurrences.map((occ) => {
-          const member = memberMap.get(occ.createdBy);
-          const vColor =
-            getVacationColor(member?.colorPaletteName ?? null) ?? "#E0F2FE";
-          const stripeBg = `repeating-linear-gradient(45deg, ${vColor} 0px, ${vColor} 6px, #ffffff 6px, #ffffff 12px)`;
-          return (
-            <span
-              key={`${occ.eventId}-${occ.date}`}
-              className="truncate rounded px-1 py-px text-[10px] leading-4 text-slate-900"
-              style={{ background: stripeBg }}
-              title={occ.title}
-            >
-              {occ.title}
-            </span>
-          );
-        })}
+            const member = memberMap.get(occ.createdBy);
+            const vColor =
+              getVacationColor(member?.colorPaletteName ?? null) ?? "#E0F2FE";
+            const stripeBg = `repeating-linear-gradient(45deg, ${vColor} 0px, ${vColor} 6px, #ffffff 6px, #ffffff 12px)`;
+            return (
+              <span
+                key={`${occ.eventId}-${occ.date}`}
+                className="truncate rounded px-1 py-px text-[10px] leading-4 text-slate-900"
+                style={{ background: stripeBg }}
+                title={occ.title}
+              >
+                {occ.title}
+              </span>
+            );
+          })}
 
       {/* Colored text labels for "other" recurring events */}
       {otherOccurrences.map((occ) => {

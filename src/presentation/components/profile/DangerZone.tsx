@@ -73,7 +73,9 @@ export function DangerZone({ deleteAccountAction }: Readonly<DangerZoneProps>) {
               <strong className="font-semibold text-red-700">
                 permanente e irreversible
               </strong>
-              {". Se eliminarán todos tus turnos, familias y datos asociados. No podrás recuperar tu cuenta."}
+              {
+                ". Se eliminarán todos tus turnos, familias y datos asociados. No podrás recuperar tu cuenta."
+              }
             </p>
 
             {error ? (

@@ -10,9 +10,7 @@ import type { EventChangeType } from "@/application/use-cases/push/SendEventNoti
 import { createServerEventDependencies } from "@/infrastructure/events/runtime";
 import { createServerPushDependencies } from "@/infrastructure/push/runtime";
 import { notifyFamilyOnEventChange } from "@/application/services/notifyFamilyOnEventChange";
-import {
-  type EventFormState,
-} from "@/presentation/components/events/types";
+import { type EventFormState } from "@/presentation/components/events/types";
 import {
   createPunctualEventSchema,
   createRecurringEventSchema,
@@ -288,7 +286,11 @@ async function createRecurringEvent(
 
 // ─── Edit-event branch helpers ────────────────────────────────────────────────
 
-type EventSummary = { familyId: string; createdBy: string; title: string } | null;
+type EventSummary = {
+  familyId: string;
+  createdBy: string;
+  title: string;
+} | null;
 
 async function handleEditPunctual(
   formData: FormData,
@@ -386,7 +388,8 @@ async function handleEditRecurring(
     startDate: formData.get("startDate")?.toString() ?? undefined,
     endDate: formData.get("endDate")?.toString() ?? undefined,
     frequencyUnit: formData.get("frequencyUnit")?.toString() ?? undefined,
-    frequencyInterval: formData.get("frequencyInterval")?.toString() ?? undefined,
+    frequencyInterval:
+      formData.get("frequencyInterval")?.toString() ?? undefined,
     category: formData.get("category")?.toString() || undefined,
     shiftType: formData.get("shiftType")?.toString() || undefined,
     startTime: formData.get("startTime")?.toString() || undefined,
@@ -511,7 +514,9 @@ async function handleEditRecurringAll(
     endTime?: string;
   },
   useCase: EditEvent,
-  eventRepository: Awaited<ReturnType<typeof createServerEventDependencies>>["eventRepository"],
+  eventRepository: Awaited<
+    ReturnType<typeof createServerEventDependencies>
+  >["eventRepository"],
 ): Promise<EventFormState | never> {
   const deleteExceptions =
     formData.get("deleteExceptions")?.toString() === "true";
