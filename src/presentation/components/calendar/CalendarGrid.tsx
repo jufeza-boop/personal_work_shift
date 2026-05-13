@@ -71,6 +71,10 @@ export function CalendarGrid({
 
   const router = useRouter();
 
+  const handleSyncComplete = useCallback(() => {
+    router.refresh();
+  }, [router]);
+
   const processOperation = useCallback(
     async (op: PendingOperation) => {
       const formData = new FormData();
@@ -87,7 +91,7 @@ export function CalendarGrid({
   );
 
   const { isOnline, pendingCount, isSyncing, enqueueOperation } =
-    useOfflineSync({ queue: offlineQueue, processOperation, onSyncComplete: router.refresh });
+    useOfflineSync({ queue: offlineQueue, processOperation, onSyncComplete: handleSyncComplete });
 
   const offlineCreateAction = useCallback(
     async (
