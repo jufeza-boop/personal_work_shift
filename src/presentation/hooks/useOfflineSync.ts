@@ -9,6 +9,7 @@ import type {
 export interface UseOfflineSyncOptions {
   queue: IOfflineQueue;
   processOperation: (op: PendingOperation) => Promise<void>;
+  onSyncComplete?: () => void;
 }
 
 export interface UseOfflineSyncResult {
@@ -24,6 +25,7 @@ export interface UseOfflineSyncResult {
 export function useOfflineSync({
   queue,
   processOperation,
+  onSyncComplete,
 }: UseOfflineSyncOptions): UseOfflineSyncResult {
   const [isOnline, setIsOnline] = useState(true);
   const [pendingCount, setPendingCount] = useState(0);
@@ -60,8 +62,9 @@ export function useOfflineSync({
       isSyncingRef.current = false;
       setIsSyncing(false);
       await refreshCount();
+      onSyncComplete?.();
     }
-  }, [queue, processOperation, refreshCount]);
+  }, [queue, processOperation, refreshCount, onSyncComplete]);
 
   const enqueueOperation = useCallback(
     async (op: Pick<PendingOperation, "type" | "formFields">) => {

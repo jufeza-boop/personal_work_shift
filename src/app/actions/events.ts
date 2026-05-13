@@ -129,7 +129,7 @@ async function createPunctualEvent(
   familyId: string,
   redirectTo: string,
   targetUserId: string | undefined,
-): Promise<EventFormState | never> {
+): Promise<EventFormState> {
   const parsed = createPunctualEventSchema.safeParse({
     date: formData.get("date")?.toString(),
     description: formData.get("description")?.toString(),
@@ -196,8 +196,7 @@ async function createPunctualEvent(
     parsed.data.date,
   );
 
-  revalidatePath("/calendar");
-  redirect(redirectTo);
+  return { success: true };
 }
 
 async function createRecurringEvent(
@@ -205,7 +204,7 @@ async function createRecurringEvent(
   familyId: string,
   redirectTo: string,
   targetUserId: string | undefined,
-): Promise<EventFormState | never> {
+): Promise<EventFormState> {
   const parsed = createRecurringEventSchema.safeParse({
     category: formData.get("category")?.toString(),
     description: formData.get("description")?.toString(),
@@ -280,8 +279,7 @@ async function createRecurringEvent(
     "created",
   );
 
-  revalidatePath("/calendar");
-  redirect(redirectTo);
+  return { success: true };
 }
 
 // ─── Edit-event branch helpers ────────────────────────────────────────────────
@@ -564,8 +562,6 @@ export async function createEventAction(
   _previousState: EventFormState,
   formData: FormData,
 ): Promise<EventFormState> {
-  // Part of the useActionState API contract, but unused because success redirects.
-
   const eventType = formData.get("eventType")?.toString();
   const familyId = formData.get("familyId")?.toString();
   const targetUserId = formData.get("targetUserId")?.toString() || undefined;
@@ -577,15 +573,58 @@ export async function createEventAction(
     return { message: "No se encontró la familia activa.", success: false };
   }
 
+  let result: EventFormState;
+
   if (eventType === "punctual") {
-    return createPunctualEvent(formData, familyId, redirectTo, targetUserId);
+    result = await createPunctualEvent(formData, familyId, redirectTo, targetUserId);
+  } else if (eventType === "recurring") {
+    result = await createRecurringEvent(formData, familyId, redirectTo, targetUserId);
+  } else {
+    return { message: "Tipo de evento no reconocido.", success: false };
   }
 
-  if (eventType === "recurring") {
-    return createRecurringEvent(formData, familyId, redirectTo, targetUserId);
+  if (result.success) {
+    revalidatePath("/calendar");
+    redirect(redirectTo);
   }
 
-  return { message: "Tipo de evento no reconocido.", success: false };
+  return result;
+}
+
+/**
+ * Sync-safe variant of createEventAction for the offline queue processor.
+ * Behaves identically but returns `{ success: true }` instead of triggering a
+ * redirect so that the caller (useOfflineSync) can continue consuming the
+ * queue without the fetch being aborted by Next.js's redirect mechanism.
+ */
+export async function syncCreateEventAction(
+  _previousState: EventFormState,
+  formData: FormData,
+): Promise<EventFormState> {
+  const eventType = formData.get("eventType")?.toString();
+  const familyId = formData.get("familyId")?.toString();
+  const targetUserId = formData.get("targetUserId")?.toString() || undefined;
+  const redirectTo = sanitizeRedirectPath(
+    formData.get("redirectTo")?.toString(),
+  );
+
+  if (!familyId) {
+    return { message: "No se encontró la familia activa.", success: false };
+  }
+
+  let result: EventFormState;
+
+  if (eventType === "punctual") {
+    result = await createPunctualEvent(formData, familyId, redirectTo, targetUserId);
+  } else if (eventType === "recurring") {
+    result = await createRecurringEvent(formData, familyId, redirectTo, targetUserId);
+  } else {
+    return { message: "Tipo de evento no reconocido.", success: false };
+  }
+
+  if (result.success) revalidatePath("/calendar");
+
+  return result;
 }
 
 export async function editEventAction(
@@ -648,8 +687,7 @@ export async function editEventAction(
   return { success: false, message: "Tipo de evento no reconocido." };
 }
 
-export async function deleteEventAction(
-  _previousState: EventFormState,
+async function performDeleteEvent(
   formData: FormData,
 ): Promise<EventFormState> {
   const eventId = formData.get("eventId")?.toString();
@@ -718,8 +756,41 @@ export async function deleteEventAction(
     );
   }
 
-  revalidatePath("/calendar");
-  redirect(redirectTo);
+  return { success: true };
+}
+
+export async function deleteEventAction(
+  _previousState: EventFormState,
+  formData: FormData,
+): Promise<EventFormState> {
+  const redirectTo = sanitizeRedirectPath(
+    formData.get("redirectTo")?.toString(),
+  );
+
+  const result = await performDeleteEvent(formData);
+
+  if (result.success) {
+    revalidatePath("/calendar");
+    redirect(redirectTo);
+  }
+
+  return result;
+}
+
+/**
+ * Sync-safe variant of deleteEventAction for the offline queue processor.
+ * Returns `{ success: true }` instead of triggering a redirect so the caller
+ * (useOfflineSync) can continue consuming the queue without interruption.
+ */
+export async function syncDeleteEventAction(
+  _previousState: EventFormState,
+  formData: FormData,
+): Promise<EventFormState> {
+  const result = await performDeleteEvent(formData);
+
+  if (result.success) revalidatePath("/calendar");
+
+  return result;
 }
 
 function buildErrorMessage(
