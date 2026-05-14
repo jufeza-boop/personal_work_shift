@@ -593,9 +593,15 @@ export async function createEventAction(
 
 /**
  * Sync-safe variant of createEventAction for the offline queue processor.
- * Behaves identically but returns `{ success: true }` instead of triggering a
- * redirect so that the caller (useOfflineSync) can continue consuming the
- * queue without the fetch being aborted by Next.js's redirect mechanism.
+ *
+ * Key differences from createEventAction:
+ * - Does NOT call redirect() — avoids the TypeError: Failed to fetch that
+ *   aborts the sync loop when Next.js intercepts the redirect response.
+ * - Does NOT call revalidatePath() — the x-action-revalidate response header
+ *   produced by revalidatePath causes the Next.js router to perform a
+ *   background re-fetch which can abort subsequent fetches in the same loop.
+ *   The caller (useOfflineSync) triggers router.refresh() once via
+ *   onSyncComplete after the full queue has been drained.
  */
 export async function syncCreateEventAction(
   _previousState: EventFormState,
@@ -612,19 +618,15 @@ export async function syncCreateEventAction(
     return { message: "No se encontró la familia activa.", success: false };
   }
 
-  let result: EventFormState;
-
   if (eventType === "punctual") {
-    result = await createPunctualEvent(formData, familyId, redirectTo, targetUserId);
-  } else if (eventType === "recurring") {
-    result = await createRecurringEvent(formData, familyId, redirectTo, targetUserId);
-  } else {
-    return { message: "Tipo de evento no reconocido.", success: false };
+    return createPunctualEvent(formData, familyId, redirectTo, targetUserId);
   }
 
-  if (result.success) revalidatePath("/calendar");
+  if (eventType === "recurring") {
+    return createRecurringEvent(formData, familyId, redirectTo, targetUserId);
+  }
 
-  return result;
+  return { message: "Tipo de evento no reconocido.", success: false };
 }
 
 export async function editEventAction(
@@ -779,18 +781,17 @@ export async function deleteEventAction(
 
 /**
  * Sync-safe variant of deleteEventAction for the offline queue processor.
- * Returns `{ success: true }` instead of triggering a redirect so the caller
- * (useOfflineSync) can continue consuming the queue without interruption.
+ *
+ * Does NOT call redirect() or revalidatePath() for the same reasons as
+ * syncCreateEventAction: both can cause the Next.js router to abort
+ * in-flight fetches in the sync loop. The router.refresh() triggered by
+ * onSyncComplete handles the UI refresh once the queue is fully drained.
  */
 export async function syncDeleteEventAction(
   _previousState: EventFormState,
   formData: FormData,
 ): Promise<EventFormState> {
-  const result = await performDeleteEvent(formData);
-
-  if (result.success) revalidatePath("/calendar");
-
-  return result;
+  return performDeleteEvent(formData);
 }
 
 function buildErrorMessage(
