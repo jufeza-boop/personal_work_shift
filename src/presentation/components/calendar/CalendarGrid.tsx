@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Users } from "lucide-react";
 import type {
   SerializedEvent,
@@ -25,6 +26,10 @@ import { useOfflineSync } from "@/presentation/hooks/useOfflineSync";
 import { useRealtimeSync } from "@/presentation/hooks/useRealtimeSync";
 import { useSwipeNavigation } from "@/presentation/hooks/useSwipeNavigation";
 import { MONTH_NAMES_SHORT } from "@/presentation/utils/dateLocale";
+import {
+  syncCreateEventAction,
+  syncDeleteEventAction,
+} from "@/app/actions/events";
 
 const DAY_HEADERS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"] as const;
 
@@ -64,23 +69,29 @@ export function CalendarGrid({
 
   const [offlineQueue] = useState(() => new OfflineQueueStore());
 
+  const router = useRouter();
+
+  const handleSyncComplete = useCallback(() => {
+    router.refresh();
+  }, [router]);
+
   const processOperation = useCallback(
     async (op: PendingOperation) => {
       const formData = new FormData();
       Object.entries(op.formFields).forEach(([k, v]) => formData.append(k, v));
       if (op.type === "create_event") {
-        const result = await createAction(EMPTY_EVENT_FORM_STATE, formData);
+        const result = await syncCreateEventAction(EMPTY_EVENT_FORM_STATE, formData);
         if (!result.success && result.message) throw new Error(result.message);
       } else if (op.type === "delete_event") {
-        const result = await deleteAction(EMPTY_EVENT_FORM_STATE, formData);
+        const result = await syncDeleteEventAction(EMPTY_EVENT_FORM_STATE, formData);
         if (!result.success && result.message) throw new Error(result.message);
       }
     },
-    [createAction, deleteAction],
+    [],
   );
 
   const { isOnline, pendingCount, isSyncing, enqueueOperation } =
-    useOfflineSync({ queue: offlineQueue, processOperation });
+    useOfflineSync({ queue: offlineQueue, processOperation, onSyncComplete: handleSyncComplete });
 
   const offlineCreateAction = useCallback(
     async (

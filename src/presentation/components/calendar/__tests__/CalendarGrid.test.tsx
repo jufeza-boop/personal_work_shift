@@ -90,6 +90,13 @@ vi.mock("@/presentation/hooks/useOfflineSync", () => ({
     syncNow: vi.fn(),
   })),
 }));
+vi.mock("next/navigation", () => ({
+  useRouter: vi.fn(() => ({ refresh: vi.fn() })),
+}));
+vi.mock("@/app/actions/events", () => ({
+  syncCreateEventAction: vi.fn(async () => ({ success: true })),
+  syncDeleteEventAction: vi.fn(async () => ({ success: true })),
+}));
 vi.mock("@/presentation/components/ui/OfflineBanner", () => ({
   OfflineBanner: ({
     isOnline,

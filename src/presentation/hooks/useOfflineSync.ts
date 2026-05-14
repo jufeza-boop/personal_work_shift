@@ -9,6 +9,7 @@ import type {
 export interface UseOfflineSyncOptions {
   queue: IOfflineQueue;
   processOperation: (op: PendingOperation) => Promise<void>;
+  onSyncComplete?: () => void;
 }
 
 export interface UseOfflineSyncResult {
@@ -24,6 +25,7 @@ export interface UseOfflineSyncResult {
 export function useOfflineSync({
   queue,
   processOperation,
+  onSyncComplete,
 }: UseOfflineSyncOptions): UseOfflineSyncResult {
   const [isOnline, setIsOnline] = useState(true);
   const [pendingCount, setPendingCount] = useState(0);
@@ -40,9 +42,11 @@ export function useOfflineSync({
     isSyncingRef.current = true;
     setIsSyncing(true);
 
+    let processedAny = false;
     try {
       const ops = await queue.getAll();
       for (const op of ops) {
+        processedAny = true;
         try {
           await processOperation(op);
           await queue.remove(op.id);
@@ -60,8 +64,9 @@ export function useOfflineSync({
       isSyncingRef.current = false;
       setIsSyncing(false);
       await refreshCount();
+      if (processedAny) onSyncComplete?.();
     }
-  }, [queue, processOperation, refreshCount]);
+  }, [queue, processOperation, refreshCount, onSyncComplete]);
 
   const enqueueOperation = useCallback(
     async (op: Pick<PendingOperation, "type" | "formFields">) => {
@@ -80,7 +85,14 @@ export function useOfflineSync({
   }, [refreshCount]);
 
   useEffect(() => {
-    setIsOnline(navigator.onLine);
+    const online = navigator.onLine;
+    setIsOnline(online);
+
+    // Sync any pending items that accumulated while the device was offline
+    // (e.g. the user refreshes the page and is already online).
+    if (online) {
+      void syncQueue();
+    }
 
     const handleOnline = () => {
       setIsOnline(true);

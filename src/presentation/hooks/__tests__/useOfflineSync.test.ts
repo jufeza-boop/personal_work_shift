@@ -65,6 +65,7 @@ describe("useOfflineSync", () => {
   });
 
   it("pendingCount reflects queue state", async () => {
+    vi.stubGlobal("navigator", { onLine: false }); // prevent auto-sync so item stays queued
     const op: PendingOperation = {
       id: "1",
       type: "create_event",
@@ -117,6 +118,41 @@ describe("useOfflineSync", () => {
 
     expect(result.current.isOnline).toBe(true);
     expect(processOperation).toHaveBeenCalledWith(op);
+  });
+
+  it("syncs pending items on mount when already online", async () => {
+    vi.stubGlobal("navigator", { onLine: true });
+    const op: PendingOperation = {
+      id: "1",
+      type: "create_event",
+      formFields: { title: "Test" },
+      timestamp: 1,
+      retryCount: 0,
+    };
+    const queue = createMockQueue([op]);
+    const processOperation = vi.fn().mockResolvedValue(undefined);
+
+    renderHook(() => useOfflineSync({ queue, processOperation }));
+
+    await act(async () => {});
+
+    expect(processOperation).toHaveBeenCalledWith(op);
+    expect(await queue.count()).toBe(0);
+  });
+
+  it("does NOT call onSyncComplete when queue is empty on mount", async () => {
+    vi.stubGlobal("navigator", { onLine: true });
+    const queue = createMockQueue(); // empty
+    const processOperation = vi.fn();
+    const onSyncComplete = vi.fn();
+
+    renderHook(() =>
+      useOfflineSync({ queue, processOperation, onSyncComplete }),
+    );
+
+    await act(async () => {});
+
+    expect(onSyncComplete).not.toHaveBeenCalled();
   });
 
   it("enqueueOperation adds to queue and updates pendingCount", async () => {
@@ -217,6 +253,52 @@ describe("useOfflineSync", () => {
 
     expect(processOperation).toHaveBeenCalledWith(op);
     expect(result.current.pendingCount).toBe(0);
+  });
+
+  it("onSyncComplete is called after sync finishes", async () => {
+    const op: PendingOperation = {
+      id: "1",
+      type: "create_event",
+      formFields: { title: "A" },
+      timestamp: 1,
+      retryCount: 0,
+    };
+    const queue = createMockQueue([op]);
+    const processOperation = vi.fn().mockResolvedValue(undefined);
+    const onSyncComplete = vi.fn();
+
+    const { result } = renderHook(() =>
+      useOfflineSync({ queue, processOperation, onSyncComplete }),
+    );
+
+    await act(async () => {
+      await result.current.syncNow();
+    });
+
+    expect(onSyncComplete).toHaveBeenCalledTimes(1);
+  });
+
+  it("onSyncComplete is called even when processOperation fails", async () => {
+    const op: PendingOperation = {
+      id: "1",
+      type: "create_event",
+      formFields: { title: "A" },
+      timestamp: 1,
+      retryCount: 0,
+    };
+    const queue = createMockQueue([op]);
+    const processOperation = vi.fn().mockRejectedValue(new Error("fail"));
+    const onSyncComplete = vi.fn();
+
+    const { result } = renderHook(() =>
+      useOfflineSync({ queue, processOperation, onSyncComplete }),
+    );
+
+    await act(async () => {
+      await result.current.syncNow();
+    });
+
+    expect(onSyncComplete).toHaveBeenCalledTimes(1);
   });
 
   it("cleans up event listeners on unmount without errors", () => {
