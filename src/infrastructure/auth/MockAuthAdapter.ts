@@ -55,7 +55,7 @@ export class MockAuthAdapter implements IAuthService {
   async login(input: { email: string; password: string }) {
     const user = findMockUserByEmail(input.email);
 
-    if (!user || user.password !== input.password) {
+    if (user?.password !== input.password) {
       return {
         error: {
           code: "INVALID_CREDENTIALS" as const,

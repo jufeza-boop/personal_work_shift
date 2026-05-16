@@ -1,3 +1,4 @@
+import type React from "react";
 import type { ColorPaletteName } from "@/domain/value-objects/ColorPalette";
 import {
   getPaletteTones,
@@ -56,6 +57,30 @@ export function ColorPalettePicker({
           const isSelected = value === option.name;
           const tones = getPaletteTones(option.name);
 
+          let buttonStateClass: string;
+          if (option.disabled) {
+            buttonStateClass =
+              "cursor-not-allowed border-stone-200 bg-stone-50 opacity-50";
+          } else if (isSelected) {
+            buttonStateClass = "border-slate-700 bg-white shadow-md";
+          } else {
+            buttonStateClass =
+              "cursor-pointer border-stone-200 bg-white hover:border-slate-400 hover:shadow-sm";
+          }
+
+          let statusLabel: React.ReactNode = null;
+          if (option.disabled) {
+            statusLabel = (
+              <p className="text-[10px] text-slate-500">Ocupada</p>
+            );
+          } else if (isSelected) {
+            statusLabel = (
+              <p className="text-[10px] font-medium text-slate-700">
+                Seleccionada
+              </p>
+            );
+          }
+
           return (
             <button
               key={option.name}
@@ -67,11 +92,7 @@ export function ColorPalettePicker({
               onClick={() => !option.disabled && onChange?.(option.name)}
               className={[
                 "rounded-2xl border-2 p-3 text-left transition-all",
-                option.disabled
-                  ? "cursor-not-allowed border-stone-200 bg-stone-50 opacity-50"
-                  : isSelected
-                    ? "border-slate-700 bg-white shadow-md"
-                    : "cursor-pointer border-stone-200 bg-white hover:border-slate-400 hover:shadow-sm",
+                buttonStateClass,
               ].join(" ")}
             >
               {/* Shift tone swatches */}
@@ -91,13 +112,7 @@ export function ColorPalettePicker({
                 {PALETTE_LABELS[option.name]}
               </p>
 
-              {option.disabled ? (
-                <p className="text-[10px] text-slate-500">Ocupada</p>
-              ) : isSelected ? (
-                <p className="text-[10px] font-medium text-slate-700">
-                  Seleccionada
-                </p>
-              ) : null}
+              {statusLabel}
             </button>
           );
         })}

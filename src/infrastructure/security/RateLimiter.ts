@@ -19,7 +19,7 @@ export class RateLimiter {
   private readonly maxAttempts: number;
   private readonly windowMs: number;
   private readonly entries = new Map<string, RateLimitEntry>();
-  private cleanupTimer: ReturnType<typeof setInterval> | null = null;
+  private readonly cleanupTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor(options: RateLimiterOptions) {
     this.maxAttempts = options.maxAttempts;

@@ -121,17 +121,23 @@ export function DayCell({
     return {};
   })();
 
-  const cellBgClass = hasCellFill
-    ? ""
-    : isToday
-      ? "bg-blue-50"
-      : "bg-white hover:bg-stone-50";
+  let cellBgClass: string;
+  if (hasCellFill) {
+    cellBgClass = "";
+  } else if (isToday) {
+    cellBgClass = "bg-blue-50";
+  } else {
+    cellBgClass = "bg-white hover:bg-stone-50";
+  }
 
-  const ringClass = isSelected
-    ? "ring-2 ring-blue-500 ring-inset"
-    : isToday
-      ? "ring-1 ring-blue-300"
-      : "";
+  let ringClass: string;
+  if (isSelected) {
+    ringClass = "ring-2 ring-blue-500 ring-inset";
+  } else if (isToday) {
+    ringClass = "ring-1 ring-blue-300";
+  } else {
+    ringClass = "";
+  }
 
   return (
     <button

@@ -1,10 +1,10 @@
 import { securityHeaders } from "@/infrastructure/security/securityHeaders";
 
-describe("securityHeaders", () => {
-  function findHeader(key: string): string | undefined {
-    return securityHeaders.find((h) => h.key === key)?.value;
-  }
+function findHeader(key: string): string | undefined {
+  return securityHeaders.find((h) => h.key === key)?.value;
+}
 
+describe("securityHeaders", () => {
   it("includes X-Frame-Options set to DENY", () => {
     expect(findHeader("X-Frame-Options")).toBe("DENY");
   });

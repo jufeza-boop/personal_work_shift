@@ -8,6 +8,11 @@ export interface Toast {
   type: "success" | "error";
 }
 
+/** Module-level helper to avoid deep nesting inside setToasts callbacks. */
+function makeRemoveToastUpdater(id: number) {
+  return (prev: Toast[]) => prev.filter((t) => t.id !== id);
+}
+
 export function useToast(durationMs = 3500) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const nextId = useRef(0);
@@ -33,14 +38,14 @@ export function useToast(durationMs = 3500) {
       timeoutIds.current.delete(id);
     }
 
-    setToasts((prev) => prev.filter((t) => t.id !== id));
+    setToasts(makeRemoveToastUpdater(id));
   }, []);
 
   const scheduleToastRemoval = useCallback(
     (id: number) => {
       const timeoutId = setTimeout(() => {
         timeoutIds.current.delete(id);
-        setToasts((prev) => prev.filter((t) => t.id !== id));
+        setToasts(makeRemoveToastUpdater(id));
       }, durationMs);
 
       timeoutIds.current.set(id, timeoutId);
