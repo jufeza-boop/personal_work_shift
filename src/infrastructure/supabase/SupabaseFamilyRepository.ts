@@ -122,82 +122,58 @@ export class SupabaseFamilyRepository implements IFamilyRepository {
     );
   }
 
-  async save(family: Family): Promise<void> {
-    const existingMembersResponse = await this.client
-      .from("family_members")
-      .select("user_id, color_palette, role, delegated_by_user_id")
-      .eq("family_id", family.id);
+  private async insertNewFamily(
+    family: Family,
+    members: ReturnType<SupabaseFamilyRepository["mapMembers"]>,
+    ownerMember: ReturnType<SupabaseFamilyRepository["mapMembers"]>[number],
+  ): Promise<void> {
+    const familyInsert = await this.client.from("families").insert({
+      created_by: family.createdBy,
+      id: family.id,
+      name: family.name,
+    });
 
-    if (existingMembersResponse.error) {
-      throw existingMembersResponse.error;
+    if (familyInsert.error) {
+      throw familyInsert.error;
     }
 
-    const existingMembers = existingMembersResponse.data ?? [];
-    const isNewFamily = existingMembers.length === 0;
-    const members = this.mapMembers(family);
-    const ownerMember = members.find(
-      (member) => member.user_id === family.createdBy,
+    const ownerInsert = await this.client
+      .from("family_members")
+      .insert(ownerMember);
+
+    if (ownerInsert.error) {
+      throw ownerInsert.error;
+    }
+
+    const additionalMembers = members.filter(
+      (member) => member.user_id !== family.createdBy,
     );
 
-    if (!ownerMember) {
-      throw new Error(
-        `Cannot save family ${family.id}: owner membership is missing. ` +
-          "The family creator must be included as a member with the owner role.",
-      );
-    }
-
-    if (isNewFamily) {
-      const familyInsert = await this.client.from("families").insert({
-        created_by: family.createdBy,
-        id: family.id,
-        name: family.name,
-      });
-
-      if (familyInsert.error) {
-        throw familyInsert.error;
-      }
-
-      const ownerInsert = await this.client
-        .from("family_members")
-        .insert(ownerMember);
-
-      if (ownerInsert.error) {
-        throw ownerInsert.error;
-      }
-
-      const additionalMembers = members.filter(
-        (member) => member.user_id !== family.createdBy,
-      );
-
-      if (additionalMembers.length === 0) {
-        return;
-      }
-
-      const additionalMembersUpsert = await this.client
-        .from("family_members")
-        .upsert(additionalMembers, {
-          onConflict: "family_id,user_id",
-        });
-
-      if (additionalMembersUpsert.error) {
-        throw additionalMembersUpsert.error;
-      }
-
+    if (additionalMembers.length === 0) {
       return;
     }
 
-    const familyUpdate = await this.client
-      .from("families")
-      .update({
-        name: family.name,
-      })
-      .eq("id", family.id)
-      .eq("created_by", family.createdBy);
+    const additionalMembersUpsert = await this.client
+      .from("family_members")
+      .upsert(additionalMembers, {
+        onConflict: "family_id,user_id",
+      });
 
-    if (familyUpdate.error) {
-      throw familyUpdate.error;
+    if (additionalMembersUpsert.error) {
+      throw additionalMembersUpsert.error;
     }
+  }
 
+  private async updateFamilyMemberships(
+    family: Family,
+    members: ReturnType<SupabaseFamilyRepository["mapMembers"]>,
+    existingMembers: {
+      user_id: string;
+      color_palette: string | null;
+      role: string;
+      delegated_by_user_id: string | null;
+    }[],
+  ): Promise<void> {
     const targetMemberIds = new Set(
       family.members.map((member) => member.userId),
     );
@@ -266,6 +242,50 @@ export class SupabaseFamilyRepository implements IFamilyRepository {
         throw updateResponse.error;
       }
     }
+  }
+
+  async save(family: Family): Promise<void> {
+    const existingMembersResponse = await this.client
+      .from("family_members")
+      .select("user_id, color_palette, role, delegated_by_user_id")
+      .eq("family_id", family.id);
+
+    if (existingMembersResponse.error) {
+      throw existingMembersResponse.error;
+    }
+
+    const existingMembers = existingMembersResponse.data ?? [];
+    const isNewFamily = existingMembers.length === 0;
+    const members = this.mapMembers(family);
+    const ownerMember = members.find(
+      (member) => member.user_id === family.createdBy,
+    );
+
+    if (!ownerMember) {
+      throw new Error(
+        `Cannot save family ${family.id}: owner membership is missing. ` +
+          "The family creator must be included as a member with the owner role.",
+      );
+    }
+
+    if (isNewFamily) {
+      await this.insertNewFamily(family, members, ownerMember);
+      return;
+    }
+
+    const familyUpdate = await this.client
+      .from("families")
+      .update({
+        name: family.name,
+      })
+      .eq("id", family.id)
+      .eq("created_by", family.createdBy);
+
+    if (familyUpdate.error) {
+      throw familyUpdate.error;
+    }
+
+    await this.updateFamilyMemberships(family, members, existingMembers);
   }
 
   async delete(id: string): Promise<void> {
