@@ -15,7 +15,7 @@ class NullPushNotificationService implements IPushNotificationService {
 /** No-op push subscription repository used in mock/test environments. */
 class NullPushSubscriptionRepository implements IPushSubscriptionRepository {
   async save(): Promise<void> {
-    // intentional no-op in mock mode
+    // intentional no-op in mock mode - push subscriptions are not stored in test/mock environments
   }
   async findByUserId(): Promise<[]> {
     return [];
@@ -24,7 +24,7 @@ class NullPushSubscriptionRepository implements IPushSubscriptionRepository {
     return [];
   }
   async remove(): Promise<void> {
-    // intentional no-op in mock mode
+    // intentional no-op in mock mode - push subscriptions are not stored in test/mock environments
   }
 }
 
