@@ -237,6 +237,65 @@ export function serializeException(
   };
 }
 
+function buildOccurrenceFromEvent(
+  event: SerializedEvent,
+  date: string,
+): CalendarOccurrence {
+  return {
+    eventId: event.id,
+    date,
+    title: event.title,
+    type: event.type,
+    category: event.category,
+    shiftType: event.shiftType,
+    createdBy: event.createdBy,
+    description: event.description,
+    startTime: event.startTime,
+    endTime: event.endTime,
+  };
+}
+
+function collectMovedOccurrences(
+  exceptions: SerializedEventException[],
+  eventMap: Map<string, SerializedEvent>,
+  monthStartStr: string,
+  monthEndStr: string,
+): CalendarOccurrence[] {
+  const occurrences: CalendarOccurrence[] = [];
+
+  for (const ex of exceptions) {
+    if (ex.isDeleted || !ex.overrideData?.newDate) continue;
+
+    const newDate = ex.overrideData.newDate;
+    if (newDate < monthStartStr || newDate > monthEndStr) continue;
+
+    const event = eventMap.get(ex.eventId);
+    if (event?.type === "recurring") {
+      occurrences.push(buildOccurrenceFromEvent(event, newDate));
+    }
+  }
+
+  return occurrences;
+}
+
+function collectRecurringOccurrencesForEvent(
+  event: SerializedRecurringEvent,
+  rangeStart: Date,
+  rangeEnd: Date,
+  suppressed: Set<string>,
+): CalendarOccurrence[] {
+  const dates = getRecurringDatesInRange(event, rangeStart, rangeEnd);
+  const occurrences: CalendarOccurrence[] = [];
+
+  for (const date of dates) {
+    if (!suppressed.has(`${event.id}:${date}`)) {
+      occurrences.push(buildOccurrenceFromEvent(event, date));
+    }
+  }
+
+  return occurrences;
+}
+
 /**
  * Expands a list of serialized events into individual occurrences that fall
  * within the specified calendar month, filtering out deleted exceptions.
@@ -256,7 +315,6 @@ export function getOccurrencesForMonth(
   const rangeEnd = new Date(Date.UTC(year, month, 0)); // last day of the month
   const monthStartStr = toDateString(rangeStart);
   const monthEndStr = toDateString(rangeEnd);
-  const occurrences: CalendarOccurrence[] = [];
 
   // Suppress original dates for deleted or moved occurrences: "eventId:date"
   const suppressedOccurrences = new Set(
@@ -268,68 +326,27 @@ export function getOccurrencesForMonth(
   // Build event map for quick lookup when resolving moved occurrences
   const eventMap = new Map(events.map((e) => [e.id, e]));
 
-  // Collect moved occurrences whose new date falls within this month
-  for (const ex of exceptions) {
-    if (!ex.isDeleted && ex.overrideData?.newDate) {
-      const newDate = ex.overrideData.newDate;
-      if (newDate >= monthStartStr && newDate <= monthEndStr) {
-        const event = eventMap.get(ex.eventId);
-        if (event && event.type === "recurring") {
-          occurrences.push({
-            eventId: event.id,
-            date: newDate,
-            title: event.title,
-            type: "recurring",
-            category: event.category,
-            shiftType: event.shiftType,
-            createdBy: event.createdBy,
-            description: event.description,
-            startTime: event.startTime,
-            endTime: event.endTime,
-          });
-        }
-      }
-    }
-  }
+  const occurrences: CalendarOccurrence[] = collectMovedOccurrences(
+    exceptions,
+    eventMap,
+    monthStartStr,
+    monthEndStr,
+  );
 
   for (const event of events) {
     if (event.type === "punctual") {
       if (event.date >= monthStartStr && event.date <= monthEndStr) {
-        occurrences.push({
-          eventId: event.id,
-          date: event.date,
-          title: event.title,
-          type: "punctual",
-          category: event.category,
-          shiftType: event.shiftType,
-          createdBy: event.createdBy,
-          description: event.description,
-          startTime: event.startTime,
-          endTime: event.endTime,
-        });
+        occurrences.push(buildOccurrenceFromEvent(event, event.date));
       }
     } else {
-      const dates = getRecurringDatesInRange(event, rangeStart, rangeEnd);
-
-      for (const date of dates) {
-        // Skip deleted or moved occurrences
-        if (suppressedOccurrences.has(`${event.id}:${date}`)) {
-          continue;
-        }
-
-        occurrences.push({
-          eventId: event.id,
-          date,
-          title: event.title,
-          type: "recurring",
-          category: event.category,
-          shiftType: event.shiftType,
-          createdBy: event.createdBy,
-          description: event.description,
-          startTime: event.startTime,
-          endTime: event.endTime,
-        });
-      }
+      occurrences.push(
+        ...collectRecurringOccurrencesForEvent(
+          event,
+          rangeStart,
+          rangeEnd,
+          suppressedOccurrences,
+        ),
+      );
     }
   }
 

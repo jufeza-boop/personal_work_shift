@@ -81,7 +81,7 @@ export function useOfflineSync({
   }, [syncQueue]);
 
   useEffect(() => {
-    void refreshCount();
+    refreshCount().catch(console.error);
   }, [refreshCount]);
 
   useEffect(() => {
@@ -91,12 +91,12 @@ export function useOfflineSync({
     // Sync any pending items that accumulated while the device was offline
     // (e.g. the user refreshes the page and is already online).
     if (online) {
-      void syncQueue();
+      syncQueue().catch(console.error);
     }
 
     const handleOnline = () => {
       setIsOnline(true);
-      void syncQueue();
+      syncQueue().catch(console.error);
     };
     const handleOffline = () => {
       setIsOnline(false);

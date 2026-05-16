@@ -14,14 +14,18 @@ class NullPushNotificationService implements IPushNotificationService {
 
 /** No-op push subscription repository used in mock/test environments. */
 class NullPushSubscriptionRepository implements IPushSubscriptionRepository {
-  async save(): Promise<void> {}
+  async save(): Promise<void> {
+    // intentional no-op in mock mode
+  }
   async findByUserId(): Promise<[]> {
     return [];
   }
   async findByUserIds(): Promise<[]> {
     return [];
   }
-  async remove(): Promise<void> {}
+  async remove(): Promise<void> {
+    // intentional no-op in mock mode
+  }
 }
 
 export function vapidPublicKey(): string {

@@ -104,7 +104,7 @@ export class SupabaseRealtimeService implements IRealtimeService {
 
   unsubscribe(): void {
     if (this.channel) {
-      void this.client.removeChannel(this.channel);
+      this.client.removeChannel(this.channel).catch(console.error);
       this.channel = null;
     }
   }
