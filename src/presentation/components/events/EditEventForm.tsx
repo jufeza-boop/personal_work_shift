@@ -165,7 +165,7 @@ export function EditEventForm({
                   checked={scope === "all"}
                   onChange={() => setScope("all")}
                 />
-                Toda la serie
+                <span>Toda la serie</span>
               </label>
               <label className="flex items-center gap-2 text-sm">
                 <input
@@ -175,7 +175,7 @@ export function EditEventForm({
                   checked={scope === "single"}
                   onChange={() => setScope("single")}
                 />
-                Esta ocurrencia
+                <span>Esta ocurrencia</span>
               </label>
             </div>
           </fieldset>

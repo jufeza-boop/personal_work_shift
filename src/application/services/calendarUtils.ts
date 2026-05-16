@@ -264,9 +264,9 @@ function collectMovedOccurrences(
   const occurrences: CalendarOccurrence[] = [];
 
   for (const ex of exceptions) {
-    if (ex.isDeleted || !ex.overrideData?.newDate) continue;
+    const newDate = ex.overrideData?.newDate;
+    if (ex.isDeleted || !newDate) continue;
 
-    const newDate = ex.overrideData.newDate;
     if (newDate < monthStartStr || newDate > monthEndStr) continue;
 
     const event = eventMap.get(ex.eventId);

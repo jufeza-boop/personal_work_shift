@@ -119,7 +119,7 @@ export default async function InvitePage({
   // Check if the user is already a member
   const family = await familyRepository.findById(invitation.familyId);
 
-  if (family && family.hasMember(user.id)) {
+  if (family?.hasMember(user.id)) {
     redirect("/calendar");
   }
 

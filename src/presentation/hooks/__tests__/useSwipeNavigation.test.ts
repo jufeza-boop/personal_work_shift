@@ -61,7 +61,7 @@ describe("useSwipeNavigation", () => {
   });
 
   afterEach(() => {
-    document.body.removeChild(el);
+    el.remove();
     vi.restoreAllMocks();
   });
 

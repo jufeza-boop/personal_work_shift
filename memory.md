@@ -8,13 +8,35 @@
 
 ## Current State
 
-- **Phase**: Event category system refactor — decoupled periodicity from category, added vacations
-- **Last Updated**: 2026-05-09
-- **Tests**: 549 Vitest unit tests passing
+- **Phase**: SonarCloud code quality fixes (Grupo 1 + Grupo 2)
+- **Last Updated**: 2026-05-16
+- **Tests**: 565 Vitest unit tests passing
 
 ---
 
 ## Decisions Log
+
+### 2026-05-16 - SonarCloud Code Quality Fixes (Major Issues)
+
+- **What was done**:
+  - Replaced `family && family.hasMember(...)` with `family?.hasMember(...)` (optional chaining)
+  - Restructured `collectMovedOccurrences` loop in `calendarUtils.ts` to use `ex.overrideData?.newDate` and guard via `!newDate`
+  - Replaced `member.colorPalette !== null && member.colorPalette.equals(...)` with `member.colorPalette?.equals(...)` in `Family.ts`
+  - Replaced `!user || user.password !== ...` with `user?.password !== ...` in `MockAuthAdapter.ts`
+  - Replaced `document.body.removeChild(el)` with `el.remove()` in `useSwipeNavigation.test.ts`
+  - Removed deprecated `RecurringEventCategory` type alias from `RecurringEvent.ts`
+  - Marked `cleanupTimer` as `readonly` in `RateLimiter.ts`
+  - Moved `findHeader` helper to module scope in `securityHeaders.test.ts`
+  - Wrapped IDB `reject` calls with `new Error(...)` in `OfflineQueueStore.ts`
+  - Fixed ambiguous JSX text spacing in `EditEventForm.tsx` (wrapped text in `<span>`)
+  - Extracted nested ternaries in `DayCell.tsx` to if/else blocks
+  - Extracted nested ternaries in `ColorPalettePicker.tsx` to if/else blocks (added `React` import)
+  - Changed `<span role="status">` to `<output>` in `Spinner.tsx` for semantic HTML
+
+- **Decisions**:
+  - Used `ex.overrideData?.newDate` extracted to `newDate` const before the guard for proper TypeScript narrowing
+  - Used `new Error(req.error?.message ?? "...")` for IDB rejections to satisfy SonarCloud while preserving error details
+  - `<output>` HTML element used as semantic equivalent of `role="status"` (implicit ARIA role "status")
 
 ### 2026-05-09 - Event Category System Refactor
 

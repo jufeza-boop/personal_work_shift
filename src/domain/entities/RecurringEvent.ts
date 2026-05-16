@@ -9,9 +9,6 @@ import { ShiftType } from "@/domain/value-objects/ShiftType";
 
 export type EventCategory = "work" | "studies" | "vacations" | "other";
 
-/** @deprecated Use EventCategory instead */
-export type RecurringEventCategory = EventCategory;
-
 export interface RecurringEventProps extends EventProps {
   category: EventCategory;
   startDate: Date;

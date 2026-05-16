@@ -157,8 +157,7 @@ export class Family {
   isColorPaletteAvailable(colorPalette: ColorPalette): boolean {
     return !this.members.some(
       (member) =>
-        member.colorPalette !== null &&
-        member.colorPalette.equals(colorPalette),
+        member.colorPalette?.equals(colorPalette),
     );
   }
 
